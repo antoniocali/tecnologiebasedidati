@@ -1,0 +1,5004 @@
+#LyX 2.0 created this file. For more info see http://www.lyx.org/
+\lyxformat 413
+\begin_document
+\begin_header
+\textclass article
+\begin_preamble
+\author{Antonio Davide Calì}
+\end_preamble
+\use_default_options true
+\maintain_unincluded_children false
+\language italian
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman lmodern
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\float_placement h
+\paperfontsize default
+\spacing single
+\use_hyperref false
+\papersize default
+\use_geometry false
+\use_amsmath 1
+\use_esint 1
+\use_mhchem 1
+\use_mathdots 1
+\cite_engine basic
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\use_refstyle 1
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Title
+Tecnologie delle Basi di Dati M
+\end_layout
+
+\begin_layout Author
+Antonio Davide Calì
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset CommandInset href
+LatexCommand href
+name "WWW.ANTONIOCALI.COM"
+target "http://www.antoniocali.com"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\align center
+Anno Accademico 2013/2014
+\end_layout
+
+\begin_layout Standard
+\align center
+Professori: Marco Patella, Paolo Ciaccia
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset toc
+LatexCommand tableofcontents
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Part
+Struttura Fisica Database
+\end_layout
+
+\begin_layout Section
+Architettura di un Database
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement h
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:architettura"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename strutturadbms.png
+	scale 50
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+Come si vede dalla figura (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:architettura"
+
+\end_inset
+
+) un database è formato da più livelli.
+\end_layout
+
+\begin_layout Description
+Dati Nella sezione dati sono presenti i contenuti del database (appunto
+ i dati), ma inoltre anche gli indici, i cataloghi e i log.
+ I 
+\series bold
+cataloghi
+\series default
+ sono tabelle contenenti 
+\emph on
+metadati
+\emph default
+, cioè si intendono tutte le informazioni utili per il database quali nomi
+ tabelle, nomi attributi di una singola tabella, numero di tuple in una
+ tabella etc...
+ I 
+\series bold
+LOG 
+\series default
+invece altro non sono che un registro di tutte le attività svoltesi all'interno
+ del database (anche questi ultimi vengono gestiti tramite tabelle
+\end_layout
+
+\begin_layout Description
+Livello
+\begin_inset space ~
+\end_inset
+
+Fisico Il livello fisico di occupa di gestire i dati, ad esempio memoria
+ di massa (memoria secondaria/terziaria) e memoria principale
+\end_layout
+
+\begin_layout Description
+Livello
+\begin_inset space ~
+\end_inset
+
+Logico Gestisce 
+\emph on
+SQL
+\emph default
+, trasformando sql stess o in istruzioni per accedere al 
+\emph on
+livello fisico
+\end_layout
+
+\begin_layout Description
+Stato
+\begin_inset space ~
+\end_inset
+
+applicativo Viene usato questo stato per permettere all'utente di accedere
+ al 
+\emph on
+livello logico
+\end_layout
+
+\begin_layout Standard
+Aver suddiviso il database in più livelli permette un livello di astrazione
+ maggiore, con questo si intende la possibilità di modificare un determinato
+ livello senza dover apportare modifiche ad un altro poichè quest'ultimo
+ non è conscio di come sia realizzato il livello sottostante, ma ne utilizza
+ solo determinate caratteristiche che dall'esterno rimangono invariate.
+ Oltre ai livelli prima descritti, in questo approccio vengono introdotte
+ anche le 
+\emph on
+viste.
+
+\emph default
+ 
+\end_layout
+
+\begin_layout Standard
+Le 
+\series bold
+viste
+\series default
+ descrivono il punto di vista degli utenti, esse permettono di scegliere
+ quali dati mostrare ad un certo tipo di utenti, dunque che 
+\begin_inset Quotes eld
+\end_inset
+
+vista
+\begin_inset Quotes erd
+\end_inset
+
+ del database essi avranno, infatti non è opportuno che un normale utente
+ abbia accesso a tutti i dati del nostro database, dunque è possibile limitare
+ queste informazioni; inoltre le viste permettono un'astrazione rispetto
+ al 
+\bar under
+livello logico
+\bar default
+, poichè potrebbe essere necessario modificare lo schema logico (per aggiungere
+ magari una tabella o un attributo ad una già esistente), senza però andar
+ a inficiare il comportamento e la visualizzazione dei dati permessi all'utente.
+ Ad esempio se in precedenza era stata sviluppata un'applicazione che mostrasse
+ solo un determinato set di dati, modificando il livello logico, l'applicazione
+ non risente dell'accaduto poichè avrà ancora a disposizione i dati a lei
+ disponibili.
+ L'astrazione tra le 
+\emph on
+viste
+\emph default
+ e il 
+\emph on
+livello logico
+\emph default
+ viene detta
+\series bold
+ indipendeza logica.
+\end_layout
+
+\begin_layout Standard
+Lo 
+\series bold
+schema logico 
+\series default
+\emph on
+definisce la struttura logica del database.
+ 
+\emph default
+In questo schema dunque vengono realizzate le relazioni con gli attributi
+ ad esse associate, i vincoli presenti sui singoli attributi e i vincoli
+ invece che devono sussistere tra una relazione e un'altra.
+ Anche in questo caso si presenta un'
+\emph on
+astrazione
+\emph default
+ rispetto allo schema fisico, infatti, potrebbe essere necessario modificare
+ il livello fisico senza però che il livello logico risenta di questa modifica.
+ Ad esempio se volessi introdurre un 
+\emph on
+indice
+\emph default
+ per una determinata relazione per migliorarne la performance è necessario
+ modificare lo schema fisico, la modifica non viene risentita dal livello
+ logico, il quale continua a mantenere le informazioni che compongono il
+ database inalterate.
+ L'astrazione tra 
+\emph on
+livello logico
+\emph default
+ e 
+\emph on
+livello fisico
+\emph default
+ viene detta 
+\series bold
+indipendenza fisica.
+\end_layout
+
+\begin_layout Standard
+Lo 
+\series bold
+schema fisico
+\series default
+ 
+\emph on
+descrive come i dati sono effettivamente memorizzati sul disco.
+\end_layout
+
+\begin_layout Subsection
+Livello Logico
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement h
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:livlogico"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename livellologico.png
+	scale 70
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Il livello logico (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:livlogico"
+
+\end_inset
+
+) si suddivide in
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+Auth Manager:
+\series default
+ Gestore degli accessi.
+ Molto simile al gestore degli accessi presente in un qualsiasi sistema
+ operativo.
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+Catalog Manager:
+\series default
+ Gestore dei cataloghi.
+ I cataloghi vengono gestiti come tabelle, dunque possono essere gestiti
+ a livello logico.
+ Inoltre risulta essere anche il primo gestore ad essere interpellato in
+ quanto viene chiamato per controllare la semantica e la sintassi delle
+ istruzioni SQL, ad esempio se faccio una query in una tabella X, devo controlla
+re che effettivamente esista una tabella X.
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+Query Manager
+\series default
+: Gestore delle query.
+ Il gestore delle Query si suddivide ulteriormente con 
+\emph on
+Optimizer
+\emph default
+ e 
+\emph on
+Valutatore dei piani di accesso.
+ 
+\emph default
+Questi svolgono un ruolo importante nella risoluzione delle query, in quanto
+ l'optimezer sceglie fra i più modi possibili quello che ha performance
+ migliore, ma per far questo si basa su statistiche che il Valutatore di
+ piani fornisce.
+\end_layout
+
+\begin_layout Subsection
+Livello Fisico
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement h
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:livfisico"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename livellofisico.png
+	scale 70
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Il livello fisico (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:livfisico"
+
+\end_inset
+
+) si suddivide in 3 blocchi
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+Gestore della concorrenza:
+\series default
+ come accade anche in un 
+\emph on
+sistema operativo
+\emph default
+ è necessario gestire la concorrenza per l'accesso alla memoria.
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+Gestore delle transazioni:
+\series default
+ serve a gestire le transazioni.
+ Una 
+\emph on
+transizione 
+\emph default
+è una lista di azioni che non possono essere viste come indipendenti una
+ dall'altra.
+\end_layout
+
+\begin_layout Standard
+Questi due gestori si interfacciano poi a una terza sezione anch'essa suddivisa
+ in
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+Gestore della memoria: 
+\series default
+si occuppa di gestire effettivamente la memoria (secondaria).
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+Gestore del buffer: 
+\series default
+gestisce in maniera propria i 
+\emph on
+buffer
+\emph default
+, in quanto non è opportuno lasciare la gestione della memoria al sistema
+ operativo a causa dell'inefficienza.
+ Ciò che succede all'interno della memoria principale è che solitamente
+ sia presente una sola applicazione in attività, il 
+\emph on
+dbms
+\emph default
+, e poichè il dbms utilizzza il gestore del buffer, andrà ad ottimizzare
+ la gestione dello stesso.
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+Strutture di memorizzazione: 
+\series default
+serve a mettere in comunicazione i 
+\begin_inset Quotes eld
+\end_inset
+
+dati
+\begin_inset Quotes erd
+\end_inset
+
+ (scritti in bit) con le query SQL, cioè serve a dare struttre logiche ai
+ dati per poi essere memorizzati sulla base fisica.
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+Metodi di accesso: 
+\series default
+viene utilizzato per accedere nei migliore dei modi (poichè esistono diversi
+ modi) ai dati presenti a livello fisico.
+\end_layout
+
+\begin_layout Subsection
+Utenti di un DBMS
+\end_layout
+
+\begin_layout Standard
+Gli utenti che accedono a un DBMS si possono suddividere in diverse categhorie
+\end_layout
+
+\begin_layout Enumerate
+
+\bar under
+Utenti delle applicazioni
+\bar default
+: non hanno alcuna conoscenza di come sia realizzato un DBMS e/o il database
+ a cui si interfacciano, utilizzano solo l'applicazione fornita loro per
+ accedere i dati presenti sul database stesso (e.g.
+ segretarie)
+\end_layout
+
+\begin_layout Enumerate
+
+\bar under
+Utenti non programmatori:
+\bar default
+ utenti che hanno conoscenza di come sia realizzato il 
+\emph on
+database
+\emph default
+ sul quale lavorano, hanno un approccio interettivo con il 
+\emph on
+database
+\emph default
+ utilizzando un 
+\emph on
+Data Manipulation Language
+\emph default
+ (DML), una famiglia di linguaggi che consente di leggere, inserire, modificare
+ o eliminare i dati in un database.
+ (e.g.
+ SQL)
+\end_layout
+
+\begin_layout Enumerate
+
+\bar under
+Programmatori di applicazioni:
+\bar default
+ hanno conoscenza di come sia realizzato il 
+\emph on
+database
+\emph default
+ tale da poter realizzare un'applicazione per permettere la fruibilità a
+ utenti tipo 1.
+ Utilizzano API quali 
+\emph on
+JDBC
+\emph default
+ per connettersi al database.
+\end_layout
+
+\begin_layout Enumerate
+
+\bar under
+Progettisti di database:
+\bar default
+ hanno le conoscenze tali da poter realizzare lo schema concettuale/logico
+ (e dunque gli schemi ER) per un determinato micromondo.
+ Il loro compito termina con la realizzazione dello schema logico utilizzando
+ un 
+\emph on
+Data Definition Language
+\emph default
+ (DDL), un linguaggio che permette di creare, modificare o eliminare gli
+ oggetti in un database ovvero agire sullo schema logico di database.
+\end_layout
+
+\begin_layout Enumerate
+
+\bar under
+Amministratori di database
+\bar default
+: hanno forti conoscenze sia sul 
+\emph on
+database
+\emph default
+ per il quale sono amministratori sia per il 
+\emph on
+dbms 
+\emph default
+utilizzato per la loro realizzazione.
+ Sarà loro compito andare a modificare anche lo 
+\emph on
+schema fisico
+\emph default
+ per ottenere un buon tuning del database.
+\end_layout
+
+\begin_layout Enumerate
+
+\bar under
+Progammatori di DBMS:
+\bar default
+ ottime conoscenze nel settore, realizzano dbms.
+\end_layout
+
+\begin_layout Subsection
+Memoria e la sua gestione
+\end_layout
+
+\begin_layout Standard
+Come risaputo La memoria di un calcolatore è organizzata in una gerarchia
+ a 3 livelli:
+\end_layout
+
+\begin_layout Enumerate
+Memoria principale (RAM)
+\end_layout
+
+\begin_layout Enumerate
+Memoria secondaria (dischi magnetici)
+\end_layout
+
+\begin_layout Enumerate
+Memoria terziaria (nastri e jukebox)
+\end_layout
+
+\begin_layout Standard
+Sarebbero presenti anche una 
+\emph on
+memoria interna 
+\emph default
+(cache e registri) e una 
+\emph on
+memoria offline
+\emph default
+, ma di poca importanza per la realizzazione di un 
+\emph on
+dbms
+\emph default
+.
+\end_layout
+
+\begin_layout Standard
+La 
+\series bold
+memoria principale
+\series default
+ è una memoria 
+\emph on
+molto
+\emph default
+ 
+\emph on
+veloce
+\emph default
+ (tempo accesso: ~50ns - velocità: ~3 GB/s), 
+\series bold
+volatile
+\series default
+, ma di
+\emph on
+ spazio limitato
+\emph default
+ (Capacità: ~1 GB) e di un
+\emph on
+ costo monetario non indifferente
+\emph default
+ (Costo: ~30 €/GB); è la memoria dove risiede il programma in esecuzione.
+\end_layout
+
+\begin_layout Standard
+La 
+\series bold
+memoria secondaria
+\series default
+ è caratterizzata da una 
+\emph on
+velocità ridotta
+\emph default
+ (Tempo di accesso: ~5 ms - Velocità: ~120 MB/s), 
+\series bold
+permanente
+\series default
+ (conserva i dati), ma di 
+\emph on
+capacità
+\emph default
+ superiore (Capacità: <2 TB) e 
+\emph on
+costo monetario contenuto
+\emph default
+ (Costo: ~0.10 €/GB); è la memoria dove solitamente risiedono i dati.
+\end_layout
+
+\begin_layout Standard
+La 
+\series bold
+memoria terziaria 
+\series default
+è molto simile alla memoria secondaria ma con velocità minori (Tempo di
+ accesso: ~30s - Velocità: ~3 MB/s); viene impiegata solitamente solo per
+ effettuare dei backup.
+\begin_inset VSpace defskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\series medium
+Aver questa differenziazione di memoria implica una suddivisione anche del
+ DBMS/DB.
+ Infatti i dati del database risidieno in 
+\emph on
+memoria secondaria
+\emph default
+ a causa della grandezza del database stesso, però, per l'elaborazione dei
+ dati stessi il 
+\emph on
+dbms
+\emph default
+ (in esecuzione sulla memoria principale) ha bisogno di portare i dati da
+ 
+\emph on
+memoria secondaria
+\emph default
+ a 
+\emph on
+memoria principale
+\emph default
+ per poterli elaborare.
+ Questo trasporto genera rallentamenti impossibili da evitare ma che se
+ ben strutturati possono portare ugualmente a una buona performance.
+\end_layout
+
+\begin_layout Standard
+Un 
+\series bold
+blocco
+\series default
+ (o anche detto 
+\series bold
+pagina
+\series default
+) è l'unità di dati che vengono trasportati, quindi, non si trasportano
+ singole tuple, ma bensì un insieme di 
+\emph on
+tuple
+\emph default
+ (appunto i blocchi).
+\begin_inset Newline newline
+\end_inset
+
+Per riuscire a mantenere una buona performance si rende necessaria una buona
+ implementazione del 
+\emph on
+database
+\emph default
+ attraverso:
+\end_layout
+
+\begin_layout Itemize
+Organizzazione efficiente delle tuple su disco
+\end_layout
+
+\begin_layout Itemize
+Strutture di accesso efficienti
+\end_layout
+
+\begin_layout Itemize
+Gestione efficiente dei buffer in memoria
+\end_layout
+
+\begin_layout Itemize
+Strategie di esecuzione efficienti per le query
+\end_layout
+
+\begin_layout Subsubsection
+
+\series bold
+Struttura di un Hard Disk
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement h
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\noindent
+\align center
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:hd"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename hd.png
+	scale 70
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Description
+Testina Su ogni piatto è presente una testina per accedere in scrittura
+ o in lettura ai dati memorizzati sul piatto; la posizione di tale testina
+ è solidale con tutte le altre sugli altri piatti.
+ In altre parole, se una testina è posizionata sopra una traccia, tutte
+ le testine saranno posizionate nel cilindro a cui la traccia appartiene
+\end_layout
+
+\begin_layout Description
+Piatto un disco rigido si compone di uno o più dischi paralleli, di cui
+ ogni superficie, detta "piatto" e identificata da un numero univoco, è
+ destinata alla memorizzazione dei dati.
+\end_layout
+
+\begin_layout Description
+Traccia ogni piatto si compone di numerosi anelli concentrici numerati,
+ detti tracce, ciascuna identificata da un numero univoco.
+\end_layout
+
+\begin_layout Description
+Cilindro l'insieme di tracce alla stessa distanza dal centro presenti su
+ tutti i dischi o piatti è detto cilindro.
+ Corrisponde a tutte le tracce aventi il medesimo numero, ma diverso piatto.
+\end_layout
+
+\begin_layout Description
+Settore ogni piatto è suddiviso in settori circolari, ovvero in "spicchi"
+ radiali uguali ciascuno identificato da un numero univoco.
+\end_layout
+
+\begin_layout Description
+Blocco l'insieme di settori posti nella stessa posizione in tutti i piatti.
+\end_layout
+
+\begin_layout Standard
+Un 
+\series bold
+blocco 
+\series default
+viene dunque identificato dalla tripla 
+\series bold
+C
+\series default
+ylinder, 
+\series bold
+H
+\series default
+ead, 
+\series bold
+S
+\series default
+ector (CHS), dunque per accedere a determinati dati basta indicare il cilindro,
+ la testina e il settore a cui appartengono i dati stessi.
+\end_layout
+
+\begin_layout Subsubsection
+Prestazioni di HardDisk
+\end_layout
+
+\begin_layout Standard
+Le prestazioni di un HD sono sia interne che esterne ed esse dipendono da:
+\end_layout
+
+\begin_layout Itemize
+Prestazioni interne:
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+HardDisk in se
+\end_layout
+
+\begin_layout Itemize
+Caratteristiche meccaniche (e.g.
+ velocità di movimento della testina, rotazione dei dischi)
+\end_layout
+
+\begin_layout Itemize
+Tecniche di memorizzazione e codifica dei dati
+\end_layout
+
+\begin_layout Itemize
+Disk controller (cioè l'interfaccia tra la parte hardware del disco e il
+ sistema di calcolo) e le prestazioni dipendono da:
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Accetta comandi di alto livello per leggere/scrivere settori e per controllare
+ il meccanismo
+\end_layout
+
+\begin_layout Itemize
+Aggiunge informazioni di controllo degli errori (e.g.
+ checksum) nei settori
+\end_layout
+
+\begin_layout Itemize
+Verifica la correttezza di ciò che ha appena scritta rileggendo i settori
+\end_layout
+
+\begin_layout Itemize
+Esegue il mapping tra indirizzi logici dei blocchi e settori sul disco
+\end_layout
+
+\end_deeper
+\end_deeper
+\begin_layout Itemize
+Prestazioni esterne:
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Tipo di interfacca
+\end_layout
+
+\begin_layout Itemize
+Architettura del sistema I/O
+\end_layout
+
+\begin_layout Itemize
+File System utilizzato
+\end_layout
+
+\end_deeper
+\begin_layout Paragraph
+Prestazioni interne
+\end_layout
+
+\begin_layout Standard
+Ciò che incide di più sulla prestazione interna è la 
+\emph on
+latenza
+\emph default
+ cioè il tempo necessario per raggiungere le informazioni di interesse.
+ Il tempo di latenza è composto da:
+\end_layout
+
+\begin_layout Enumerate
+
+\series bold
+Command Overhead Time
+\series default
+: cioè il tempo necessario per impartire un ordine (e.g.
+ leggi/scrivi) al drive, tipicamente di 
+\emph on
+0.5ms
+\emph default
+ e può essere trascurato
+\end_layout
+
+\begin_layout Enumerate
+
+\series bold
+Seek Time (TS):
+\series default
+ tempo impiegato dalla testina per posizionarsi dalla traccia attuale alla
+ traccia desiderata.
+ Il tempo medio è di 
+\emph on
+2-10ms.
+ 
+\emph default
+Dato il tempo massimo di seek (cioè il tempo che la testina impiega per
+ spostarsi dalla traccia più interno a quella più esterna) il tempo medio
+ di seek è di circa ⅓ il tempo massimo di seek.
+ Inoltre il tempo di seek per la scrittura è di circa 
+\emph on
+1ms
+\emph default
+ superiore al tempo di lettura, questo perchè in scrittura bisogna essere
+ perfettamente allineati con la traccia.
+\end_layout
+
+\begin_layout Enumerate
+
+\series bold
+Settle Time:
+\series default
+ tempo di stabilizzazione del braccio (a causa delle oscillazioni)
+\end_layout
+
+\begin_layout Enumerate
+
+\series bold
+Rotational Latency (TR): 
+\series default
+tempo necessario per raggiungere il blocco di interesse.
+ Il caso migliore è se la testina si trova proprio sul blocco che si vuole
+ leggere, il caso migliore invece se il blocco desiderato è appena passato
+ e dunque ci vuole un intero giro del disco per riportare il blocco sotto
+ la testina.
+ La latenza rotazionale media è di ½ rispetto al caso peggiore.
+ Il tempo varia da 
+\emph on
+2 a 11ms.
+ 
+\emph default
+La formula per calcolare la latenza rotazionale è 
+\begin_inset Formula $\frac{60}{Velocità\, di\, rotazione}\cdot0,5\cdot1000$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Paragraph
+Transfer Rate
+\end_layout
+
+\begin_layout Standard
+Il 
+\emph on
+transfer rate 
+\emph default
+è la velocità massima alla quale il drive può leggere o scrivere i dati.
+ Tipicamente è dell'ordine di qualche decina di MB/s e si riferisce alla
+ velocità con cui si trasferiscono bit dai (sui) piatti dulla (dalla) cache
+ del controller.
+ Si può stimare come 
+\begin_inset Formula 
+\[
+\frac{\left(\frac{bytes}{settore}\right)\cdot\left(\frac{settori}{traccia}\right)}{tempo\, di\, rotazione}
+\]
+
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+Esempio: ho 512 bytes per ogni settore e 368 settori per ogni traccia, la
+ velocità di rotazione è di 7200 rpm (round per minute), il transfer rate
+ dunque è uguale a 
+\begin_inset Formula $\frac{(512*368)}{(60/7200)}=21,56MB/s$
+\end_inset
+
+.
+ Come si nota la velocità di trasferimento è in realtà minore rispetto alla
+ velocità nominale.
+\end_layout
+
+\begin_layout Paragraph
+Pagina
+\end_layout
+
+\begin_layout Standard
+Un 
+\series bold
+blocco 
+\series default
+(o 
+\series bold
+pagina
+\series default
+) è una 
+\emph on
+sequenza contingua di settori su una traccia 
+\emph default
+(essendo settori contigui possono essere dunque letti/scritti in maniera
+ consecutiva senza bisogno di spostare la testina) e costituisce l'unità
+ di I/O per il trasferimento di date da/per la memoria principale.
+ Siccome il tempo per la lettura/scrittura di dati su disco è dominato dal
+ movimento meccanico della testina, scrivendo/leggendo settori contigui
+ riusciamo a migliorare la performance, ecco perchè la pagina rappresenta
+ l'unità di trasferimento.
+ La dimensione tipica di una 
+\emph on
+pagina 
+\emph default
+è di pochi KB (circa 4-64KB).
+ Bisogna notare che 
+\emph on
+pagine piccole
+\emph default
+ comportano un maggior numero di operazioni di I/O (servono più operazioni
+ per leggere una stessa informazione distribuita però su più pagine), mentre
+ 
+\emph on
+pagine grandi
+\emph default
+ portano ad avere una frammentazione interna (poichè non tutte le pagine
+ vengono riempite) e richiedono più spazio in memoria centrale per essere
+ caricate.
+\begin_inset Newline newline
+\end_inset
+
+Il 
+\emph on
+tempo di trasferimento di una pagina 
+\emph default
+(
+\series bold
+TT
+\series default
+) da disco a memoria centrale dipende dalla 
+\emph on
+dimensione della pagina 
+\emph default
+(
+\series bold
+P
+\series default
+) e dal 
+\emph on
+tranfer rate 
+\emph default
+(
+\series bold
+TR
+\series default
+).
+ 
+\begin_inset Formula $TT=\frac{P}{TR}$
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+Esempio: TR=21.56MB/s - P=4KB - 
+\begin_inset Formula $TT=\frac{4}{(21.56*1024)}=0.18ms$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+DB Fisico
+\end_layout
+
+\begin_layout Standard
+A livello fisico un DB consiste di un insieme di 
+\emph on
+file
+\emph default
+, ognuno dei quali viene visto come una collezione di 
+\emph on
+pagine
+\emph default
+, di dimensione fissa (es: 4 KB).
+ I file hanno una dimensione multipla della dimensione della pagina.
+ Ogni pagina memorizza più 
+\emph on
+record
+\emph default
+ (corrispondenti alle tuple logiche) i quali a loro volta consistono di
+ più 
+\emph on
+campi
+\emph default
+ di lunghezza fissa e/o variabile che rappresentano gli 
+\bar under
+attributi
+\bar default
+ delle nostre 
+\emph on
+relazioni.
+\end_layout
+
+\begin_layout Standard
+I 
+\begin_inset Quotes eld
+\end_inset
+
+file
+\begin_inset Quotes erd
+\end_inset
+
+ del 
+\emph on
+dbms
+\emph default
+ non necessariamente corrispondono ai file del file system del sistema operativo
+, infatti potrebbe (molto spesso lo è) essere inopportuno che il 
+\emph on
+dbms 
+\emph default
+affidi al sistema operativo la gestione dei file (così come è inopportuno
+ che il 
+\emph on
+dbms
+\emph default
+ affidi al sistema operativo la gestione della memoria principale); di conseguen
+za il 
+\emph on
+dbms
+\emph default
+ potrebbe avere un file system a sé dedicato (più articolato ma più flessibile)
+ per la gestione interna dei suoi file.
+ 
+\begin_inset Newline newline
+\end_inset
+
+Casi limite:
+\end_layout
+
+\begin_layout Itemize
+ogni 
+\emph on
+relazione
+\emph default
+ del database è memorizzata in un proprio file
+\end_layout
+
+\begin_layout Itemize
+tutto il database è memorizzato in un singolo file
+\end_layout
+
+\begin_layout Subsection
+Modello DB2
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement h
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:db2"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename db2.png
+	scale 70
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+DB2
+\series default
+ organizza lo spazio fisico in 
+\emph on
+tablespace
+\emph default
+, ognuno dei quale è una collezione di 
+\emph on
+container
+\emph default
+.
+ L'esempio in figura (Fig 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:db2"
+
+\end_inset
+
+) mostra un database con 3 relazioni (tabelle): 
+\emph on
+EMPLOYEE, DEPARTMENT e PROJECT.
+ 
+\emph default
+Come si vede employee e department appartengono ad uno stesso 
+\emph on
+tablespace 
+\emph default
+\bar under
+HUMANRES
+\bar default
+, mentre project appartiene al 
+\emph on
+tablespace 
+\emph default
+\bar under
+SCHED
+\emph on
+\bar default
+\SpecialChar \@.
+ 
+\emph default
+All'atto di progettazione infatti ci si è accorti che le tabelle di employee
+ e department vengono spesso usate assieme, di conseguenza, per motivi di
+ performance è stato deciso di assegnarle ad uno stesso 
+\emph on
+tablespace,
+\emph default
+ mentre project che verrà usato da solo o raramente associato alle altre
+ due tabelle è stato inserito in un 
+\emph on
+tablespace
+\emph default
+ dedicato.
+ Si ha un vantaggio in flessibilità infatti è possibile memorizzare cose
+ diverse in dispositivi diversi (
+\emph on
+cointainer
+\emph default
+) e inoltre l'aggiunta di nuove tabelle può avvenire aggiungendo 
+\emph on
+tablespace
+\emph default
+.
+ Si noti che ogni 
+\series bold
+cointainer
+\series default
+ può essere un 
+\emph on
+dispositivo
+\emph default
+, una 
+\emph on
+directory
+\emph default
+ o un 
+\emph on
+file 
+\emph default
+(in caso un container sia una directory o un file ci si appoggia al file
+ system associato)
+\emph on
+.
+ 
+\emph default
+Si noti che ogni 
+\emph on
+relazione
+\emph default
+ è memorizzata in un singolo 
+\emph on
+tablespace, 
+\emph default
+ma un 
+\emph on
+tablespace
+\emph default
+ può contenere più relazioni, così come per i 
+\emph on
+container
+\emph default
+, cioè ogni 
+\emph on
+container 
+\emph default
+sta in un solo 
+\emph on
+tablespace
+\emph default
+, ma un 
+\emph on
+tablespace 
+\emph default
+può contenere più 
+\emph on
+container
+\emph default
+.
+ Supponendo che i 4 
+\emph on
+container 
+\emph default
+associati a 
+\bar under
+HUMANRES
+\bar default
+ siano 4 dischi/dispositivi diversi, avremmo un'ottima efficienza e flessibilità
+, in quanto è possibile memorizzare tutte le tuple di Employee sul container
+ 0 e tutte le tuple di Departmente sul container 1, o ancora suddividere
+ invece le tuple di employee e deparment sui vari 
+\emph on
+container.
+
+\emph default
+ L'obiettivo è di ottenere la miglior performance possibile nella risoluzione
+ delle query.
+\begin_inset Newline newline
+\end_inset
+
+Il 
+\emph on
+dbms
+\emph default
+ effettua inoltre in maniera automatica il bilanciamento dei dati nei 
+\emph on
+cointainer 
+\emph default
+in modo da avere una percentuale di occupazione pressochè uguale (anche
+ a fronte di cointainer di natura diversa).
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement h
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename extent.png
+	scale 70
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Ogni cointeiner è diviso in 
+\series bold
+extent
+\series default
+, che rappresentano l'unità minima di allocazione su disco e sono costituiti
+ da 
+\emph on
+insiemi cointigui di pagine
+\emph default
+ di 4KB (valore di default di 
+\series bold
+P
+\series default
+).
+ La dimensione di un extent dipende dallo specifio tablespace e viene scelta
+ all'atto della creazione di quest'ultimo.
+ 
+\series bold
+Ogni extent contiene dati di una sola relazione
+\series default
+.
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace defskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Ogni database deve avere almeno tre 
+\emph on
+tablespace 
+\emph default
+che vengono utilizzati per memorzzare dati diversi:
+\end_layout
+
+\begin_layout Itemize
+cataloghi (
+\emph on
+system tablespace
+\emph default
+, vengono usati per i cataloghi)
+\end_layout
+
+\begin_layout Itemize
+tabelle utente (
+\emph on
+uno o più user tablespace
+\emph default
+, vengono usati per i dati)
+\end_layout
+
+\begin_layout Itemize
+tabelle temporanee (
+\emph on
+uno o più user tablespace
+\emph default
+, utilizzati per memorizzare dati temporanei ad esempio perchè la ram non
+ riesce a mentenere tutta una tabella in memoria ma necessaria alla completazion
+e di join)
+\end_layout
+
+\begin_layout Subsubsection
+Tipi di Tablespace
+\end_layout
+
+\begin_layout Standard
+Esistono tre tipi differenti di tablespace:
+\end_layout
+
+\begin_layout Enumerate
+
+\series bold
+SMS
+\series default
+ (System Manged Space): la gestione dello storage è assegnata al sistema
+ operativo
+\end_layout
+
+\begin_layout Enumerate
+
+\series bold
+DMS
+\series default
+ (Database Managed Space): la gestione dello storage è affidata all'utente
+\end_layout
+
+\begin_layout Enumerate
+
+\series bold
+AS 
+\series default
+(Automatic Storage): la gestione dello storage è demandata al 
+\emph on
+dbms
+\end_layout
+
+\begin_layout Paragraph
+SMS
+\end_layout
+
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+
+\bar under
+Creazione
+\bar default
+: CREATE TABLESPACE ...
+ MANAGED BY SYSTEM
+\end_layout
+
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+
+\bar under
+Definizione
+\bar default
+
+\begin_inset space ~
+\end_inset
+
+
+\bar under
+dei
+\bar default
+
+\begin_inset space ~
+\end_inset
+
+
+\bar under
+container
+\bar default
+: indicando il nome di una directory, il sistema operativo userà la directory
+ indicata (potrebbe anche essere la root)
+\end_layout
+
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+
+\bar under
+Allocazione
+\bar default
+
+\begin_inset space ~
+\end_inset
+
+
+\bar under
+iniziale
+\bar default
+: data in gestione al sistema operativo, probabile frammentazione
+\end_layout
+
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+
+\bar under
+Modifica
+\bar default
+
+\begin_inset space ~
+\end_inset
+
+
+\bar under
+ai
+\bar default
+
+\begin_inset space ~
+\end_inset
+
+
+\bar under
+cointainer
+\bar default
+: non permessa, in quanto tutto è gestito dal sistema operativo
+\end_layout
+
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+
+\bar under
+Richiesta
+\bar default
+
+\begin_inset space ~
+\end_inset
+
+
+\bar under
+di
+\bar default
+
+\begin_inset space ~
+\end_inset
+
+
+\bar under
+memoria
+\bar default
+
+\begin_inset space ~
+\end_inset
+
+
+\bar under
+aggiuntiva
+\bar default
+: possibile fino all'esaurimento del file system
+\end_layout
+
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+
+\bar under
+Manutenzione
+\bar default
+
+\begin_inset space ~
+\end_inset
+
+
+\bar under
+richiesta
+\bar default
+: nessuna, tutto è gestito dal sistema operativo (vantaggio perchè non devo
+ gestire nulla, svantaggio perchè mi rende impossibile anche la manutenzione
+ in caso di necessità)
+\end_layout
+
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+
+\bar under
+Dimensione
+\bar default
+
+\begin_inset space ~
+\end_inset
+
+
+\bar under
+massima
+\bar default
+: n*dimensione massima di un file
+\end_layout
+
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+
+\bar under
+Separabilità
+\bar default
+
+\begin_inset space ~
+\end_inset
+
+
+\bar under
+di
+\bar default
+
+\begin_inset space ~
+\end_inset
+
+
+\bar under
+oggetti
+\bar default
+: non permessa, tabelle e inidici nello stesso tablespace
+\end_layout
+
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+
+\bar under
+Vantaggi
+\bar default
+: Su tabelle piccole, c'è il controllo di dove vengano memorizzati i dati
+ (la directory indicata) e c'è il controllo sulla situazione dello storage
+\end_layout
+
+\begin_layout Paragraph
+DMS
+\end_layout
+
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+
+\bar under
+Creazione
+\bar default
+: CREATE TABLESPACE ...
+ MANAGED BY DATABASE
+\end_layout
+
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+
+\bar under
+Definizione
+\bar default
+
+\begin_inset space ~
+\end_inset
+
+
+\bar under
+dei
+\bar default
+
+\begin_inset space ~
+\end_inset
+
+
+\bar under
+cointainer
+\bar default
+: indicando un dispositivo o un file, in caso di file bisogna stabilire
+ la dimensione
+\end_layout
+
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+
+\bar under
+Allocazione
+\bar default
+
+\begin_inset space ~
+\end_inset
+
+
+\bar under
+iniziale
+\bar default
+: all'atto di creazione del tablespace (se viene stabilito che un container
+ sia un device allora è improbabile la frammentazione)
+\end_layout
+
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+
+\bar under
+Modifica
+\bar default
+
+\begin_inset space ~
+\end_inset
+
+
+\bar under
+ai
+\bar default
+
+\begin_inset space ~
+\end_inset
+
+
+\bar under
+cointainer
+\bar default
+: è possibile (anzi è necessario) aggiungere e/o rimuovere container (in
+ questo caso il 
+\emph on
+dbms 
+\emph default
+provvede automaticamente al ribilanciamento).
+ 
+\series bold
+NB
+\series default
+ l'aggiunta dei container è necessaria se ci accorgiamo che lo spazio nel
+ tablespace sta per esaurirsi, la rimozione quando invece ci accorgiamo
+ che i container sono troppo 
+\begin_inset Quotes eld
+\end_inset
+
+vuoti
+\begin_inset Quotes erd
+\end_inset
+
+
+\end_layout
+
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+
+\bar under
+Richiesta
+\bar default
+
+\begin_inset space ~
+\end_inset
+
+
+\bar under
+di
+\bar default
+
+\begin_inset space ~
+\end_inset
+
+
+\bar under
+memoria
+\bar default
+
+\begin_inset space ~
+\end_inset
+
+
+\bar under
+aggiuntiva
+\bar default
+: i cointainer possono essere estesi
+\end_layout
+
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+
+\bar under
+Manutenzione
+\bar default
+
+\begin_inset space ~
+\end_inset
+
+
+\bar under
+richiesta
+\bar default
+: spetta all'amministratore capire quando e se aggiungere e/o rimuovere
+ container.
+ Inoltre in caso si vogliano mantenere il numero dei container inalterato
+ ma ci si accorge che c'è uno sbilanciamento di occupazione di memoria fra
+ essi è a carico dell'amministratore richiedere il ribilanciamento.
+\end_layout
+
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+
+\bar under
+Dimensione
+\bar default
+
+\begin_inset space ~
+\end_inset
+
+
+\bar under
+massima
+\bar default
+: 512GB a causa dell'indirizzamento delle tuple in memoria.
+ Possibile anche 64TB per le large tablespace, con occupazione di 7bit in
+ più per l'indirizzamento delle tuple.
+\end_layout
+
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+
+\bar under
+Separabilità
+\bar default
+
+\begin_inset space ~
+\end_inset
+
+
+\bar under
+di
+\bar default
+
+\begin_inset space ~
+\end_inset
+
+
+\bar under
+oggetti
+\bar default
+: gli oggetti (es.
+ tabelle e indici) possono essere memorizzati in tablespace diversi.
+ (Può portare a un forte aumento della performance dovuta a parallelizzazione
+ delle operazioni, es.
+ Indice mi indica la posizione della tupla e nel frattempo leggo anche la
+ tupla stessa)
+\end_layout
+
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+
+\bar under
+Vantaggi
+\bar default
+: Su tabelle grandi, c'è il controll di dove i dati vengano memorizzati,
+ c'è il controllo sulla situazione dello storage, inoltre è possibile memorizzar
+e oggetti diversi (es.
+ indici, tabelle) in tablespace differenti
+\end_layout
+
+\begin_layout Paragraph
+AS
+\end_layout
+
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+
+\bar under
+Creazione
+\bar default
+: CREATE TABLESPACE ...
+ [MANAGED BY AUTOMATIC STORAGE] (Il campo è opzionale visto che è l'opzione
+ di default)
+\end_layout
+
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+
+\bar under
+Definizione
+\bar default
+
+\begin_inset space ~
+\end_inset
+
+
+\bar under
+dei
+\bar default
+
+\begin_inset space ~
+\end_inset
+
+
+\bar under
+container
+\bar default
+: automatica, essendo dovuta al fatto che all'atto di installazione del
+ 
+\emph on
+dbms
+\emph default
+ esso si riserva dello spazio in memoria, automaticamente il 
+\emph on
+dbms
+\emph default
+ stesso utilizza parte di questo spazio per la gestione dei container.
+\end_layout
+
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+
+\bar under
+Allocazione
+\bar default
+
+\begin_inset space ~
+\end_inset
+
+
+\bar under
+iniziale
+\bar default
+: Se si tratta di 
+\emph on
+system tablespace
+\emph default
+ o 
+\emph on
+user tablespace
+\emph default
+ avviene all'atto della creazione del tablespace stesso.
+ In caso di un 
+\emph on
+tablespace temporaneo
+\emph default
+ esso viene allocato solo quando necessario.
+\end_layout
+
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+
+\bar under
+Modifica
+\bar default
+
+\begin_inset space ~
+\end_inset
+
+
+\bar under
+ai
+\bar default
+
+\begin_inset space ~
+\end_inset
+
+
+\bar under
+cointainer
+\bar default
+: gestita in maniera automatica dal 
+\emph on
+dbms
+\end_layout
+
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+
+\bar under
+Richiesta
+\bar default
+
+\begin_inset space ~
+\end_inset
+
+
+\bar under
+di
+\bar default
+
+\begin_inset space ~
+\end_inset
+
+
+\bar under
+memoria
+\bar default
+
+\begin_inset space ~
+\end_inset
+
+
+\bar under
+aggiuntiva
+\bar default
+: il 
+\emph on
+dbms
+\emph default
+ automaticamente estende i cointainer in caso di bisogno
+\end_layout
+
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+
+\bar under
+Manutenzione
+\bar default
+
+\begin_inset space ~
+\end_inset
+
+
+\bar under
+richiesta
+\bar default
+: in caso si voglia ridurre un determinato 
+\emph on
+tablespace
+\emph default
+ l'amministratore deve intervenire.
+ Vale inoltre lo stesso discorso del ribilanciamento descritto su 
+\series bold
+DMS
+\end_layout
+
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+
+\bar under
+Dimensione
+\bar default
+
+\begin_inset space ~
+\end_inset
+
+
+\bar under
+massima
+\bar default
+: corrisponde alla dimensione del file system utilizzato per la directory
+ specificata, l'AS si prende tutto lo spazio disponibile nella directory
+\end_layout
+
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+
+\bar under
+Separabilità
+\bar default
+
+\begin_inset space ~
+\end_inset
+
+
+\bar under
+di
+\bar default
+
+\begin_inset space ~
+\end_inset
+
+
+\bar under
+oggetti
+\bar default
+: gli oggetti (es.
+ tabelle ed indici) possono essere memorizzati in tablespace diversi
+\end_layout
+
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+
+\bar under
+Vantaggi
+\bar default
+: su tabelle grandi, viene semplificata la gestione della crescita dei container
+, è possibile la memorizzazione di oggetti diversi (es.
+ tabelle, indici) in tablespace differenti.
+\end_layout
+
+\begin_layout Subsubsection
+Attributi del tablespace
+\end_layout
+
+\begin_layout Standard
+All'atto di creazione di un tablespace è possibile specificare una serie
+ di parametri, tra cui:
+\end_layout
+
+\begin_layout Description
+EXTENTSIZE: 
+\begin_inset Quotes eld
+\end_inset
+
+grandezza
+\begin_inset Quotes erd
+\end_inset
+
+ (numero di blocchi consecutivi) dell'
+\emph on
+extent
+\end_layout
+
+\begin_layout Description
+BUFFERPOOL: nome del pool di buffer associato al tablespace, permette di
+ riservare un buffer di memoria a determinati dati che reputo più importanti
+ piuttosto che mischiarli assieme a tutti gli altri
+\end_layout
+
+\begin_layout Description
+PREFETCHSIZE: numero di pagine da trasferire in memoria prima che vengano
+ effettivamente richieste, cioè permette di specificare il trasferimento
+ di più pagine rispetto magari a quelle davvero necessarie
+\end_layout
+
+\begin_layout Description
+OVERHEAD: stima del tempo medio di latenza per un'operazione I/O
+\end_layout
+
+\begin_layout Description
+TRANSFERRATE: stima del tempo medio per il trasferimento medio di una pagina
+\end_layout
+
+\begin_layout Standard
+I parametri 
+\series bold
+OVERHEAD
+\series default
+ e 
+\series bold
+TRANSFERRATE
+\series default
+ sono parametri della memoria secondaria, che vengono forniti anche al tablespac
+e, questo a favore della performance in quanto sono i parametri su cui si
+ basa il 
+\emph on
+valutatore di piani
+\emph default
+ per creare la stima di quale sia il modo migliore per la risoluzione di
+ una query (vengono dunque usati dall'ottimizzatore).
+ Siccome in un tablespace possono esserci diversi container, e questi possono
+ corrispondere a dischi, in caso di dischi di qualità diversa, quindi con
+ overhead e transferrate diversi, bisogna impostare quelli del disco peggiore.
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace bigskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Ci si potrebbe chiedere perchè non usare sempre il file system del sistema
+ operativo.
+ Le prestazione di un 
+\emph on
+dbms
+\emph default
+ dipendono fortemente da come i dati sono organizzati sul disco.
+ Intuitivamente l'allocazione dei dati dovrebbe mirare a ridurre i tempi
+ di accesso ai dati e per far questo bisogna sapere come i dati dovranno
+ essere elaborati e quali sono le relazione logiche tra i dati stessi.
+ 
+\bar under
+Tutte queste informazioni non possono essere note al file system
+\bar default
+.
+ 
+\end_layout
+
+\begin_layout Standard
+Esempi:
+\end_layout
+
+\begin_layout Itemize
+Se due relazioni contengono dati tra loro correlati (mediante join) può
+ essere una buona idea memorizzarle in cilindri vicini in modo da ridurre
+ i tempi di seek
+\end_layout
+
+\begin_layout Itemize
+Se una relazione contiene attributi BLOB (Binary large object, sono tipi
+ di dati binari molto grandi per la memorizzazione di dati come ad esempio
+ la codifica in JPEG di una immagine) può essere una buona idea memorizzarli
+ separatamente dagli altri attributi.
+\end_layout
+
+\begin_layout Subsection
+Organizzazione dei dati
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement h
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:file"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename file.png
+	scale 70
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Supponiamo per semplicità (vedi Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:file"
+
+\end_inset
+
+) di avere record delle stesse dimensioni.
+ Come si vede è presente un 
+\emph on
+file header
+\emph default
+ che contiene informazioni sul file stesso e di seguito i record, uno dopo
+ l'altro, i quali sono organizzati in 
+\emph on
+pagine
+\emph default
+ (Page) o in 
+\emph on
+extent
+\emph default
+ (gruppi contigui di pagine).
+\end_layout
+
+\begin_layout Subsubsection
+Rappresentazione dei valori
+\end_layout
+
+\begin_layout Standard
+Ogni tipo di dato di SQL ha una rappresentazione propria.
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+INT
+\series default
+: tipica rappresentazione standard in cui dato un calcolatore fatto di una
+ parola di n bit permette numeri fino a 
+\begin_inset Formula $2^{n}-1$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+DOUBLE
+\series default
+: rappresentazione in virgola mobile secondo lo standard IEEE 754
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+http://it.wikipedia.org/wiki/IEEE_754
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+CHAR(n)
+\series default
+: sono le stringhe di esattamente 
+\emph on
+n
+\emph default
+ caratteri.
+ Per la loro rappresentazione si usano 
+\emph on
+n
+\emph default
+ byte, eventualmente usando un carattere speciale 
+\emph on
+null
+\emph default
+ per valori più corti di n.
+\begin_inset Newline newline
+\end_inset
+
+Esempio: se A è CHAR(5), 'cat' viene memorizzato come cat¶¶ dove ¶ in questo
+ caso rappresenta il 
+\emph on
+null
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+VARCHAR(n)
+\series default
+: sono strinche di lunghezza di massimo 
+\emph on
+n
+\emph default
+ caratteri.
+ Per la rappresentazione si allocano 
+\emph on
+m+p
+\emph default
+ byte, dove 
+\emph on
+p
+\emph default
+ byte sono effettivamente i byte che rappresentano la stringa, 
+\emph on
+m
+\emph default
+ byte (che può essere anche un singolo byte in caso 
+\begin_inset Formula $p<2^{8}=256$
+\end_inset
+
+byte) che rappresenta la lunghezza della stringa.
+ Viene memorizzato in testa la lunghezza della stringa e successivamente
+ la stringa stessa.
+\begin_inset Newline newline
+\end_inset
+
+Esempio: se A è VARCHAR(10), 'cat' viene memorizzato in 4byte (1byte per
+ dire la lunghezza [3], 3byte per effettivamente la parola 'cat') come '3cat'
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+DATE
+\series default
+: tipo di dato che identifica una data.
+ Viene rappresentato con stringhe di lunghezza fissa di 10 caratteri siffatte
+ 
+\emph on
+YYYY-MM-DD
+\emph default
+ (YYYY: anno, MM: mese, DD: giorno)
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+TIME
+\series default
+: tipo di dato che identifica un'ora.
+ Viene rappresentato con stringhe di lunchezza fissa di 8 caratteri siffatte
+ 
+\emph on
+HH:MM:SS
+\emph default
+ (HH: ora, MM: minuti, SS: secondi)
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+Tipi Enumerati
+\series default
+: sono i tipi 
+\emph on
+enum 
+\emph default
+che si possono creare.
+ Si usa una codifica intera che associa in ordine ogni elemento a un intero.
+\begin_inset Newline newline
+\end_inset
+
+Esempio: week = {LUN,MAR,MER,...,DOM} vengono rappresentati come LUN: 00000001,
+ MAR: 00000010, MER: 00000011, ...
+\end_layout
+
+\begin_layout Subsubsection
+Record a lunghezza fissa
+\end_layout
+
+\begin_layout Standard
+Per ogni tipo di record nel database deve essere definito uno schema fisico
+ che permetta di 
+\emph on
+interpretare correttamente il significato dei byte che costutuiscono il
+ record
+\emph default
+, cioè poter riuscire ad identificare i vari attributi all'interno di un
+ record.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement h
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename recordfisso.png
+	scale 70
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+La situazione più semplice si ha quando evidentemente tutti i record hanno
+ lunghezza fissa, in quanto, oltre alle informazioni logiche è sufficiente
+ specificare l'ordine in cui gli attributi sono memorizzati nel record (se
+ è differente dall'ordine di default), cioè se ho solo record a lunghezza
+ fissa so esattamente come raggiungere un determinato campo, in quanto si
+ sa a priori la lunghezza di ogni attributo, quindi partendo dal primo byte
+ bisogna solo specificare l'offset per raggiungere l'attributo voluto.
+\end_layout
+
+\begin_layout Subsubsection
+Record a lunghezza variabile
+\end_layout
+
+\begin_layout Standard
+Nel caso di record a lunghezza variabile si hanno diverse alternative che
+ devono considerare anche i problemi legati aglia ggiornamenti che modificano
+ la lunghezza dei campo e quindi dei record stessi.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement h
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:fixrecord"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename recordvariabile.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Una soluzione consolidate consiste nel 
+\emph on
+memorizzare prima tutti i campi a lunghezza fissa e solo successivamente
+ tutti i campi a lunghezza variabile
+\emph default
+; per ogni campo a lunghezza variabile viene 'preposto' un 
+\emph on
+prefix pointer
+\emph default
+ che indica l'indirizzo del primo byte del campo.
+ Dall'esempio in figura (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:fixrecord"
+
+\end_inset
+
+) si può notare che il 
+\emph on
+record length
+\emph default
+ segna 40, poichè il record effettivamente è lungo 40 byte, quando in realtà
+ la lunghezza dei dati è pari a soli 28 byte.
+ Un ulteriore osservazione denota che non viene specificata la lunghezza
+ dei record variabili poichè la si calcola facilmente come differenza dei
+ 
+\emph on
+prefix pointer
+\emph default
+.
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace defskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+In generale ogni record oltre a contenere i dati, viene preposto da un 
+\series bold
+RECORD HEADER 
+\series default
+(il cui formato varia a seconda del 
+\emph on
+dbms 
+\emph default
+usato) il quale, oltre a contenere la lunghezza del record, può contenere
+ utili informazioni come:
+\end_layout
+
+\begin_layout Itemize
+L'identificatore della relazione (tabella) a cui il record appartiene
+\end_layout
+
+\begin_layout Itemize
+L'identificatore univoco del record nel database (
+\bar under
+RID
+\bar default
+ 
+\series bold
+R
+\series default
+ecord 
+\series bold
+ID
+\series default
+entification o 
+\bar under
+TID
+\bar default
+ 
+\series bold
+T
+\series default
+uple 
+\series bold
+ID
+\series default
+entification)
+\end_layout
+
+\begin_layout Itemize
+Un timestamp che indica quando il record è stato inserito o modificato l'ultima
+ volta
+\end_layout
+
+\begin_layout Subsubsection
+Organizzazione Record in Pagine
+\end_layout
+
+\begin_layout Standard
+Come già detto in precedenza nelle 
+\emph on
+pagine
+\emph default
+ vengono memorizzati i 
+\emph on
+record
+\emph default
+ apparteneti ad una stessa relazione.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement h
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:pagrecord"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename pagerecord.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Normalmente la dimensione di un record è molto minore di quella di una pagina
+ (anche se esistono tecniche particolari per gestire i 
+\emph on
+long tuples
+\emph default
+ la cui dimensione eccede quella di una pagina).
+\end_layout
+
+\begin_layout Standard
+Nel caso di record a lunghezza fissa l'organizzazione di una pagina si potrebbe
+ presentare come mostrato in figura (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:pagrecord"
+
+\end_inset
+
+).
+ In generale non posso utilizzare un'intera pagina per scrivere record a
+ causa della presenza del 
+\series bold
+page header
+\series default
+.
+\begin_inset Newline newline
+\end_inset
+
+Il 
+\series bold
+page header
+\series default
+ mantiene informazioni quali:
+\end_layout
+
+\begin_layout Itemize
+ID della pagina nel database
+\end_layout
+
+\begin_layout Itemize
+timestamp che indica quando la pagina è stata modificata l'ultima volta
+\end_layout
+
+\begin_layout Itemize
+relazione (tabella) a cui appartengono i record (tuple) presenti nella pagina
+\end_layout
+
+\begin_layout Standard
+Normalmente un record è contenuto interamente in una pagina dunque si può
+ avere dello spazio sprecato.
+\begin_inset Newline newline
+\end_inset
+
+
+\series bold
+Esempio
+\series default
+: 
+\begin_inset Newline newline
+\end_inset
+
+Dimensione della pagina 
+\begin_inset Formula $P=4KB=4096byte$
+\end_inset
+
+.
+ Record di lunghezza fissa pari a 296 byte.
+ Supponiamo l'header sia lungo 12byte, rimangono 
+\begin_inset Formula $4096-12=4084byte$
+\end_inset
+
+ per i dati, pertanto è possibile memorizzare in una pagina fino a 13 record
+ (
+\begin_inset Formula $\left\lfloor \frac{4084}{296}\right\rfloor $
+\end_inset
+
+), in ogni pagina resteranno quindi sempre inutilizzati almeno 
+\begin_inset Formula $4084-296*13=236$
+\end_inset
+
+ byte.
+ Se una fantasiosa relazione MovieStar contiene 10000 tuple serviranno quindi
+ almeno 770 pagine (
+\begin_inset Formula $\left\lceil \frac{10000}{13}\right\rceil $
+\end_inset
+
+) per memorizzarla, e se per leggere una pagina da disco ci vogliono 10ms,
+ la lettura di tutte le tuple richiederà circa 7.7 secondi (DECISAMENTE TROPPO!).
+\end_layout
+
+\begin_layout Standard
+Con questo esempio si evince l'importanza di organizzare in maniera effeciente
+ le tuple (record) all'interno di una pagina.
+\end_layout
+
+\begin_layout Subsubsection
+Organizzazione a slot delle pagine
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement h
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:slotpagine"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename organizzazionepagine.png
+	scale 50
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Il 
+\emph on
+formato tipico di una pagina in un dbms
+\emph default
+ è quello mostrato in figura (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:slotpagine"
+
+\end_inset
+
+).
+ È presente un page header già citato nella sezione precedente, seguita
+ dalla 
+\emph on
+directory
+\emph default
+ e dai 
+\emph on
+record.
+
+\emph default
+ I 
+\series bold
+record
+\series default
+ vengono memorizzati a partire dalla fine verso l'inizio, in maniera opposta
+ alla 
+\series bold
+directory
+\series default
+ che si espande dall'inizio verso la fine, questo per riuscire a controllare
+ la collisione dello spazio di memoria occupato dalle due.
+\end_layout
+
+\begin_layout Standard
+La 
+\emph on
+directory
+\emph default
+ contiene un puntatore per ogni record presente nella pagina, dunque cresce
+ all'aumentare dei record.
+ Con questa soluzione il 
+\series bold
+RID
+\series default
+ (Record ID) è formato semplicemente dalla coppia (
+\series bold
+PID
+\series default
+, 
+\series bold
+Slot
+\series default
+), nel quale il PID identifica la pagina in cui il 
+\emph on
+record 
+\emph default
+è memorizzato, mentre lo 
+\emph on
+slot
+\emph default
+ identifica il record all'interno della 
+\emph on
+directory
+\emph default
+.
+ Questo accoppiamento permette la 
+\emph on
+riallocazione 
+\emph default
+del record (ad esempio perchè si è modificato e richiede uno spazio in memoria
+ più grande) nella pagina senza modificare il RID, inoltre permette di individua
+rlo velocemente.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement h
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:pid"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename pid.png
+	scale 70
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Come viene indicato in figura esemplificativa (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:pid"
+
+\end_inset
+
+) il 
+\series bold
+RID
+\series default
+ è solitamente di lunghezza 4bytes.
+ I primi 3 bytes ne identificano il 
+\series bold
+PID
+\series default
+ (dunque la pagina) e l'ultimo invece identifica lo 
+\series bold
+slot
+\series default
+ (dunque lo spazio nella directory).
+ L'esempio mostra un RID formato da PID 473 (che ne indica la pagina 473)
+ e slot 0 (dunque il primo slot della directory), lo slot 0 della directory
+ contiene l'indirizzo del record all'interno della pagina (ricorda che i
+ record vengono memorizzati a partire dalla fine e andando 
+\begin_inset Quotes eld
+\end_inset
+
+all'indietro
+\begin_inset Quotes erd
+\end_inset
+
+).
+ Lo 
+\emph on
+spazio vuoto 
+\emph default
+è utilizzabile per l'allocazione di nuovi record, mentre è presente anche
+ spazio un 
+\emph on
+embedded free space
+\emph default
+ che fino a che non viene riorganizzata la pagina, rimarrà perso, o al più
+ disponibile per il record 1 o il record 2.
+ N.B.
+ Il -1 presente nel secondo slot della directory indica un record eliminato,
+ che è quello che ha creato inoltre l'
+\emph on
+embedded free space
+\emph default
+.
+\end_layout
+
+\begin_layout Standard
+Cosa succede se un record precedentemente memorizzato viene modificato e
+ diventa troppo grande per riuscire ad essere riallocato all'interno della
+ pagina stessa? Il record in questo caso viene spostato in un'altra pagina
+ e si parla di 
+\series bold
+overflow
+\series default
+.
+ Per evitare di aggiornare il 
+\series bold
+RID
+\series default
+ del record (cosa per altro molto costosa poichè bisognrebbe modificare
+ anche tutti gli indici in cui è presente questo record), esso rimane invariato
+ e viene introdotto un livello di 
+\emph on
+indirezione.
+
+\emph default
+ Dunque al posto della memorizzazione del record stesso, nel RID del record
+ troveremo un nuovo RID (coppia PID, SLOT) che ne indicherà la nuova pagina
+ e il nuovo slot (vedi Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:ridoverflow"
+
+\end_inset
+
+).
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:ridoverflow"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset Graphics
+	filename ridoverflow.png
+	scale 70
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Avere troppi 
+\bar under
+RID overflow
+\bar default
+ porta al degrado delle prestazioni, ecco che periodicamente è possibile
+ richiedere la 
+\emph on
+riorganizzazione del file
+\emph default
+.
+\end_layout
+
+\begin_layout Subsection
+Buffer Manager
+\end_layout
+
+\begin_layout Standard
+La lettura di una tupla (record) richiede che la pagina in cui è salvata
+ sia prima portata in memoria principale, in un'area gestita (esclusivamente)
+ dal 
+\emph on
+dbms
+\emph default
+ detta 
+\series bold
+buffer pool
+\series default
+ (ricorda che il 
+\emph on
+dbms
+\emph default
+ al momento dell'avvio si riserva automaticamente una parte di memoria proprio
+ per gestire il buffer pool).
+ Ogni 
+\emph on
+buffer 
+\emph default
+nel pool può ospitare una copia di una pagina su disco.
+ La gestione del buffer pool, fondamentale dal punto di vista prestazionale,
+ è demandata al 
+\series bold
+Buffer Manager (BM)
+\series default
+, già introdotto nel capitolo precedente.
+ Il BM è chiamato in causa non solo per leggere le 
+\emph on
+pagine
+\emph default
+ ma anche per scrivere su disco una pagina che è stata modificata.
+ Il BM ha inoltre un ruolo fondamentale nella gestione delle transazioni
+ per garantire l'integrità del database a fronte di guasti.
+ Proprio per questi motivi il BM non può essere 
+\begin_inset Quotes eld
+\end_inset
+
+semplice
+\begin_inset Quotes erd
+\end_inset
+
+ come quello previsto nei sistemi operativi, ma deve avere caratteristiche
+ più specifiche per poter operare come indicato.
+ 
+\emph on
+N.B.
+ In DB2 si possono definire più buffer pool, ma ogni tablespace deve essere
+ associato ad uno solo di essi.
+\end_layout
+
+\begin_layout Standard
+Come opera dunque il 
+\series bold
+Buffer Manager
+\series default
+?
+\begin_inset Newline newline
+\end_inset
+
+A fronte di una 
+\emph on
+richiesta di una pagina
+\emph default
+, segue la seguente procedura:
+\end_layout
+
+\begin_layout Enumerate
+Se la pagina è già presente nel buffer, viene fornito al programma chiamante
+ l'indirizzo del buffer in cui si trova la pagina.
+\end_layout
+
+\begin_layout Enumerate
+Se la pagina non è presente in memoria (dunque in nessun buffer):
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Se c'è almeno un buffer libero, il BM seleziona uno fra questi e copia la
+ pagina nel buffer selezionato.
+\end_layout
+
+\begin_layout Itemize
+Se non è presente alcun buffer libero allora il BM seleziona un buffer occupato
+ da un'altra pagina, controlla che nessuno la stia usando (la pagina), in
+ caso positivo la riscrive sul disco solo se è stata modificata e non è
+ stata ancora salvata.
+\end_layout
+
+\begin_layout Itemize
+A questo punto il BM può leggere la pagina e copiarla nel buffer prescelto
+ (rimpiazzando, in caso fosse occupato, così quella prima presente).
+\end_layout
+
+\end_deeper
+\begin_layout Subsubsection
+Interfaccia del Buffer Manager
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:buffermanager"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename buffermanager.png
+	scale 70
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+L'interfaccia (cioè le azioni messe a disposizione) che il BM offre agli
+ altri modubili del 
+\emph on
+dbms
+\emph default
+ ha quattro metodi base:
+\end_layout
+
+\begin_layout Description
+getAndPinPage richiede la pagina al BM e vi pone un 
+\emph on
+pin 
+\emph default
+(
+\begin_inset Quotes eld
+\end_inset
+
+spillo
+\begin_inset Quotes erd
+\end_inset
+
+) ad indicarne l'uso.
+ In caso la pagina sia presente restituisce direttamente l'indirizzo del
+ buffer, altrimenti la carica come prima indicato.
+ Si può immaginare dunque il bufferpool come una bacheca con dei fogli,
+ ogni volta che chiedo di leggere un foglio se questo non è presente nella
+ bacheca, viene appeso il foglio e messo uno spillo per tenerlo attaccato,
+ altrimenti se il foglio è già presente dò indicazioni, mettendo uno spillo
+ a mia volta, che sto controllando la pagina.
+ [Azione: +1 pincount]
+\end_layout
+
+\begin_layout Description
+unPinPage rilascia la pagina ed elimina un pin.
+ Quando il programma termina di utilizzare la pagina richiesta col metodo
+ precedente, semplicemente toglie uno 
+\begin_inset Quotes eld
+\end_inset
+
+spillo
+\begin_inset Quotes erd
+\end_inset
+
+ alla pagina.
+ In caso il numero di spilli sia uguale a 0, il 
+\emph on
+dbms
+\emph default
+ segna questa pagina come 
+\emph on
+potenzialmente 
+\emph default
+sostituibile in caso ci sia bisogno di un buffer per caricare una nuova
+ pagina.
+ [Azione: -1 pincount]
+\end_layout
+
+\begin_layout Description
+setDirty indica che la pagina è stata modifica, ovvero è 
+\series bold
+dirty
+\series default
+ (è stata resa 
+\begin_inset Quotes eld
+\end_inset
+
+sporca
+\begin_inset Quotes erd
+\end_inset
+
+).
+ Quando un programma che ha richiesto una pagina la utilizza e la modifica,
+ deve indicare al 
+\emph on
+dbms
+\emph default
+ che la pagina non è più uguale a quella che è presente sul disco in memora
+ secondaria.
+ Questo approccio è molto performante, in quanto il 
+\emph on
+dbms
+\emph default
+ non deve ogni volta scrivere le modifiche di una pagina sul disco, tanto
+ per poter accedere a una pagina bisogna sempre passare per il 
+\series bold
+BM
+\series default
+, dunque le modifiche permangono sulla memoria centrale e solo di tanto
+ in tanto esse vengono realmente 
+\begin_inset Quotes eld
+\end_inset
+
+aggiornate
+\begin_inset Quotes erd
+\end_inset
+
+ sul disco.
+ [Azione: pone a 1 il bit 
+\emph on
+dirty
+\emph default
+]
+\end_layout
+
+\begin_layout Description
+flushPage forza la scrittura della pagina su disco, rendendola così pulita.
+ [Azione: pone a 0 il bit 
+\emph on
+dirty
+\emph default
+]
+\end_layout
+
+\begin_layout Standard
+Come inoltre si vede dall'immagine (Figura 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:buffermanager"
+
+\end_inset
+
+) in realtà le pagine all'interno del bufferpool contengono anche due informazio
+ni aggiuntive: il campo 
+\series bold
+pincount 
+\series default
+(è un valore numerico intero non negativo) e il bit 
+\series bold
+dirty
+\series default
+.
+ 
+\end_layout
+
+\begin_layout Subsubsection
+Politiche di rimpiazzamento
+\end_layout
+
+\begin_layout Standard
+Nei sistemi operativi una comune politica adottata per decidere quale pagina
+ rimpiazzare è la 
+\series bold
+LRU
+\series default
+ (Least Recently Used), ovvero 
+\emph on
+viene rimpiazzata la pagina che da più tempo non è in uso.
+ 
+\emph default
+Per adottare una politica di questo tipo nei 
+\emph on
+dbms
+\emph default
+, è necessario mantenere un'informazione sull'ultimo utilizzo effetuato
+ sulla 
+\emph on
+pagina
+\emph default
+.
+ Nei 
+\emph on
+dbms
+\emph default
+ LRU non sempre è una buona scelta, in quanto per alcune query il 
+\begin_inset Quotes eld
+\end_inset
+
+pattern d'accesso
+\begin_inset Quotes erd
+\end_inset
+
+ ai dati è noto, e può quindi essere utilizzato per operare scelte più accurate,
+ in grado di migliorare anche di molto le prestazioni.
+\end_layout
+
+\begin_layout Standard
+L'
+\series bold
+hit ratio
+\series default
+, ovvero la frazione di richieste che non provocano una operazione I/O (cioè
+ le richieste che vanno 
+\begin_inset Quotes eld
+\end_inset
+
+a segno
+\begin_inset Quotes erd
+\end_inset
+
+ senza dover andar a chiedere la pagina al disco), indica sinteticamente
+ quonto buona è una politica di rimpiazzamento.
+ Un esempio, come vedremo, riguarda algoritimi di join che scandiscono N
+ volte le tuple di una relazione; in questo caso la politica migliore da
+ utilizzare sarebbe la 
+\series bold
+MRU
+\series default
+ (Most Recently Used), ovvero rimpiazzare la pagina usata più recentemente.
+\end_layout
+
+\begin_layout Standard
+Tutto quello appena detto dovrebbe darci un ulteriore motivo per comprendere
+ per cui i 
+\emph on
+dbms
+\emph default
+ non usino (tutti) i serizi offerti dai sistemi operativi.
+\end_layout
+
+\begin_layout Subsection
+Organizzazione dei file
+\end_layout
+
+\begin_layout Standard
+Il modo in cui i 
+\emph on
+record 
+\emph default
+(tuple) vengono organizzati nei file incide sull'efficienza delle operazioni
+ e sull'occupazione di memoria.
+\end_layout
+
+\begin_layout Standard
+Per semplicità di calcoli considereremo 
+\emph on
+record a lunghezza fissa
+\emph default
+ e valuteremo i 
+\begin_inset Quotes eld
+\end_inset
+
+costi
+\begin_inset Quotes erd
+\end_inset
+
+ come 
+\emph on
+numero di operazioni I/O
+\emph default
+, assumendo che ogni richiesta di una pagina comporti un'operazione di I/O
+ e che ogni operazione effettuata sulle pagine già caricate in memoria abbia
+ costo zero.
+\end_layout
+
+\begin_layout Standard
+Siamo interessati a stimare il costo delle seguenti operazioni:
+\end_layout
+
+\begin_layout Itemize
+Ricerca per chiave (WHERE column_name=value1)
+\end_layout
+
+\begin_layout Itemize
+Ricerca per intervallo (WHERE column_name BETWEEN value1 AND value2)
+\end_layout
+
+\begin_layout Itemize
+Inserimento di un nuovo record
+\end_layout
+
+\begin_layout Itemize
+Cancellazione di un record
+\end_layout
+
+\begin_layout Itemize
+Modifica del valore di un attribo di un record (sia chiave (UNIQUE) che
+ non chiave (Valori ripetuti))
+\end_layout
+
+\begin_layout Standard
+Assumeremo inoltre come costo di base il numero di accessi alla memoria
+ secondaria, ipotesi semplificativa poichè non viene preso in considerazione
+ il fatto che gli accessi possano essere sequenziali o meno.
+\end_layout
+
+\begin_layout Standard
+Abbiamo bisogno di alcune informazioni per poter valutare i costi, informazioni
+ reperibili attraverso i 
+\series bold
+cataloghi
+\series default
+.
+\end_layout
+
+\begin_layout Standard
+Ogni 
+\emph on
+dbms
+\emph default
+ mantiene dei 
+\series bold
+cataloghi
+\series default
+, ovvero delle 
+\emph on
+relazioni che descrivono il DB sia a livello logico che fisico.
+
+\emph default
+ I cataloghi che ci interessano in questa fase sono quelli che riportano
+ 
+\emph on
+informazioni statistiche sulle relazioni
+\emph default
+, in particolare
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float table
+placement h
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "tab:sqlcatalog"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+noindent
+\backslash
+resizebox{
+\backslash
+textwidth}{!}{
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Tabular
+<lyxtabular version="3" rows="6" columns="4">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0">
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\series bold
+SQL Catalog
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\series bold
+SQL Attribute
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\series bold
+Descrizione
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\series bold
+SIMBOLO
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+SYSSTAT.TABLES
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+CARD
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size small
+Numero di tuple nella relazione
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size small
+NR
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+SYSSTAT.TABLES
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+NPAGES
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size small
+Numero di pagine occupate dalla relazione
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size small
+NP
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+SYSSTAT.COLUMNS
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+COLCARD
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size small
+Numero di valori distinti dell'attributo
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size small
+NK
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+SYSSTAT.COLUMNS
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+LOW2KEY
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size small
+Secondo valore minore
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size small
+LK
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+SYSSTAT.COLUMNS
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+HIGH2KEY
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size small
+Secondo valore maggiore
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size small
+HK
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+SYSSTAT.TABLES 
+\series default
+contiene informazioni riguardanti le tabelle.
+ 
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+SYSSTAT.COLUMNS
+\series default
+ contiene invece informazioni per ogni colonna di ogni tabella (dunque la
+ chiave identificativa in questo catalogo è la coppia <nometabella,nomeattributo
+>), di particolare interesse per il nostro scopo, guarderemo gli attributi
+ 
+\emph on
+COLCARD
+\emph default
+, 
+\emph on
+LOW2KEY
+\emph default
+, 
+\emph on
+HIGH2KEY
+\emph default
+.
+\end_layout
+
+\begin_layout Description
+COLCARD indica il numero di valori diversi per il determinato attributo.
+ Poichè è un calcolo oneroso e difficile, in realtà COLCARD restituisce
+ una stima sul vero valore, anche perchè è un attributo che viene aggiornato
+ 
+\begin_inset Quotes eld
+\end_inset
+
+di tanto in tanto
+\begin_inset Quotes erd
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Description
+LOW2KEY/HIGH2KEY indicano il secondo valore minore e il secondo valore maggiore
+ rispettivamente.
+ Viene indicato il secondo e non il primo poichè a volte il progettista
+ utilizza i valori massimi e/o minimi come valori 'warning' invece del valore
+ 
+\emph on
+null
+\emph default
+ (a causa anche del fatto che il null può avere significati diversi a seconda
+ dell'utilizzo: valore sconosciuto, valore non applicabile, valore né conosciuto
+ né applicabile).
+ Esempio: utilizzare il valore -1 nell'attributo Età per indicare che non
+ si hanno informazioni riguardo l'età per una determinata persona.
+ Questi attributi sono utili per riuscire a sapere l'intervallo dei valori
+ dell'attributo.
+\end_layout
+
+\begin_layout Subsubsection
+Heap File VS Sequential File
+\end_layout
+
+\begin_layout Paragraph
+HEAP FILE
+\end_layout
+
+\begin_layout Standard
+Detta anche organizzazione seriale, è la più semplice in quanto si caratterizza
+ per 
+\emph on
+l'inserimento di nuovi record alla fine del file.
+
+\emph default
+ Se qualche record viene cancellato, per poter riutilizzare lo spazio (ricorda
+ che stiamo parlando di record a lunghezza fissa, quindi riutilizzabili
+ senza accorgimenti sulla grandezza) senza dover scandire tutto il file,
+ è necessario implementare un meccanismo per localizzare velocemente gli
+ spazi liberi.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Caption
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename heapfile.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Vedremo la gestione attraverso 
+\series bold
+linked list
+\series default
+, 
+\series bold
+directory
+\series default
+ e l'implementazione attuata in 
+\series bold
+DB2
+\series default
+.
+\end_layout
+
+\begin_layout Subparagraph
+Linked List
+\end_layout
+
+\begin_layout Standard
+La prima possibilità è quella di mantenere due 
+\emph on
+liste doppiamente concatenate 
+\emph default
+(cioè scandibili da entrambi i lati):
+\end_layout
+
+\begin_layout Itemize
+una lista per le pagine piene (completamente)
+\end_layout
+
+\begin_layout Itemize
+una lista per le pagine con spazio vuoto
+\end_layout
+
+\begin_layout Standard
+Tipicamente, con record di lunghezza variabile, quasi tutte le pagine avranno
+ spazio vuoto e dunque per trovare una pagina in grado di contenere un nuovo
+ record potrebbe essere necessario scandire tutta la lista.
+\end_layout
+
+\begin_layout Subparagraph
+Directory
+\end_layout
+
+\begin_layout Standard
+Un'altra possibilità è quella di mantenere una 
+\emph on
+directory
+\emph default
+ di pagine: la 
+\emph on
+directory
+\emph default
+ stessa è organizzata in pagine collegate a lista.
+ Ogni 
+\emph on
+entry
+\emph default
+ della directory identifica una pagina del file e può contere anche lo spazio
+ libero presente, di conseguenza per trovare una pagina per contenere un
+ nuovo record basta scandire la 
+\emph on
+directory
+\emph default
+ (tipicamente molto più piccola del file).
+ A vantaggio della performance però si deve pagare una dimensione maggiore
+ del file (dovuta alla presenza della 
+\emph on
+directory
+\emph default
+ stessa).
+\end_layout
+
+\begin_layout Subparagraph
+Implementazione DB2
+\end_layout
+
+\begin_layout Standard
+Ricordiamo che DB2 raggruppa le pagine in 
+\emph on
+extent.
+
+\emph default
+ Una pagina ogni 500 contiene un 
+\series bold
+Free Space Control Record
+\series default
+ (FSCR) contenente una directory dello spazio libero nelle successive 500
+ pagine (fino al prossimo FSCR).
+ Questo vuol dire che per leggere l' 
+\begin_inset Quotes eld
+\end_inset
+
+intera
+\begin_inset Quotes erd
+\end_inset
+
+ 
+\emph on
+directory
+\emph default
+ bisogna saltare di 500 pagine in 500 e leggere i vari FSCR.
+\end_layout
+
+\begin_layout Standard
+La 
+\emph on
+dimensione della pagina
+\emph default
+ (4/8/16/32 KB) può essere specificata all'atto della creazione del 
+\emph on
+tablespace
+\emph default
+.
+ Dimensioni maggiori implicano accessi sequenziali ma con rischio di frammentazi
+one, dimensioni minori utili per accessi random.
+\end_layout
+
+\begin_layout Subparagraph
+PRESTAZIONI
+\end_layout
+
+\begin_layout Standard
+La tabella (Tab.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "tab:heapfile"
+
+\end_inset
+
+) riassume i costi per le operazioni di base.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float table
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "tab:heapfile"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+noindent
+\backslash
+resizebox{
+\backslash
+textwidth}{!}{
+\end_layout
+
+\end_inset
+
+
+\begin_inset Tabular
+<lyxtabular version="3" rows="6" columns="3">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0pt">
+<column alignment="center" valignment="top" width="4cm">
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\series bold
+Operazione
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\series bold
+Descrizione
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\series bold
+Costo
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Ricerca per chiave
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+La ricerca avviene leggendo sequenzialmente le pagine
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $\frac{NP}{2}$
+\end_inset
+
+ medio, NP massimo e se non presente
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Ricerca per intervallo
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Devono essere lette per forza tutte le pagine
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+NP sempre
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Inserimento
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Si assume di inserire in fondo al file
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Cancellazione
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Si assume di cancellare un record
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+C(ricerca)+1
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Aggiornamento
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Si assume di aggiornare un record
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+C(ricerca)+1
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+La ricerca per chiave ha costo massimo NP in quanto se il 
+\emph on
+record 
+\emph default
+si trova nell'ultima pagina (o non è presente) devo scandirle tutte; per
+ analogia la ricerca per intervallo richiede di scandire per forza tutte
+ le pagine poichè non so a priori se fino all'ultima esiste un record che
+ abbia un valore compreso nell'intervallo.
+ L'inserimento ha costo 2 (ricordiamo che il costo è dato da una operazione
+ IO) poichè prima devo cercare una pagina che abbia spazio per il record
+ (1) e poi caricarla dal disco in memoria centrale (2).
+ Infine la cancellazione e aggiormento richiedono un costo 
+\emph on
+C(ricerca)+1
+\emph default
+ dove il C(ricerca) è il costo della ricerca che viene utilizzata per cancellare
+ e/o aggiornare.
+\end_layout
+
+\begin_layout Paragraph
+SEQUENTIAL FILE
+\end_layout
+
+\begin_layout Standard
+In un file sequenziale i 
+\emph on
+record 
+\emph default
+(tuple) vengono mantenuti ordinati secondo i valori di un attributo o di
+ una combinazione di attributi.
+ È evidente che gli inserimenti devono ora avvenire in maniera ordinata
+ (quindi il costo sarà maggiore), ma le ricerche beneficeranno dell'ordinamento
+ (si potrà usare la ricerca binaria): normalmente per tentare di migliorare
+ il costo dell'inserimento vengono lasciati spazi liberi in ogni pagina
+ (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:recordoverflow"
+
+\end_inset
+
+) oppure vengono tollerati 
+\emph on
+record overflow
+\emph default
+ con una successiva riorganizzazione.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:recordoverflow"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename overflowrecord.png
+	scale 70
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+N.B.
+ Non è richiesto che siano ordinate le singole tuple all'interno di una
+ stessa pagina, ma bensì che ci sia un ordine totale nelle pagine.
+\end_layout
+
+\begin_layout Subparagraph
+PRESTAZIONI
+\end_layout
+
+\begin_layout Standard
+La tabella (Tab.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "tab:seqfile"
+
+\end_inset
+
+) riassume i costi per le operazioni di base.
+ Per semplicità si considera che il file sia ordinato sui valori di chiave
+ primaria (o di una chiave candidata).
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float table
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "tab:seqfile"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+noindent
+\backslash
+resizebox{
+\backslash
+textwidth}{!}{
+\end_layout
+
+\end_inset
+
+
+\begin_inset Tabular
+<lyxtabular version="3" rows="6" columns="3">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="4cm">
+<column alignment="center" valignment="top" width="0">
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\series bold
+Operazione
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\series bold
+Descrizione
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\series bold
+Costo
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Ricerca per chiave
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Si utilizza la ricerca binaria per trovare la pagina che contiene il record
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $\left\lceil \log{\scriptscriptstyle 2}NP\right\rceil $
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Ricerca per intervallo
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Si leggono le sole pagine con valori di chiave nell'intervallo [L,H]
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+C(ricerca)-1+
+\begin_inset Formula $\frac{(H-L)*NP}{HK-LK}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Inserimento
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Si suppone che vi sia spazio per l'inserimento
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+C(ricerca)+1
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Cancellazione
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Si assume di cancellare un record
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+C(ricerca)+1
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Aggiornamento
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Si assume di aggiornare un record
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+C(ricerca)+1
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Per la ricerca per chiave si applica una semplice 
+\emph on
+ricerca binaria
+\emph default
+.
+ Per la ricerca per intervallo si fa un ragionamento equivalente, il costo
+ è dovuto al trovare la pagina che contiene il primo valore dell'intervallo
+ per poi leggere in sequenza le pagine fino a trovare l'ultimo record di
+ interesse nell'intervallo.
+ Infine si nota come per l'inserimento ora il costo non risulti più di 2,
+ ma bensì in base alla ricerca effettuata per inserire il dato.
+ Come descritto nel paragrafo precedente, 
+\emph on
+C(ricerca)
+\emph default
+ identifica il costo della ricerca effettuata per inserimento/cancellazione/aggi
+ornamento.
+\end_layout
+
+\end_body
+\end_document

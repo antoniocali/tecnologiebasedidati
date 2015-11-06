@@ -1,0 +1,4164 @@
+#LyX 2.0 created this file. For more info see http://www.lyx.org/
+\lyxformat 413
+\begin_document
+\begin_header
+\textclass article
+\use_default_options true
+\maintain_unincluded_children false
+\language italian
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize default
+\spacing single
+\use_hyperref false
+\papersize default
+\use_geometry false
+\use_amsmath 1
+\use_esint 1
+\use_mhchem 1
+\use_mathdots 1
+\cite_engine basic
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\use_refstyle 1
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Title
+Tecnologie delle Basi di Dati M
+\end_layout
+
+\begin_layout Author
+Antonio Davide Calì
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset CommandInset href
+LatexCommand href
+name "WWW.ANTONIOCALI.COM"
+target "http://www.antoniocali.com"
+
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+Anno Accademico 2013/2014
+\begin_inset Newline newline
+\end_inset
+
+Docenti: Marco Patella, Paolo Ciaccia
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset toc
+LatexCommand tableofcontents
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Part
+Skyline Queries
+\end_layout
+
+\begin_layout Standard
+Sebbene le 
+\emph on
+scoring function
+\emph default
+ siano utilizzate per classificare un insieme di oggetti, è riconosciuto
+ al giorno d'oggi che soffronoto di alcuni importanti problemi: in primo
+ luogo hanno una capacità espressiva limitata, infatti possono solo catturare
+ quei casi in cui le 
+\begin_inset Quotes eld
+\end_inset
+
+preferenze
+\begin_inset Quotes erd
+\end_inset
+
+ possono essere 
+\begin_inset Quotes eld
+\end_inset
+
+trasformate
+\begin_inset Quotes erd
+\end_inset
+
+ in numeri, cosa non sempre possibile (o al più non sempre naturale).
+ Un secondo problema riguarda quale 
+\emph on
+scoring function 
+\emph default
+usare, ovvero quale risulta 
+\begin_inset Quotes eld
+\end_inset
+
+migliore
+\begin_inset Quotes erd
+\end_inset
+
+ implementare? E quali pesi attribuire alle varie preferenze? La scelta
+ è molto difficile e per nulla immediata.
+\end_layout
+
+\begin_layout Standard
+In questa sezione studieremo un alternativa alle 
+\emph on
+scoring function
+\emph default
+, le cosiddette 
+\emph on
+skyline query
+\emph default
+, le quali hanno un rilevante utilizzo pratio e rappresentano il maggior
+ passo verso modelli con preferenze più generali (e quindi più potenti).
+\end_layout
+
+\begin_layout Paragraph
+Dominazione fra tuple
+\end_layout
+
+\begin_layout Standard
+Un concetto fondamentale che bisogna introdurre prima di definire le 
+\emph on
+skyline query
+\emph default
+ è il concetto di 
+\series bold
+dominazione fra tuple
+\series default
+\emph on
+.
+ 
+\emph default
+Data una relazione R 
+\begin_inset Formula $R(A_{1},A_{2},\ldots,A_{m},\ldots)$
+\end_inset
+
+ in cui gli attributi 
+\begin_inset Formula $A_{i}$
+\end_inset
+
+ sono gli attributi di 
+\emph on
+ranking
+\emph default
+, assumiamo senza perdita di generalità che su ogni 
+\begin_inset Formula $A_{i}$
+\end_inset
+
+ valori più bassi sono migliori.
+ Una tupla 
+\emph on
+t
+\emph default
+ 
+\emph on
+domina 
+\emph default
+una tupla 
+\emph on
+t'
+\emph default
+ rispetto agli attributi di ranking 
+\begin_inset Formula $A=\{A_{1},A_{2},\ldots,A_{m}\}$
+\end_inset
+
+ e si scrive con 
+\begin_inset Formula $t\succ_{A}t'$
+\end_inset
+
+ o semplicemente con 
+\begin_inset Formula $t\succ t'$
+\end_inset
+
+ se il contesto è chiaro, se e solo se 
+\begin_inset Formula 
+\[
+\forall j=1,\ldots,m\,:\, t.A_{j}\leq t'.A_{j}\,\wedge\,\exists j\,:\, t.A_{j}<t'.A_{j}
+\]
+
+\end_inset
+
+ ovvero se la tupla 
+\emph on
+t
+\emph default
+ è non peggiore della tupla 
+\emph on
+t'
+\emph default
+ per tutti gli attributi, e risulta strettamente migliore di 
+\emph on
+t'
+\emph default
+ per almeno un attributo.
+ Si noti che esistono i casi in cui non vale né 
+\begin_inset Formula $t\succ t'$
+\end_inset
+
+ né 
+\begin_inset Formula $t'\succ t$
+\end_inset
+
+ ovvero nessuna delle due tuple domina l'altra e in questo caso si dice
+ che le tuple sono 
+\emph on
+indifferenti
+\emph default
+.
+\end_layout
+
+\begin_layout Standard
+La generalizzazione al caso in cui si vogliano massimizzare gli attributi
+ di ranking o di renderli più vicinti a un qualisiasi punto target è immediata.
+\end_layout
+
+\begin_layout Standard
+Facciamo un esempio (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:tupledominationexample"
+
+\end_inset
+
+) in cui sia i 
+\emph on
+punti 
+\emph default
+che i 
+\emph on
+rimbalzi 
+\emph default
+debbano essere massimizzati.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:tupledominationexample"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename tupledominationexample.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+In questo caso Tracy McGrady domina tutti i giocatori ad eccezion fatta
+ di Yao Ming e Shaquille O'Neal.
+ Shaquille O'Neal domina solo Yao Ming e Steve Nash.
+ Yao Ming domina solo Steve Nash.
+ Steve Nash non domina nessuno.
+\end_layout
+
+\begin_layout Standard
+Un secondo esempio è il seguente (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:tupledominationexample02"
+
+\end_inset
+
+) in cui entrambi gli attributi devono essere minimizzati.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:tupledominationexample02"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename tupledominationexample02.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+La macchina C6 domina C1 (avendo lo stesso chilometraggio ma un prezzo inferiore
+), C3, C4 e C7.
+ La macchina C5 domina C1, C2, C4, C7, C8 e C9.
+ etc
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+ldots
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Il concetto di dominazione di tuple porta con se la creazione di 
+\emph on
+regioni di dominazione
+\emph default
+.
+ Si veda la seguente figura (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:dominanceregione"
+
+\end_inset
+
+) in cui vengono mostrate la 
+\emph on
+regione di dominazione 
+\emph default
+del punto C5 (rettangolo giallo) e la 
+\emph on
+regione di anti-dominazione 
+\emph default
+del punto C2 (rettangolo azzurro).
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:dominanceregione"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename dominanceregione.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+La 
+\emph on
+regione di dominazione 
+\emph default
+di una tupla 
+\emph on
+t
+\emph default
+ è l'insieme dei punti nel dominio di lavoro che sono 
+\emph on
+dominati da t
+\emph default
+.
+ Similarmente, la 
+\emph on
+regione di anti-dominazione
+\emph default
+ della tupla 
+\emph on
+t
+\emph default
+ è l'insieme dei punti nel dominio di lavoro che 
+\emph on
+dominano t
+\emph default
+.
+ Chiaramente 
+\begin_inset Formula $t\succ t'$
+\end_inset
+
+ se e solo se 
+\emph on
+t'
+\emph default
+ giace nella regione di dominazione di 
+\emph on
+t
+\emph default
+ e 
+\emph on
+t
+\emph default
+ giace nella regione di anti-dominazione di 
+\emph on
+t'.
+\end_layout
+
+\begin_layout Standard
+È possibile visualizzare la dominazione fra tuple attraverso un grafo, in
+ cui per semplicità, vengono omesse le dominazioni transitive.
+ Si controlli la figura (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:graphdomination"
+
+\end_inset
+
+) per una maggiore comprensione.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:graphdomination"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename graphdomination.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Skyline Query
+\end_layout
+
+\begin_layout Standard
+Introduciamo la definizione di 
+\series bold
+skyline 
+\series default
+di una 
+\series bold
+relazione 
+\series default
+[BKS01]: data una relazione 
+\begin_inset Formula $R(A_{1},A_{2},\ldots,A_{m},\ldots)$
+\end_inset
+
+ in cui 
+\begin_inset Formula $A_{i}$
+\end_inset
+
+ sono gli attributi di 
+\emph on
+ranking
+\emph default
+, la 
+\emph on
+skyline 
+\emph default
+della relazione R rispetto agli attributi di ranking 
+\begin_inset Formula $A=\{A_{1},A_{2},\ldots,A_{m}\}$
+\end_inset
+
+, denotata con 
+\begin_inset Formula $Sky_{A}(R)$
+\end_inset
+
+ o semplicemente con 
+\begin_inset Formula $Sky(R)$
+\end_inset
+
+, è l'insieme delle tuple di R 
+\emph on
+non dominate
+\emph default
+, ovvero
+\begin_inset Formula 
+\[
+Sky(R)=\{t\,|\, t\in R,\,\not\exists\, t'\in R\,:\, t'\succ t\}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Equivalentemente la tupla 
+\begin_inset Formula $t\in Sky(R)$
+\end_inset
+
+ se e solo se nessun punto in R giace nella 
+\emph on
+regione di anti-dominazione 
+\emph default
+di 
+\emph on
+t
+\emph default
+.
+\end_layout
+
+\begin_layout Standard
+In geometria computazionale, le 
+\emph on
+skyline query
+\emph default
+ sono anche conosciute come 
+\begin_inset Quotes eld
+\end_inset
+
+il problema dei massimi vettori
+\begin_inset Quotes erd
+\end_inset
+
+; per problemi di ottimizzazione multi-obiettivo il loro risultato è l'insieme
+ delle soluzioni 
+\emph on
+ottime 
+\emph default
+cosiddette 
+\emph on
+Pareto.
+\end_layout
+
+\begin_layout Standard
+Prendiamo un esempio nello spazio degli attributi (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:skylineexample01"
+
+\end_inset
+
+): il 
+\begin_inset Quotes eld
+\end_inset
+
+
+\emph on
+profilo skyline
+\emph default
+
+\begin_inset Quotes erd
+\end_inset
+
+ è il risultato dell'unione delle regioni di dominazione dei punti skyline.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:skylineexample01"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename skylineexample01.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Il seguente esempio (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:skylineexample02"
+
+\end_inset
+
+), invece, è mostrato nello spazio dei punteggi: come si vede non importa
+ come i punteggi vengono definiti, lo 
+\emph on
+skyline
+\emph default
+ non cambia, ovvero lo 
+\emph on
+skyline
+\emph default
+ è invariante a qualsiasi 
+\begin_inset Quotes eld
+\end_inset
+
+stiramento
+\begin_inset Quotes erd
+\end_inset
+
+ di coordinate.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:skylineexample02"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename skylineexample02.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace defskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Perchè sono così importanti le 
+\emph on
+skyline query
+\emph default
+?
+\end_layout
+
+\begin_layout Standard
+Indichiamo con 
+\series bold
+MD
+\series default
+ l'insieme di tutte le 
+\emph on
+funzioni distanza monotone
+\emph default
+.
+ Dato un punto 
+\emph on
+target 
+\series bold
+\emph default
+q
+\series default
+, vale la seguente relazione fra le 
+\emph on
+skyline query 
+\emph default
+e le 1-NN 
+\emph on
+query
+\emph default
+
+\begin_inset Formula 
+\[
+t\in Sky(R)\iff\exists d\in MD\,:\,\forall t'\in R,\, t'\neq t\,:\, d(t,q)<d(t',q)
+\]
+
+\end_inset
+
+ ovvero se 
+\emph on
+t 
+\emph default
+è l'unica tupla risultante di una 1-NN query per una certa 
+\emph on
+funzione di distanza d monotona
+\emph default
+, allora 
+\emph on
+t 
+\emph default
+appartiene allo 
+\emph on
+skyline
+\emph default
+; viceversa se 
+\emph on
+t 
+\emph default
+è un punto 
+\emph on
+skyline
+\emph default
+ allora esiste (almeno) una funzione di distanza 
+\emph on
+d
+\emph default
+ monotona minimizzata solo da 
+\emph on
+t
+\emph default
+.
+\end_layout
+
+\begin_layout Standard
+Per questo motivo i punti 
+\emph on
+skyline
+\emph default
+ sono spesso chiamati 
+\begin_inset Quotes eld
+\end_inset
+
+potenziali NN
+\begin_inset Quotes erd
+\end_inset
+
+ poichè i punti skyline sono tutti i punti che sono potenzialmente vincitori
+ in una 1-NN (dipende dalla funzione di distanza monotona applicata).
+ Chiaramente il risultato rimane valido per 
+\emph on
+scoring function monotone
+\emph default
+.
+\end_layout
+
+\begin_layout Standard
+
+\bar under
+Dimostrazione
+\end_layout
+
+\begin_layout Standard
+1) Se la tupla 
+\emph on
+t
+\emph default
+ è l'unica 1-NN per una funzione di distanza monotona 
+\emph on
+d
+\emph default
+, allora 
+\emph on
+t
+\emph default
+ fa parte dello 
+\emph on
+skyline
+\end_layout
+
+\begin_layout Standard
+Dimostriamo per assurdo negando la conclusione, assumendo che 
+\emph on
+t
+\emph default
+ non faccia parte dello skyline, cioè esiste una tupla 
+\emph on
+t' 
+\emph default
+che domina 
+\emph on
+t
+\emph default
+ ovvero 
+\begin_inset Formula $\forall j\, t'.A_{j}\leq t.A_{j}\,\wedge\,\exists j*\, t'.A_{j*}<t.A_{j*}$
+\end_inset
+
+ e siccome la funzione di distanza 
+\emph on
+d 
+\emph default
+è monotona avviene che 
+\begin_inset Formula $d(t',q)\leq d(t,q)$
+\end_inset
+
+ che porta a una contraddizione
+\end_layout
+
+\begin_layout Standard
+2) Se la tupla 
+\emph on
+t 
+\emph default
+è un punto dello skyline allora esiste (almeno) una fuzione di distanza
+ monotona 
+\emph on
+d
+\emph default
+ minimizzata solo da 
+\emph on
+t.
+\end_layout
+
+\begin_layout Standard
+La dimostrazione è costruttiva: senza perdita di generalità poniamo il punto
+ 
+\emph on
+target 
+\begin_inset Formula $q=0$
+\end_inset
+
+ 
+\emph default
+e assumiamo che tutti i valori degli attributi siano strettamente positivi.
+ Consideriamo la distanza pesata 
+\begin_inset Formula $L_{\infty,w}$
+\end_inset
+
+ con pesi uguali a 
+\begin_inset Formula $w_{i}=\frac{1}{t.A_{i}}$
+\end_inset
+
+ per 
+\begin_inset Formula $i=1,\ldots,m$
+\end_inset
+
+.
+ Si ha che 
+\begin_inset Formula $L_{\infty,w}(t,0)=max_{i}\{w_{i}\cdot t.A_{i}\}=1$
+\end_inset
+
+.
+ Per qualsiasi altro punto 
+\emph on
+t'
+\emph default
+ si ha invece che 
+\begin_inset Formula $L_{\infty,w}(t',0)=max_{i}\{w_{i}\cdot t'.A_{i}\}=max_{i}\{\frac{t'.A_{i}}{t.A_{i}}\}>1$
+\end_inset
+
+ e dunque 
+\emph on
+t 
+\emph default
+è un punto dello 
+\emph on
+skyline
+\emph default
+.
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace defskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Prendiamo il seguente esempio (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:accessibilita"
+
+\end_inset
+
+) e controlliamo l'accessibilità dei punto dello skyline, in cui la 
+\emph on
+scoring function 
+\emph default
+lineare è data da 
+\begin_inset Formula $S=Ws\cdot Stars-Wp\cdot price$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:accessibilita"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename ACCESSIBILITA.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Ciò che si vuole osservare è che in determinati dataset, un determinato
+ 
+\emph on
+skyline point 
+\emph default
+(come Paradise nell'esempio) potrebbe non essere mai restituito come top-1
+ per qualsiasi scoring function lineare (anche al variare dei pesi applicati)
+ scelta.
+ Problemi simili si hanno con un valore arbitrario di 
+\emph on
+k 
+\emph default
+e/o con la maggior parte di 
+\emph on
+scoring function
+\emph default
+.
+\end_layout
+
+\begin_layout Standard
+Infatti, lo 
+\emph on
+Skyline
+\emph default
+ non ammette qualsiasi 
+\emph on
+funzione di distanza
+\emph default
+.
+ Lo 
+\emph on
+skyline
+\emph default
+ di R 
+\bar under
+non
+\bar default
+ corrisponde a qualsiasi risultato
+\emph on
+ k
+\emph default
+-NN (o top-k), ovvero dato uno schema 
+\begin_inset Formula $R(A_{1},A_{2},\ldots,A_{m},\ldots)$
+\end_inset
+
+ non esiste una funzione distanza 
+\emph on
+d 
+\emph default
+(o equivalentemente una 
+\emph on
+scoring function S
+\emph default
+) che su tutte le possibili istanze di R mantiene nelle prime 
+\emph on
+k
+\emph default
+ posizioni i punti dello 
+\emph on
+skyline.
+
+\emph default
+ Si noti che stiamo permettendo a 
+\emph on
+k
+\emph default
+ di variare così da poter renderlo equivalente al numero di punti dello
+ 
+\emph on
+skyline
+\emph default
+ in ogni istanza di R.
+\end_layout
+
+\begin_layout Standard
+
+\bar under
+Dimostrazione
+\bar default
+: Per la dimostrazione utilizziamo un esempio (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:dimostrazione01"
+
+\end_inset
+
+).
+ Si ha 
+\begin_inset Formula $Sky(R')=\{t1,t4\}$
+\end_inset
+
+ cioè 
+\begin_inset Formula $\{S(t1),S(t4)\}>S(t2)$
+\end_inset
+
+.
+ D'altro canto si ha anche 
+\begin_inset Formula $Sky(R'')=\{t2,t3\}$
+\end_inset
+
+ cioè 
+\begin_inset Formula $\{S(t2),S(t3)\}>S(t4)$
+\end_inset
+
+ il che porta a una contraddizione.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:dimostrazione01"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename dimostrazione01.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsubsection
+Ranking con Skyline
+\end_layout
+
+\begin_layout Standard
+Il ranking di tuple può essere semplicemente ottenuto 
+\emph on
+iterando
+\emph default
+ l'operatore 
+\emph on
+skyline
+\emph default
+ così definito:
+\end_layout
+
+\begin_layout Enumerate
+\begin_inset Formula $Sky_{0}(R)=Sky(R)$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+\begin_inset Formula $Sky_{1}(R)=Sky(R-Sky_{0}(R))$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+\begin_inset Formula $Sky_{2}(R)=Sky(R-Sky_{0}(R)-Sky_{1}(R))$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+ldots
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Così si ottiene che 
+\begin_inset Formula $Sky_{0}(R)$
+\end_inset
+
+ sono le tuple 
+\begin_inset Quotes eld
+\end_inset
+
+top
+\begin_inset Quotes erd
+\end_inset
+
+, 
+\begin_inset Formula $Sky_{1}(R)$
+\end_inset
+
+ sono le 
+\begin_inset Quotes eld
+\end_inset
+
+seconde
+\begin_inset Quotes erd
+\end_inset
+
+ scelte e così via.
+ Si guardi la figura (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:skylineranking"
+
+\end_inset
+
+) per una maggiore comprensione.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:skylineranking"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename skylineranking.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Valutazione Skyline
+\end_layout
+
+\begin_layout Standard
+Il problema di un calcolo efficiente delle 
+\emph on
+skyline query 
+\emph default
+è stato largamente discusso e molti algoritmi sono stati introdotto.
+ Un motivo base è dovuto al fatto che il problema risulta 
+\begin_inset Quotes eld
+\end_inset
+
+più difficile
+\begin_inset Quotes erd
+\end_inset
+
+ delle 
+\emph on
+top-k query
+\emph default
+ poichè ha complessità 
+\begin_inset Formula $\Theta(N^{2})$
+\end_inset
+
+ nel caso peggiore per un database di N oggetti.
+ Ciò che vedremo sono algoritmi che seguono uno dei due seguenti approcci
+ base:
+\end_layout
+
+\begin_layout Enumerate
+
+\emph on
+Generico
+\emph default
+: calcola lo 
+\emph on
+skyline 
+\emph default
+senza l'ausilio di alcun metodo di accesso (indici) cioè la relazione di
+ input può essere anche l'
+\emph on
+output
+\emph default
+ di qualche altra operazione (join, group by, etc
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+ldots
+\end_layout
+
+\end_inset
+
+)
+\end_layout
+
+\begin_layout Enumerate
+
+\emph on
+Basati su indici
+\emph default
+: nel quale si assume che sia disponibile un indice.
+\end_layout
+
+\begin_layout Subsection
+Algoritmo Nested-Loop (NL)
+\end_layout
+
+\begin_layout Standard
+Il modo più semplice (ed inefficiente) di calcolare lo 
+\emph on
+skyline 
+\emph default
+di R è di confrontare ogni tupla con tutte le altre.
+\end_layout
+
+\begin_layout Paragraph
+Nested Loop
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+Input
+\series default
+: Un dataset 
+\emph on
+R
+\emph default
+, un insieme di attributi 
+\series bold
+A 
+\series default
+che inducono 
+\begin_inset Formula $\succ$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+Output
+\series default
+: 
+\emph on
+Sky
+\emph default
+(
+\emph on
+R
+\emph default
+) ovvero lo 
+\emph on
+skyline
+\emph default
+ di R rispetto ad 
+\series bold
+A
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Pseudo-Codice Algoritmo NL
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:Pseudo-Codice-Algoritmo-NL"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename nlpseudo.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+E vediamo subito un esempio (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:nlexample"
+
+\end_inset
+
+) in cui il punto 
+\emph on
+target 
+\emph default
+è l'origine.
+ Si noti che se 
+\begin_inset Formula $t\in Sky(R)$
+\end_inset
+
+ allora 
+\emph on
+t
+\emph default
+ sarà sempre confrontata con tutte le altre tuple.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:nlexample"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename nlexample.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Algoritmo Block-Nested-Loops (BNL)
+\end_layout
+
+\begin_layout Standard
+L'algoritmo 
+\emph on
+BNL
+\emph default
+ [BKS01] migliora l'algoritmo 
+\emph on
+NL 
+\emph default
+poichè scarta immediatamente tutte le tuple che sono dominate da almeno
+ un'altra tupla, cioè permette di evitare di confrontare due volte la stessa
+ coppia di tuple (come NL fa).
+\end_layout
+
+\begin_layout Standard
+BNL alloca un buffer (
+\emph on
+window
+\emph default
+) 
+\emph on
+W 
+\emph default
+in memoria principale, la cui grandezza è un parametro di 
+\emph on
+design
+\emph default
+, e legge sequenzialmente il 
+\emph on
+data file
+\emph default
+.
+ Ogni nuova tupla 
+\emph on
+t 
+\emph default
+che viene letta dal 
+\emph on
+data file
+\emph default
+ è confrontata con solo quelle tuple che sono attualmente in 
+\emph on
+W
+\emph default
+.
+ Si noti che l'algoritmo BNL proposto per le 
+\emph on
+skyline query
+\emph default
+ ha in realtà un'applicabilità molto più generale.
+\end_layout
+
+\begin_layout Standard
+La logica che contraddistingue BNL è che quando si legge una nuova tupla
+ 
+\emph on
+t 
+\emph default
+sono possibili 3 casi:
+\end_layout
+
+\begin_layout Enumerate
+Se una qualche tupla 
+\emph on
+t'
+\emph default
+ nel buffer 
+\emph on
+W
+\emph default
+ domina la tupla 
+\emph on
+t
+\emph default
+, allora 
+\emph on
+t 
+\emph default
+è immediatamente scartata
+\end_layout
+
+\begin_layout Enumerate
+Se 
+\emph on
+t
+\emph default
+ domina alcune tuple 
+\emph on
+t'
+\emph default
+ in 
+\emph on
+W
+\emph default
+ allora tutte queste tuple vengono rimosse da 
+\emph on
+W
+\emph default
+ e vi viene inserita 
+\emph on
+t 
+\emph default
+(si noti che il caso 1 e il caso 2 sono mutuamente esclusivi).
+\end_layout
+
+\begin_layout Enumerate
+Se non accade nessuno dei due casi precedenti allora semplicemente si inserisce
+ 
+\emph on
+t
+\emph default
+ nel buffer 
+\emph on
+W.
+ 
+\emph default
+Se non vi è spazio sufficiente in 
+\emph on
+W
+\emph default
+ allora 
+\emph on
+t 
+\emph default
+viene scritta su un file temporaneo 
+\emph on
+F
+\end_layout
+
+\begin_layout Standard
+Quando tutte le tuple sono state processate, se 
+\emph on
+F
+\emph default
+ è vuoto allora l'algoritmo si ferma, altrimenti inizia una nuova iterazione
+ dell'algoritmo usando 
+\emph on
+F
+\emph default
+ come nuovo input.
+\end_layout
+
+\begin_layout Standard
+Le tuple che sono state inserite in 
+\emph on
+W
+\emph default
+ quando 
+\emph on
+F 
+\emph default
+era vuoto possono essere immediatamente restituite come output, poichè sono
+ state confrontate con tutte le altre tuple.
+ Le restanti tuple in W (ovvero quelle inserite quando F risulta non vuoto)
+ possono essere restuite alla prossima iterazione: una tupla 
+\emph on
+t 
+\emph default
+può essere restituita come output quando viene trovata una tupla 
+\emph on
+t'
+\emph default
+ in 
+\emph on
+F 
+\emph default
+che segue 
+\emph on
+t
+\emph default
+ in ordine sequenziale, per far ciò è richiesto di aggiungere un 
+\emph on
+timestamp 
+\emph default
+(o un counter) ad ogni tupla.
+\end_layout
+
+\begin_layout Standard
+Vediamo un primo esempio (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:bnlexample01"
+
+\end_inset
+
+) in cui si assume la grandezza di 
+\emph on
+W
+\emph default
+ pari a 2 (
+\begin_inset Formula $\left|W\right|=2$
+\end_inset
+
+) e in cui il punto 
+\emph on
+target 
+\emph default
+risulta essere l'origine.
+ Si vede che per ogni tupla 
+\emph on
+t
+\emph default
+ vengono conteggiati soltanto i confronti con tuple seguenti 
+\emph on
+t
+\emph default
+ in R.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:bnlexample01"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename bnlexample01.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace defskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Paragraph
+Considerazioni
+\end_layout
+
+\begin_layout Standard
+Risultati sperimenali su [BKS01] mostrano che 
+\emph on
+BNL 
+\emph default
+è 
+\emph on
+CPU-bound 
+\emph default
+e che le sue performance deteriorano se 
+\emph on
+W
+\emph default
+ cresce poichè con valori alti di 
+\emph on
+W
+\emph default
+, BNL esegue più confronti.
+ D'altro canto BNL ha un costo relativamente basso di I/O.
+\end_layout
+
+\begin_layout Standard
+Facciamo un esempio limite per tentare di spiegare perchè al crescere di
+ W le performance peggiorano.
+ Si immagini di avere i due casi limite con W illimitata e con 
+\begin_inset Formula $|W|=1$
+\end_inset
+
+ e l'istanza del problema abbiamo N tuple di cui le prime N-1 tuple sono
+ 
+\emph on
+indifferenti
+\emph default
+ fra loro mentre l'ultima tupla domina tutte le altre.
+ Nel caso di 
+\emph on
+window illimitata
+\emph default
+ fintato che leggo una nuova tupla fra le prime N-1 viene inserita nella
+ 
+\emph on
+window
+\emph default
+ e quindi ogni nuova tupla deve confrontarsi con ogni tupla già presente
+ in window portando a 
+\begin_inset Formula $\binom{N-1}{2}$
+\end_inset
+
+ confronti ed infine arriva l'ultima tupla t che dominando tutte le precedenti
+ le elimina dalla window stessa.
+ Nel caso invece in cui la window abbia capacità uguale a uno, la prima
+ tupla viene inserita nella window, tutte le successive essendo indifferenti
+ alla prima, vengono inserite nel file F (dunque effettuano solo il cronfronto
+ con la prima tupla nella window e non con quelle del file).
+ Infine arriva l'ultima tupla che domina l'unica tupla in window, la quale
+ viene eliminata dal buffer per far posto alla nuova tupla dominante.
+ All'iterazione successiva a questo punto vengono confrontate tutte le N-2
+ tuple nel file con la tupla presente nella window (che le domina tutte):
+ il numero di confronti totali è 
+\begin_inset Formula $N-1+N-2$
+\end_inset
+
+ lineare in N.
+\end_layout
+
+\begin_layout Standard
+Le performance sono inoltre influenzate negativamente dal numeri di punti
+ dello 
+\emph on
+skyline.
+ 
+\emph default
+La cardinalità dello skyline dipende dal numero di attributi e dalle loro
+ correlazioni: gli attributi negativamente 
+\emph on
+correlati
+\emph default
+ (o anti-correlati), come 
+\emph on
+Price
+\emph default
+ e 
+\emph on
+Mileage
+\emph default
+, tendono ad avere uno 
+\emph on
+skyline
+\emph default
+ pià grande.
+\end_layout
+
+\begin_layout Standard
+[BKS01] ha inoltre indrodotto alcune varianti rispetto a BNL, come ad esempio
+ BNL-sol che gestisce 
+\emph on
+W 
+\emph default
+come una 
+\emph on
+lista auto-organizzata 
+\emph default
+in cui l'idea è di confrantare prima gli oggetti in arrivo con quelli presenti
+ in 
+\emph on
+W 
+\emph default
+(chiamati oggetti 
+\begin_inset Quotes eld
+\end_inset
+
+killer
+\begin_inset Quotes erd
+\end_inset
+
+) che sono stati trovati a dominare molti altri oggetti; oppure come ad
+ esempio algoritmi D&C che si basano sull'approccio 
+\emph on
+divide et counquer.
+\end_layout
+
+\begin_layout Standard
+Mostriamo un ultimo esempio (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:bnlexample02"
+
+\end_inset
+
+) in cui impostiamo la cardinalità di 
+\emph on
+W 
+\emph default
+a 1 (
+\begin_inset Formula $\left|W\right|=1$
+\end_inset
+
+): ciò rende minimo il numero di confronti per un dato ordine di input.
+ Si noti come t6 può essere restituita come risultato durante la terza iterazion
+e, subito dopo aver letto t8.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:bnlexample02"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename bnlexample02.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Algoritmo Sort-Filter-Skyline (SFS)
+\end_layout
+
+\begin_layout Standard
+L'algoritmo SFS ha come obiettivo quello di ridurre il numero di confronti:
+ per riuscirci esegue un 
+\emph on
+ordinamento topologico 
+\emph default
+dei dati di input il quale rispetta il criterio di preferenza dello 
+\emph on
+skyline
+\emph default
+.
+\end_layout
+
+\begin_layout Standard
+Diamo la definizione di 
+\series bold
+ordinamento topologico
+\series default
+: data 
+\begin_inset Formula $\succ$
+\end_inset
+
+, un 
+\emph on
+ordinamento topologico 
+\emph default
+di R è un ordinamento completo (senza parità) definito con < delle tuple
+ in R tali che
+\begin_inset Formula 
+\[
+t\succ t'\Rightarrow t<t'
+\]
+
+\end_inset
+
+ cioè se la tupla 
+\emph on
+t 
+\emph default
+domina 
+\emph on
+t'
+\emph default
+ allora 
+\emph on
+t
+\emph default
+ precede 
+\emph on
+t'
+\emph default
+ nell'ordinamento completo.
+\end_layout
+
+\begin_layout Standard
+Si veda la seguente figura (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:ordtoplogico"
+
+\end_inset
+
+) per una maggiore comprensione
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:ordtoplogico"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename ordtoplogico.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+L'osservazione chiave è la seguente: se l'input è 
+\emph on
+ordinato topologicamente 
+\emph default
+allora una nuova tupla appena letta non può dominare alcuna tupla precedentement
+e letta (poichè 
+\begin_inset Formula $t>t'\Rightarrow t\not\succ t'$
+\end_inset
+
+).
+\end_layout
+
+\begin_layout Standard
+Nella seguente figura (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:ordinamentotopologico"
+
+\end_inset
+
+) sono mostrati possibili risultati di ordinamenti topologici.
+ In pratica un ordinamento topologico è ottenuto ordinando i dati utilizzando
+ una funzione di distanza (o una scoring function) monotona (quali ad esempio
+ la somma e il prodotto sono) applicata ai criteri di skyline.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:ordinamentotopologico"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename ordinamentotopologico.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+E mostriamo di seguito un esempio (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:sfsexample"
+
+\end_inset
+
+) di come SFS funzioni assumendo 
+\begin_inset Formula $|W|=2$
+\end_inset
+
+ e punto target l'origine.
+ Si noti come che per ogni tupla t vengono conteggiati soltanto i confronti
+ con tuple seguenti t in nell'input ordinato.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:sfsexample"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename sfsexample01.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+SFS gode inoltre di ulteriori proprietà:
+\end_layout
+
+\begin_layout Itemize
+Alla fine di ogni itereazione tutte le tuple in 
+\emph on
+W
+\emph default
+ possono essere restituite come output, poichè nessuna tupla in 
+\emph on
+W
+\emph default
+ può essere scartata da una successiva tupla
+\end_layout
+
+\begin_layout Itemize
+Il numero di iterazioni è pertanto il minimo possibile: 
+\begin_inset Formula $\left\lceil \frac{\left|Sky(R)\right|}{\left|W\right|}\right\rceil $
+\end_inset
+
+, a differenza di BNL che non garantisce nulla di ciò
+\end_layout
+
+\begin_layout Itemize
+SFS può restituire una tupla appena viene inserita nel buffer W, ma in W
+ si possono memorizzare solo i valori degli attributi 
+\emph on
+skyline
+\emph default
+ (con obiettivo di confrontare i successivi valori delle tuple per verificare
+ se questi sono dominati), il che porta a ridurre di molto lo spazio richiesto
+\end_layout
+
+\begin_layout Itemize
+Due tuple non-
+\emph on
+skyline
+\emph default
+ non verranno mai confrontate, poichè in W sono presenti solo tuple skyline:
+ infatti i confronti possibili possono essere solo fra due tuple presenti
+ nello 
+\emph on
+skyline 
+\emph default
+e quindi ad aver diritto a stare nella window W, oppure confronto fra una
+ tupla skyline e una no.
+\end_layout
+
+\begin_layout Itemize
+Gestire la struttura del buffer (
+\emph on
+window
+\emph default
+) è ora molto più semplice poichè si suppongono possibili solo inserimenti
+ e non vi è mai la cancellazione di tuple specifiche, quindi non bisogna
+ gestire gli slot vuoti.
+\end_layout
+
+\begin_layout Subsection
+Algoritmo SaLSa
+\end_layout
+
+\begin_layout Standard
+L'algoritmo 
+\emph on
+SaLSa 
+\emph default
+(Sort and Limit Skyline Algorithm) estende l'idea di SFS osservando che
+ quando i dati sono ordinati topologicamente è possibile evitare di leggere
+ tutte le tuple di input.
+\end_layout
+
+\begin_layout Standard
+Prendiamo il seguente esempio (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:SalsaExample"
+
+\end_inset
+
+) in cui i dati sono ordinati utilizzando la 
+\emph on
+scoring function 
+\emph default
+SUM siffata 
+\begin_inset Formula $t.Price+t.Mileage$
+\end_inset
+
+.
+ 
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:SalsaExample"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename salsaexample.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Dopo aver letto C6 (o C10) la cui somma è pari a 60, sappiamo che non esistono
+ ulteriori punti 
+\emph on
+skyline
+\emph default
+, tutta via usare tutti gli attuali punti in Sky(R) per questo scopo è costoso,
+ infatti il problema è 
+\emph on
+NP-hard
+\emph default
+ [BCP08].
+\end_layout
+
+\begin_layout Standard
+Per risolvere il problema SaLSA fa uso di una 
+\emph on
+sola
+\emph default
+ tupla skyline, la cosiddetta 
+\emph on
+stop-point 
+\emph default
+denotata con 
+\begin_inset Formula $t_{stop}$
+\end_inset
+
+, per determinare quando l'esecuzione può essere fermata.
+ In questo caso è sufficiente controllare se ciò che bisogna ancora leggere
+ giace nella
+\emph on
+ regione di dominazione
+\emph default
+ di 
+\begin_inset Formula $t_{stop}$
+\end_inset
+
+.
+ Si veda il seguente esempio (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:stopsalas"
+
+\end_inset
+
+) per una maggiore comprensione.
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:stopsalas"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename stopsalsa.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace defskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Per funzioni di distanza (o scoring function) 
+\emph on
+simmetriche
+\emph default
+ (ovvero con pesi uguali o che scambiando gli argomenti la funzione non
+ cambia), e assumendo che le coordinate lavorino tutte sullo stesso range
+ ([0,1], [0,50], etc
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+ldots
+\end_layout
+
+\end_inset
+
+) è possibile provare che la scelta 
+\emph on
+ottimale
+\emph default
+ per il 
+\emph on
+stop-point
+\emph default
+ è data dalla seguente regola
+\begin_inset Formula 
+\[
+t_{stop}=argmin_{t\in Sky(R)}\left\{ max_{i}\left\{ t.A_{i}\right\} \right\} 
+\]
+
+\end_inset
+
+ ovvero la tupla per cui il 
+\emph on
+valore della coordinata massima è minimo
+\emph default
+.
+ Si noti che ciò è valido per qualsiasi funzione di distanza simmetrica.
+ Il seguente esempio (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:stopwhen"
+
+\end_inset
+
+) chiarirà le idee.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:stopwhen"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename stopwhen.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace defskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Paragraph
+Scelta dell'ordinamento ottimale
+\end_layout
+
+\begin_layout Standard
+Tra le molte alternative possibili di ordinare i dati di input, SaLSa utilizza
+ un 
+\emph on
+criterio dimostrabilmente ottimale
+\emph default
+, ovvero in ogni istanza ordinando i dati utilizzando un'altra funzione
+ simmetrica non permette di scartare punti in più.
+ Il criterio di ottimalità è chiamato 
+\series bold
+minC 
+\series default
+(minimum coordinate), cioè per ogni tupla 
+\emph on
+t 
+\emph default
+viene utilizzato il valore di 
+\begin_inset Formula $min_{i}\{t.A_{i}\}$
+\end_inset
+
+ (ovvero vengono ordinate utilizzando la coordinata convalore minimo).
+ In caso di parità si utilizza il criterio secondario di 
+\begin_inset Quotes eld
+\end_inset
+
+Sum
+\begin_inset Quotes erd
+\end_inset
+
+.
+ Questo perchè ricordando le curve a equi-punteggio, la curva del minimo
+ è effettivamente quella che riesce a 
+\begin_inset Quotes eld
+\end_inset
+
+cancellare
+\begin_inset Quotes erd
+\end_inset
+
+ più tuple poichè a differenza della curva SUM rappresentata da una retta
+ e ricordando che è possibile fermarsi quando ciò che bisogna ancora vedere
+ giace 
+\emph on
+completamente 
+\emph default
+all'interno della regione di dominazione della tupla 
+\begin_inset Formula $t_{stop}$
+\end_inset
+
+, allora possiamo capire che SUM scarta meno tuple poichè forma un 
+\begin_inset Quotes eld
+\end_inset
+
+triangolo
+\begin_inset Quotes erd
+\end_inset
+
+ con il grafico, mentre la funzione di MIN copia ugualmente la regione di
+ dominazione.
+\end_layout
+
+\begin_layout Standard
+Si controlli il seguente esempio (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:optimalyorder"
+
+\end_inset
+
+) per una maggiore comprensione.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:optimalyorder"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename optimalyorder.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Vediamo un esempio (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:salsaminc"
+
+\end_inset
+
+) su come l'algoritmo funziona, utilizzando l'ordinamento minC per fermarsi.
+ Lo 
+\emph on
+stop-point 
+\emph default
+è C1 per il quale si ha 
+\begin_inset Formula $max_{i}\left\{ C1.A_{i}\right\} =25$
+\end_inset
+
+.
+ Appena si ha che 
+\begin_inset Formula $minC\geq25$
+\end_inset
+
+ allora SaLSa può fermarsi.
+ La condizione generale di stop è dunque la seguente 
+\begin_inset Formula $minC\geq max_{i}\left\{ t_{stop}.A_{i}\right\} $
+\end_inset
+
+.
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:salsaminc"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename salsaminc.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Algoritmo BBS
+\end_layout
+
+\begin_layout Standard
+Se abbiamo un 
+\emph on
+indice
+\emph default
+ sugli attributi di ranking, possiamo usarlo per evitare di scandire tutto
+ il database.
+ L'algoritmo 
+\series bold
+BBS
+\series default
+ (Branch and Bound Skylin) [PTF+03] è una reminiscenza sia del 
+\emph on
+k-NNOptimal
+\emph default
+, nel quale si accede ai nodi dell'indice per valori crescenti di 
+\emph on
+MinDist
+\emph default
+ (da qui in seguito, il punto target coincide con l'origine) sia dell'algoritmo
+ 
+\emph on
+next-NN
+\emph default
+, nella cui coda 
+\emph on
+PQ 
+\emph default
+si mantengono sia tuple che nodi.
+ Per migliorare i costi [PTF+03] calcola le distanze usando 
+\begin_inset Formula $L_{1}$
+\end_inset
+
+ (la distanza di Manhattan).
+ 
+\end_layout
+
+\begin_layout Standard
+L'obiettivo base dell'algoritmo è di evitare di accedere ai nodi dell'indice
+ che non possono contenere alcun oggetto 
+\emph on
+skyline
+\emph default
+.
+ Per far ciò sfrutta la seguente osservazione: se la regione 
+\begin_inset Formula $Reg(N)$
+\end_inset
+
+ del nodo 
+\emph on
+N 
+\emph default
+giace completamente nella 
+\emph on
+regione di dominanza 
+\emph default
+di una tupla 
+\emph on
+t
+\emph default
+, allora 
+\emph on
+N 
+\emph default
+non può contere alcun punto 
+\emph on
+skyline
+\emph default
+ (ovvero 
+\emph on
+t 
+\emph default
+domina 
+\emph on
+N
+\emph default
+).
+ Si controlli la figura (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:tdominaN"
+
+\end_inset
+
+) per una maggiore comprensione.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:tdominaN"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename tdominaN.png
+	scale 50
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Inoltre sfrutta anche ormai il ben noto fatto che se 
+\begin_inset Formula $L_{1}(t',0)\geq L_{1}(t,0)$
+\end_inset
+
+ allora 
+\begin_inset Formula $t'\not\succ t$
+\end_inset
+
+.
+ La coda 
+\emph on
+PQ 
+\emph default
+inoltre memorizza anche 
+\emph on
+key
+\emph default
+(
+\emph on
+N
+\emph default
+) ovvero la 
+\emph on
+MBR 
+\emph default
+(Minimum Bound Rectangle) di 
+\emph on
+N
+\emph default
+ per verificare se 
+\emph on
+N
+\emph default
+ è dominata da una qualche tupla 
+\emph on
+t.
+\end_layout
+
+\begin_layout Paragraph
+Algoritmo BBS
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+Input
+\series default
+: l'albero indice con nodo radice RN
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+Output
+\series default
+: 
+\emph on
+Sky
+\emph default
+, lo 
+\emph on
+skyline
+\emph default
+ dei dati indicizzati
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Pseudo-Codice Algoritmo BBS
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:Pseudo-Codice-Algoritmo-BBS"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename bbspseudo.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace defskip
+\end_inset
+
+Vediamo di seguito un esempio in cui i dati iniziali sono dati da (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:bbsexample01"
+
+\end_inset
+
+) e l'algoritmo in esecuzione è mostrato in (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:bbsexample02"
+
+\end_inset
+
+) in cui la distanza è 
+\begin_inset Formula $L_{1}$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:bbsexample01"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename bbsexample01.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:bbsexample02"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename bbsexample02.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+L'esempio mostra chiaramente perchè una tupla 
+\emph on
+attualmente
+\emph default
+ non dominata, come B, la quale è salvata nel nodo N3, necessita di essere
+ inserita nella coda 
+\emph on
+PQ
+\emph default
+.
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace defskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+La 
+\emph on
+corretezza 
+\emph default
+del'algoritmo 
+\series bold
+BBS
+\series default
+ è molto semplice da provare, poichè l'algoritmo scarta solo i nodi trovati
+ che sono dominati da un qualche punto dello 
+\emph on
+Skyline
+\emph default
+.
+\end_layout
+
+\begin_layout Standard
+Come 
+\emph on
+SFS 
+\emph default
+e 
+\emph on
+SaLSa
+\emph default
+ quando una tupla 
+\emph on
+t 
+\emph default
+è inserita nell'insieme 
+\emph on
+Sky 
+\emph default
+allora c'è la garanzia che 
+\emph on
+t
+\emph default
+ fa parte del risultato finale: questa è una diretta conseguenza dell'accesso
+ ai nodi per valori incrementali di 
+\emph on
+MinDist
+\emph default
+ e dell'inserzione di una tupla in 
+\emph on
+Sky 
+\emph default
+solo quando diventa il primo elemento di 
+\emph on
+PQ
+\emph default
+.
+\end_layout
+
+\begin_layout Standard
+L'
+\emph on
+ottimalità
+\emph default
+ di 
+\series bold
+BBS 
+\series default
+(che non dimostriamo formalmente) significa che 
+\emph on
+BBS
+\emph default
+ legge solo quei nodi che intersecano la 
+\begin_inset Quotes eld
+\end_inset
+
+
+\emph on
+regione di ricerca Skyline
+\begin_inset Quotes erd
+\end_inset
+
+, 
+\emph default
+la quale è ottenuta facendo il complemento dell'unione delle 
+\emph on
+regioni di dominazione
+\emph default
+ dei punti 
+\emph on
+skyline.
+ 
+\emph default
+Si veda la figura (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:skylineregion"
+
+\end_inset
+
+) per una maggiore comprensione.
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:skylineregion"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename skylineregione.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Algoritmo LS-B
+\end_layout
+
+\begin_layout Standard
+In molti scenari, molti (possibilmente tutti) gli attributi di interesse
+ possono assumere solo un piccolo range di valori (ad esempio le valutazioni
+ di film, la presenza/assenza di una feature, i 
+\begin_inset Quotes eld
+\end_inset
+
+predicati di preferenza
+\begin_inset Quotes erd
+\end_inset
+
+, discretizzazione del dominio).
+ Un esempio è mostrato in figura (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:lsbexample01"
+
+\end_inset
+
+).
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:lsbexample01"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename lsbexample01.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Nell'esempio 
+\begin_inset Formula $Sky(R)=\{H2,H3,H4\}$
+\end_inset
+
+ poichè 
+\begin_inset Formula $H2\succ H1$
+\end_inset
+
+ e valgono contemporaneamente 
+\begin_inset Formula $H2\succ H5$
+\end_inset
+
+ e 
+\begin_inset Formula $H4\succ H5$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+Gli algoritmi considerati finora sono incapaci di sfruttare la peculiarità
+ di domini a bassa cardinalità.
+\end_layout
+
+\begin_layout Standard
+L'algoritmo 
+\series bold
+LS-B 
+\series default
+[MPJ07] assume che tutti gli attributi abbiamo bassa cardinalità.
+ Senza perdita di generalità considereremo solo 
+\emph on
+m attributi booleani.
+ 
+\emph default
+La corrispondente rete di booleani è composta da 
+\begin_inset Formula $2^{m}$
+\end_inset
+
+ elementi che possono essere ordinati considerando che 
+\begin_inset Quotes eld
+\end_inset
+
+1 è sempre migliore di 0
+\begin_inset Quotes erd
+\end_inset
+
+.
+ Si veda la figura (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:lsbreticolo"
+
+\end_inset
+
+) per una maggiore comprensione.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:lsbreticolo"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename lsbreticolo.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+L'idea di LS-B è che solo le tuple nelle 
+\begin_inset Quotes eld
+\end_inset
+
+migliori classi
+\begin_inset Quotes erd
+\end_inset
+
+ (dove una classe è rappresentata da un nodo del reticolo) del reticolo
+ fanno parte dello 
+\emph on
+skyline
+\emph default
+.
+ Vediamo ora come funziona.
+\end_layout
+
+\begin_layout Standard
+L'algoritmo LS-B opera in due parti
+\end_layout
+
+\begin_layout Description
+Fase
+\begin_inset space ~
+\end_inset
+
+1 Legge tutte le tuple e marca come 
+\series bold
+presente 
+\series default
+(
+\emph on
+p
+\emph default
+) il corrispondente elemento nel reticolo; i restanti elementi rimangono
+ marcati come 
+\series bold
+non presenti
+\series default
+ (
+\emph on
+np
+\emph default
+)
+\end_layout
+
+\begin_layout Description
+Fase
+\begin_inset space ~
+\end_inset
+
+2 Leggi di nuovo tutte le tuple e restituisci in output quelle il cui elemento
+ nel reticolo è 
+\emph on
+non dominato
+\end_layout
+
+\begin_layout Standard
+Si veda di seguito un esempio (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:lsbexample02"
+
+\end_inset
+
+) del funzionamento di LS-B.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:lsbexample02"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename lsbexample02.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Algoritmo LS
+\end_layout
+
+\begin_layout Standard
+L'algoritmo 
+\series bold
+LS 
+\series default
+[MPJ07] estende l'algoritmo 
+\emph on
+LS-B 
+\emph default
+permettendo la presenza di un attributo 
+\begin_inset Formula $A_{0}$
+\end_inset
+
+ il cui dominio può essere arbitrariamente grande (ad esempio 
+\emph on
+Price
+\emph default
+).
+\end_layout
+
+\begin_layout Standard
+Nella 
+\emph on
+prima
+\emph default
+ 
+\emph on
+fase
+\emph default
+ l'algoritmo 
+\emph on
+LS
+\emph default
+ calcola anche il 
+\emph on
+valore locale ottimo 
+\emph default
+(
+\emph on
+lov
+\emph default
+) di 
+\begin_inset Formula $A_{0}$
+\end_inset
+
+ per ogni elemento presente (ad esempio il prezzo più basso).
+ Un elemento 
+\emph on
+e 
+\emph default
+è ora dominato se esiste un elemento 
+\emph on
+migliore e' 
+\emph default
+(ovvero la dominazione descritta in LS-B) nel reticolo il cui 
+\emph on
+lov 
+\emph default
+è non peggiore di 
+\emph on
+e.lov
+\emph default
+.
+\end_layout
+
+\begin_layout Standard
+Si veda di seguito un esempio della prima fase (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:lsexample01"
+
+\end_inset
+
+)
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:lsexample01"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename lsexample01.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Nella 
+\emph on
+seconda fase 
+\emph default
+una tupla 
+\emph on
+t 
+\emph default
+il cui elemento 
+\emph on
+e 
+\emph default
+è 
+\emph on
+non dominato
+\emph default
+ può essere 
+\begin_inset Quotes eld
+\end_inset
+
+tagliato
+\begin_inset Quotes erd
+\end_inset
+
+ se e solo 
+\begin_inset Formula $t.A_{0}$
+\end_inset
+
+ è peggiore di 
+\emph on
+e.lov 
+\emph default
+(ovvero, una tupla di una determinata classe appartiene allo skyline se
+ la tupla ha effettivamente il valore locale ottimo calcola precedentemente,
+ altrimenti essa viene eliminata).
+\end_layout
+
+\begin_layout Standard
+Si noti che non si conosce alcuna facile ed efficiente estensione quando
+ più di un attributo ha un dominio grande (poichè per ogni elemento dovremmo
+ calcolare uno 
+\emph on
+skyline
+\emph default
+ 
+\begin_inset Quotes eld
+\end_inset
+
+locale
+\begin_inset Quotes erd
+\end_inset
+
+).
+\end_layout
+
+\begin_layout Section
+Conclusioni
+\end_layout
+
+\begin_layout Standard
+Esistono alcune varianti alle 
+\emph on
+skyline query
+\emph default
+.
+ [PTF+03] introduce alcune modifiche alle query 
+\emph on
+skyline 
+\emph default
+di base come ad esempio:
+\end_layout
+
+\begin_layout Enumerate
+
+\series bold
+Ranked Skyline Query 
+\series default
+che ordinano lo 
+\emph on
+skyline 
+\emph default
+con una 
+\emph on
+scoring function
+\end_layout
+
+\begin_layout Enumerate
+
+\series bold
+Constrained Skyline Query 
+\series default
+che limitano la regione di ricerca
+\end_layout
+
+\begin_layout Enumerate
+
+\series bold
+K-Dominating Query
+\series default
+ che restituiscono le 
+\emph on
+k 
+\emph default
+tuple che dominano il più grande numero di altre tuple
+\end_layout
+
+\begin_layout Standard
+Molti altri problemi relativi allo 
+\emph on
+skyline 
+\emph default
+sono stati proposti e studiati finora, ad esempio le 
+\emph on
+Reverse Skyline Query
+\emph default
+ in cui dato un punto query 
+\emph on
+q,
+\emph default
+ si vuole sapere quali siano le tuple 
+\emph on
+t
+\emph default
+ tali che 
+\emph on
+q 
+\emph default
+sia nello 
+\emph on
+skyline
+\emph default
+ calcolatato rispettivamente a 
+\emph on
+t 
+\emph default
+(ovvero quando 
+\emph on
+t 
+\emph default
+è il target); oppure le 
+\emph on
+Representative Skyline Points
+\emph default
+ in cui si vuole sapere quali sono i 
+\emph on
+k 
+\emph default
+punti 
+\begin_inset Quotes eld
+\end_inset
+
+più rappresentativi
+\begin_inset Quotes erd
+\end_inset
+
+ dello 
+\emph on
+skyline
+\emph default
+.
+\end_layout
+
+\begin_layout Subsection
+Sommario
+\end_layout
+
+\begin_layout Standard
+Le 
+\emph on
+Skyline Query
+\emph default
+ rappresentano una valida alternativa alle 
+\emph on
+top-k query
+\emph default
+, poichè non richiedono alcuna scelta su 
+\emph on
+scoring function 
+\emph default
+e su
+\emph on
+ pesi.
+ 
+\emph default
+Lo 
+\emph on
+skyline
+\emph default
+ di una relazione 
+\emph on
+R
+\emph default
+, 
+\begin_inset Formula $Sky(R)$
+\end_inset
+
+, contiene tutte e sole le tuple 
+\emph on
+non
+\emph default
+ 
+\emph on
+dominate 
+\emph default
+in R, ovvero quelle tuple che rappresentano 
+\begin_inset Quotes eld
+\end_inset
+
+interessanti alternative
+\begin_inset Quotes erd
+\end_inset
+
+ da considerare.
+ Il calcolo di 
+\begin_inset Formula $Sky(R)$
+\end_inset
+
+ si può basare sia su algoritmi 
+\emph on
+sequenziali 
+\emph default
+sia su quelli basati su 
+\emph on
+indice.
+\end_layout
+
+\begin_layout Standard
+L'algortimo BNL lavora allocando un 
+\emph on
+buffer 
+\emph default
+(
+\emph on
+window
+\emph default
+) in memoria principale e confrontando le tuple in arrivo con quelle nella
+ 
+\emph on
+window
+\emph default
+.
+\end_layout
+
+\begin_layout Standard
+SFS pre-ordina i dati mantenendo un 
+\emph on
+ordinamento topologico 
+\emph default
+che introduce diversi benefici se comparato a BNL.
+\end_layout
+
+\begin_layout Standard
+SaLSa aggiunge una condizione di stop che permette di evitare di leggere
+ tutti i dati.
+\end_layout
+
+\begin_layout Standard
+BBS è un algoritmo dimostrabilmente ottimo per numero I/O per il calcolo
+ di 
+\begin_inset Formula $Sky(R)$
+\end_inset
+
+ utilizzando un 
+\emph on
+R
+\emph default
+-
+\emph on
+tree.
+\end_layout
+
+\begin_layout Standard
+Infine LS-B e LS sono stati creati per lavorare con domini di bassa cardinalità
+ (e con al più un attributo con dominio arbitrariamente vasto).
+\end_layout
+
+\end_body
+\end_document

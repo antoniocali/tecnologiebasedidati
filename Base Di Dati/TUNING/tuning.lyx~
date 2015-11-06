@@ -1,0 +1,2560 @@
+#LyX 2.0 created this file. For more info see http://www.lyx.org/
+\lyxformat 413
+\begin_document
+\begin_header
+\textclass article
+\use_default_options true
+\maintain_unincluded_children false
+\language italian
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\float_placement H
+\paperfontsize default
+\spacing single
+\use_hyperref false
+\papersize default
+\use_geometry false
+\use_amsmath 1
+\use_esint 1
+\use_mhchem 1
+\use_mathdots 1
+\cite_engine basic
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\use_refstyle 1
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Title
+Tecnologie Delle Basi di Dati M
+\end_layout
+
+\begin_layout Author
+Antonio Davide Calì
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset CommandInset href
+LatexCommand href
+name "WWW.ANTONIOCALI.COM"
+target "http://www.antoniocali.com/"
+
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+Anno Accademico 2013/2014
+\begin_inset Newline newline
+\end_inset
+
+Docenti: Marco Patella, Paolo Ciaccia
+\end_layout
+
+\begin_layout Standard
+
+\end_layout
+
+\begin_layout Part
+Progetto fisico e tuning del Database
+\end_layout
+
+\begin_layout Standard
+La valutazione del progetto di un Database avviene tramite la misurazione
+ delle prestazioni del 
+\emph on
+dmbs
+\emph default
+ rispetto alle interrogazioni ed alle operazioni di modifica del Database
+ tipicamente utilizzate.
+ È possibile migliorare le prestazioni 
+\emph on
+a priori
+\emph default
+ tramite i tre tipi di progettazione (concettuale, logica e fisica) oppure
+ 
+\emph on
+a posteriori
+\emph default
+ tramite il tuning di parametri e/o oggetti del database.
+ Se mentre la progettazione concettuale e logica sono state trattate in
+ corsi precedenti, per progettazione fisica si intende 
+\emph on
+mappare
+\emph default
+ uno schema logico sull'hardware che abbiamo a disposizione: tutto ciò,
+ nella realtà, è un problema molto complicato poichè richiede il tipico
+ problema, che non tratteremo, di come distribuire i dati su più macchine
+ e architetture con I/O diversi il che potrebbe richiedere una frammentazione
+ dei dai orizzontale o verticale per migliorarne il parallelismo.
+\end_layout
+
+\begin_layout Standard
+La chiave per un buon progetto fisico è ottenere una descrizione il più
+ possibile accurata del carico di lavoro atteso.
+ Il 
+\series bold
+workload
+\series default
+ fa proprio questo, include dunque: 
+\end_layout
+
+\begin_layout Itemize
+Un elenco di query con la rispettiva frequenza di esecuzione
+\end_layout
+
+\begin_layout Itemize
+Un elenco di transazioni (operazioni di modifica) con la rispettiva frequenza
+ di esecuzione
+\end_layout
+
+\begin_layout Itemize
+Un obiettivo di prestazione per ciascun tipo di query e/o operazione di
+ modifica
+\end_layout
+
+\begin_layout Standard
+In pratica nella desrcizione del workload sono presenti le principali operazioni
+ che avvengono sul database, il che, può farci capire, come sia utile ottenre
+ una buona performance su query che vengono effettuate frequentemente piuttosto
+ che query che avvengono di rado.
+ Per ogni 
+\emph on
+query
+\emph default
+ nel workload occorre conoscere quali relazioni sono interessate, quali
+ attributi vengono mantenuti (proiezione), quali attributi sono interessati
+ da predicati (quali selezione e join), quale è la selettiva di ogni predicato
+ (questo parametro in realtà è un parametro ignoto poichè se il database
+ è vuoto non si può sapere a priori la selettività di un predicato, ecco
+ perchè ci si basa su valori di default),
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+ldots
+\end_layout
+
+\end_inset
+
+ Invece, per ogni 
+\emph on
+transazione
+\emph default
+ nel workload occorre conoscere che tipo di modifica viene realizzata (se
+ 
+\emph on
+insert
+\emph default
+, 
+\emph on
+delete
+\emph default
+ o 
+\emph on
+update
+\emph default
+), quali relazioni sono interessate, quali attributi sono interessati da
+ predicati (selezione/join), quale è la seleittività di ogni predicato,
+ quali sono i campi che vengono modificati,
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+ldots
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Un'altra scelta da dover effettuare riguardano il progetto fisico e il tuning
+ di esso: una prima domanda da porsi riguarda quali indici creare.
+ Ricordiamo che un indice può velocizzare alcune query/update, ma tipicamente
+ rallenta le transazioni (poichè richiede la modifica anche dell'indice
+ stesso) dunque su quali relazioni/attributi conviene costruire un indice?
+ L'indice deve essere 
+\emph on
+clustered
+\emph default
+? Deve essere 
+\emph on
+denso
+\emph default
+ o 
+\emph on
+sparso
+\emph default
+?
+\end_layout
+
+\begin_layout Standard
+Ci si può chiedere anche se occorre modificare lo schema concettuale per
+ migliorare le prestazioni: si potrebbe pensare a schemi di normalizzazione
+ alternativi, o alla denormalizzazione, o ancora al partizionamento verticale/or
+izzontale, o a viste materializzate, 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+ldots
+\end_layout
+
+\end_inset
+
+ Si ricordi la normalizzazione e la denormalizzazione: potrebbe essere successo
+ che due tabelle che sono state create altro non siano che la conseguenza
+ di una normalizzazione di tipo 3; se una query richiede spesso dati da
+ entrambe le tabelle potrebbe essere dunque conveniente 
+\emph on
+denormalizzare 
+\emph default
+riunendo tali dati in un'unica relazione (con la conseguenza di creare ridondanz
+a) per evitare di appliccare il join alle relazioni per riuscire ad ottenere
+ i dati voluti.
+ Il 
+\emph on
+partizionamento verticale
+\emph default
+ è molto simile ad una normalizzazione: dati tutti gli attributi di una
+ relazione, se essi non sono 
+\begin_inset Quotes eld
+\end_inset
+
+effettivamente
+\begin_inset Quotes erd
+\end_inset
+
+ utilizzati assieme, potrebbe convenire creare due relazioni piuttosto che
+ una singola, in cui i vari attributi vengono appunto partizionati nelle
+ due tabelle.
+ Il
+\emph on
+ partizionamento orizzontale
+\emph default
+ invece implica creare due tabelle con gli stessi attributi, ma che contengano
+ dati diversi: caso tipico avviene quando si vogliono tenere gli 
+\begin_inset Quotes eld
+\end_inset
+
+storici
+\begin_inset Quotes erd
+\end_inset
+
+ e i valori attuali di una relazione; ciò potrebbe portare a pensare a partizion
+are effettivamente i dati in due tabelle identiche in cui inserire nella
+ prima solo gli 
+\begin_inset Quotes eld
+\end_inset
+
+storici
+\begin_inset Quotes erd
+\end_inset
+
+ mentre nella seconda solo i dati attuali.
+ Parlare di 
+\emph on
+viste
+\emph default
+ 
+\emph on
+materializzite
+\emph default
+ potrebbe sembrare un paradosso poichè per definizione le viste sono entità
+ 
+\begin_inset Quotes eld
+\end_inset
+
+virtuali
+\begin_inset Quotes erd
+\end_inset
+
+ che si appoggiano alle tabelle fisiche: richiederne la loro materializzazione,
+ e dunque creare effettivamente dei dati fisici, potrebbe essere un fattore
+ utile per la performance, infatti alcuni 
+\emph on
+dbms
+\emph default
+ potrebbero non essere in grado di 
+\begin_inset Quotes eld
+\end_inset
+
+riscrivere
+\begin_inset Quotes erd
+\end_inset
+
+ determinate query (si veda il precedente capitolo) per risolvere in maniera
+ ottimale le viste e dunque il loro unico modo di calcolare i risultati
+ è calcolare il risultato della vista e poi appliccarlo all'interno della
+ query.
+ Materializzare una vista, dunque, se utilizzata molte volte ed essa è soggetta
+ a pochi cambiamenti, può risultare comodo poichè parte del lavoro risulta
+ essere già svolto e la query effettivamente andrebbe ad interrogare una
+ tabella esistente nel database.
+\end_layout
+
+\begin_layout Standard
+Occorre riscrivere anche alcune query e/o transazioni per migliorare le
+ prestazioni? Si noti che non tutti i 
+\emph on
+dbms
+\emph default
+ sono in grado di applicare la 
+\begin_inset Quotes eld
+\end_inset
+
+riscrittura
+\begin_inset Quotes erd
+\end_inset
+
+ delle query, come ad esempio per effettuare l'
+\emph on
+unnesting
+\emph default
+ delle subquery, e quindi è richiesto al DBA l'arduo compito di farlo in
+ maniera manuale.
+ Un altro caso tipico, ormai risolto con le nuove versioni dei 
+\emph on
+dbms
+\emph default
+, era l'ordine di accesso alle relazioni: cioè l'ordine in cui si scrivevano
+ le relazioni nella clausola FROM era l'ordine con cui si accedeva effettivament
+e alle relazioni (ad esempio 
+\begin_inset Formula $FROM\, R1,\, R2\neq FROM\, R2,\, R1$
+\end_inset
+
+) e dunque poteva portare ad avere performance differenti.
+\end_layout
+
+\begin_layout Standard
+Si noti infine che il tutto si complica in caso di scenari distribuiti.
+\end_layout
+
+\begin_layout Section
+Tuning
+\end_layout
+
+\begin_layout Standard
+Il 
+\emph on
+tuning
+\emph default
+ si rende necessario poichè, spesso, le condizioni al contorno cambiano.
+ È dunque necessario rivedere alcune delle scelte progettuali effettuate
+ all'inizio:
+\end_layout
+
+\begin_layout Itemize
+Nuove query/transazioni
+\end_layout
+
+\begin_layout Itemize
+Modifica delle frequenze delle query/transazioni
+\end_layout
+
+\begin_layout Itemize
+Upgrade/downgrade dell'hardware
+\end_layout
+
+\begin_layout Itemize
+Modifica/aggiornamento del 
+\emph on
+dbms
+\end_layout
+
+\begin_layout Itemize
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+ldots
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Possiamo utilizzare 
+\series bold
+5 principi fondamentali
+\series default
+ per effettuare il tuning:
+\end_layout
+
+\begin_layout Enumerate
+
+\emph on
+\begin_inset Quotes eld
+\end_inset
+
+Think globally, fix locally
+\begin_inset Quotes erd
+\end_inset
+
+ 
+\emph default
+- Non limitarsi all'ottimizzazione di singole query, poichè bisogna sempre
+ pensare che migliorando magari una singola query si inficia la performance
+ a livello globale del database.
+\end_layout
+
+\begin_layout Enumerate
+
+\emph on
+\begin_inset Quotes eld
+\end_inset
+
+Partitioning breaks bottlenecks
+\begin_inset Quotes erd
+\end_inset
+
+
+\emph default
+ - Partizionare nel tempo, nello spazio o in risorse.
+ Si pensi al collo di bottiglia come se fosse presente una coda nel traffico,
+ per poter migliorare la situazione esistono prettamente due soluzioni:
+ cercare di velocizzare i veicoli in modo che scorrano più velocemente oppure
+ suddividere il traffico su più percorso.
+ La prima soluzione è assimilabile all'ottimizzazione delle query, la seconda
+ invece è al miglioramento delle performance partizionando il lavoro.
+ Il partizionamento può avvenire in tre modi: attraverso risorse, quindi
+ magari avere a disposizione più dischi su cui far lavorare il database,
+ oppure partizionando lo spazio o ancora partizionando il tempo.
+ Un tipico esempio di partizionamento nel tempo riguarda le transazioni
+ che hanno un'interazione con l'utente: si immagini infatti che una transazione,
+ una volta partita, ad un certo punto richieda un input da parte dell'utente,
+ il quale può impiegare un tempo impredicibile nel rispondere; il problema
+ nasce poichè la transazione avrà acquisito dei lock su delle risorse, e
+ se deve attendere la risposta dell'utente per poter rilasciarli, blocca
+ anche tutte le altre transazioni che vorrebbero accedere a quelle determinate
+ risorse: eco che la soluzione potrebbe richiedere una partizione temporale,
+ cioè nella prima parte la transazione richiede i lock, ma poco prima di
+ chiedere l'input dell'utente li rilascia per poi riguadagnarli a risposta
+ avvenuta.
+\end_layout
+
+\begin_layout Enumerate
+
+\emph on
+\begin_inset Quotes eld
+\end_inset
+
+Start-up costs are high, running costs are low
+\begin_inset Quotes erd
+\end_inset
+
+
+\emph default
+ - I costi iniziali per determinate operazioni sono elevati, mentre i costi
+ di esecuzione tendono ad essere bassi.
+ Ad esempio il caso di letture sequenziali che richiede un primo tempo di
+ seek (alto) per poi procedere col solo tempo di trasferimento (basso),
+ o ancora la compilazione di query che richiede un'ottimizzazione la prima
+ volta, o ancora la connessione al database da parte di applicazioni (tempo
+ alto) rispetto a mantenere la connessione attiva per eseguire le query
+ successive (tempo basso) quindi richiedendo solo una prima connessione
+ e mantendola attiva per una certa durata di tempo piuttosto che connettersi
+ ogni volta al database,
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+ldots
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+
+\emph on
+\begin_inset Quotes eld
+\end_inset
+
+Render unto server what is due unto server
+\begin_inset Quotes erd
+\end_inset
+
+
+\emph default
+ - Cercare di capire cosa va fatto sul server e cosa va (può) essere fatto
+ sul client: sviluppare quindi le applicazioni per ridurre il carico sui
+ server.
+ Ad esempio un check semantico può avvenire anche su lato client, evitando
+ di inviare query errate al server, o ancora evitare il polling da parte
+ del client sul server per sapere se magari il database ha avuto una modifica,
+ affidando piuttosto il compito al server di notificare il client in caso
+ di un determinato evento (attraverso dei trigger ad esempio).
+\end_layout
+
+\begin_layout Enumerate
+
+\emph on
+\begin_inset Quotes eld
+\end_inset
+
+Be prepared for trade-offs
+\begin_inset Quotes erd
+\end_inset
+
+
+\emph default
+ - Bisogna essere consci che vanno fatti dei compromessi.
+ 
+\begin_inset Quotes eld
+\end_inset
+
+You want speed: how much are you willing to pay?
+\begin_inset Quotes erd
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Il 
+\emph on
+problema del progetto fisico
+\emph default
+ può essere visto come un problema di ottimizzazione in cui il costo di
+ ogni query/transazione viene modificato dalla presenza/assenza di un indice.
+ È però evidente che lo spazio delle possibili soluzioni è enorme: utilizziamo
+ dunque un approccio euristico incrementale.
+ In primo luogo vediamo quali indici potrebbero migliorare le prestazioni
+ delle query/transazioni più importanti, quindi vediamo se l'aggiunta di
+ ulteriori indici può migliorare la soluzione.
+ È possibile anche affidarsi a strumenti automatici, che discuteremo a breve,
+ che si basano su analisi 
+\begin_inset Quotes eld
+\end_inset
+
+
+\emph on
+what-if
+\emph default
+
+\begin_inset Quotes erd
+\end_inset
+
+ i quali analizzano il database simulando la presenza o l'assenza di determinati
+ indici.
+ Si noti che esiste un unico sistema 
+\emph on
+dbms
+\emph default
+ (SQL SERVER) che ha sviluppato qualcosa di significativo sul 
+\emph on
+self tuning
+\emph default
+, in cui è il dbms stesso che osservando l'andamento di query con la loro
+ frequenza e le performance ottenute, riesce a riconfigurarsi da solo creando
+ e/o eliminando determinati indici per migliorarsi da solo.
+\end_layout
+
+\begin_layout Subsection
+Linee guida
+\end_layout
+
+\begin_layout Standard
+Vediamo di seguito alcune linee guida per un buon 
+\emph on
+tuning
+\emph default
+ del nostro database.
+\end_layout
+
+\begin_layout Standard
+Nella creazione di un indice bisogna come prima cosa pensare di creare indici
+ che velocizzino più di una query, evitando di creare indici inutili.
+ Per la scelta dell'attributo da indicizzare possiamo pensare di utilizzare
+ gli attributi presenti nella clausola WHERE delle query (sono ottimi candiditat
+i a chiavi di ricerca).
+ I predicati di uguaglianza suggeriscono l'uso di indici 
+\emph on
+hash
+\emph default
+, invece i predicati di range suggersicono l'uso di B+tree.
+ Infine ricordiamo che il 
+\emph on
+join index nested loop
+\emph default
+ funziona meglio con gli indici 
+\emph on
+hash.
+\end_layout
+
+\begin_layout Standard
+Possiamo anche pensare di utilizzare chiavi multiple in un indice, ad esempio
+ se siamo in presenza di predicati WHERE su più attributi di una relazione.
+ Inoltre ci potrebbe permettere di sfruttare piani di accesso INDEX ONLY
+ (che permettono la risoluzione senza dover accedere ai dati).
+ 
+\series bold
+NB
+\series default
+ Dobbiamo far attenzione all'ordine degli attributi in caso di predicati
+ di range.
+ Ad esempio se avessi la query col predicato WHERE A=5 AND B BETWEEN 1 AND
+ 10, avere un indice B+tree su (A,B) risulta diverso che avere un indice
+ su (B,A): se infatti nel primo, grazie al predicato A=5 riesco a limitare
+ di molto il sotto insieme di tuple su cui poi controllare il B, diverso
+ risulta sul secondo indice in quanto il numero di tuple residue del predicato
+ B BETWEEN 1 AND 10 si assume essere molto più grande, sulle quali poi controlla
+re il predicato di A.
+\end_layout
+
+\begin_layout Standard
+Un'altro punto di cui tener conto è la 
+\emph on
+clusterizzazione
+\emph default
+ di un indice: le query di range sono quelle che beneficiano maggiormente
+ dalla clusterizzazione di un indice, ma anche le ricirche su attributi
+ non chiave traggono vantaggio da indici 
+\emph on
+clustered
+\emph default
+.
+ Infine ricordiamoci che i piani di accesso INDEX ONLY non necessitano invece
+ che l'indice sia 
+\emph on
+clustered
+\emph default
+ (non devono accedere ai dati, quindi che l'indice risulti clustered è inutile,
+ di conseguenza sarebbe bene rendere clustered un altro indice che effettivament
+e ne ha bisogno, ricordando che solo un indice può risultare clustered per
+ una tabella).
+\end_layout
+
+\begin_layout Subsubsection
+Selezione degli indici
+\end_layout
+
+\begin_layout Standard
+Prendiamo la seguente query
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+SELECT E.name, D.mgr
+\end_layout
+
+\begin_layout Plain Layout
+
+FROM Employees as E, Departments as D
+\end_layout
+
+\begin_layout Plain Layout
+
+WHERE D.name='Toy' AND E.dno=D.dno
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Quali indici usare?
+\begin_inset Newline newline
+\end_inset
+
+Un indice 
+\emph on
+hash
+\emph default
+ su D.name (risolverebbe il predicato del WHERE), oppure un indice su E.dno
+ (aiuterebbe il join) o ancora un indice su D.dno (aiuterebbe il join)?
+\begin_inset Newline newline
+\end_inset
+
+Ciò di cui dobbiamo tener conto, è capire quale delle due relazioni risulterà
+ interna e quale esterna nella risoluzione del join attraverso l'index nested
+ loop.
+ Notiamo che un possibile piano di accesso sarebbe recuperare i dipartimenti
+ su D.name che risolvono 
+\emph on
+D.name='toy'
+\emph default
+ e utilizzare successivamente un 
+\emph on
+index nested loop
+\emph default
+ su E (che richiede un indice su E.dno e che risulterà quindi la relazione
+ interna): quindi un indice 
+\emph on
+hash
+\emph default
+ su E.dno è una buona soluzione (collegato anche ad un indice su D.name per
+ avere in breve i dati su cui effettuare dopo il join).
+\end_layout
+
+\begin_layout Standard
+Modifichiamo la query come segue
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+SELECT E.name, D.mgr
+\end_layout
+
+\begin_layout Plain Layout
+
+FROM Employees as E, Departments as D
+\end_layout
+
+\begin_layout Plain Layout
+
+WHERE D.name='Toy' AND E.dno=D.dno AND E.age=25
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Abbiamo introdotto un predicato di WHERE anche per la relazione E (E.age=25).
+ Ora quali indici possiamo utilizzare? Su D.name, E.age, E.dno o D.dno?
+\begin_inset Newline newline
+\end_inset
+
+Se esistesse già l'indice su E.age potrebbe essere inutile creare l'indice
+ su E.dno (ma richiederebbe l'indice su D.dno per rendere D relazione interna
+ e grazie ad esso poter poi effettuare l'index nested loop).
+\end_layout
+
+\begin_layout Standard
+Modifichiamo nuovamente la query come segue
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+SELECT E.name, D.mgr
+\end_layout
+
+\begin_layout Plain Layout
+
+FROM Employees as E, Departments as D
+\end_layout
+
+\begin_layout Plain Layout
+
+WHERE E.sal BETWEEN 10000 AND 20000
+\end_layout
+
+\begin_layout Plain Layout
+
+	AND E.hobby='stamps' AND E.dno=D.dno
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Ancora una volta ci chiediamo quali indici possiamo utilizzare: E.sal, E.hobby,
+ E.dno o D.dno?
+\begin_inset Newline newline
+\end_inset
+
+Tipicamente la scelta cadrà sull'indice più selettivo tra E.sal e E.hobby
+ con l'aggiunta di D.dno (per effettuare il solito index nested loop).
+ E se la selettività non fosse nota? Ogni 
+\emph on
+dbms
+\emph default
+ ha dei valori di default per i predicati (ad esempio DB2 per il predicato
+ di uguaglianza ha come valore di default 
+\begin_inset Formula $\frac{1}{10}$
+\end_inset
+
+).
+\end_layout
+
+\begin_layout Subsubsection
+Indici clustered
+\end_layout
+
+\begin_layout Standard
+Quando creo un indice, conviene renderlo 
+\emph on
+clustered
+\emph default
+? Ricordiamo che solo un indice può essere clustered per ogni tabella.
+\end_layout
+
+\begin_layout Standard
+Prendiamo la seguente query
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+SELECT E.dno
+\end_layout
+
+\begin_layout Plain Layout
+
+FROM Employees as E
+\end_layout
+
+\begin_layout Plain Layout
+
+WHERE E.age>40
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+L'indice su E.age (per forza un B+tree poichè predicato su range) dovrebbe
+ essere 
+\emph on
+clustered
+\emph default
+? Se ci sono molti 
+\begin_inset Quotes eld
+\end_inset
+
+ultra-quarantenni
+\begin_inset Quotes erd
+\end_inset
+
+ l'indice non è utile poichè l'indice serve per risparmiare i costi, ma
+ se esistono molti ultra quarantenni l'accesso sequenziale ai dati potrebbe
+ risultare migliore.
+ E se ci sono ad esempio solo il 10% di 
+\begin_inset Quotes eld
+\end_inset
+
+ultra-quarantenni
+\begin_inset Quotes erd
+\end_inset
+
+, l'indice 
+\emph on
+clustered
+\emph default
+ potrebbe effettivamente velocizzare l'accesso.
+\end_layout
+
+\begin_layout Standard
+Cambiamo query
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+SELECT E.dno, count(*)
+\end_layout
+
+\begin_layout Plain Layout
+
+FROM Employees as E
+\end_layout
+
+\begin_layout Plain Layout
+
+WHERE E.age>30
+\end_layout
+
+\begin_layout Plain Layout
+
+GROUP BY E.dno
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+L'indice su E.age (di nuovo un B+tree) è utile? Dipende dalla selettività
+ del predicato sull'attributo 
+\emph on
+age
+\emph default
+ poichè se la selezione è bassa, le tuple residue risultano molte e l'accesso
+ sequenziale potrebbe comunque convenire.
+ Un'alternativa potrebbe essere anche un indice sull'attributo 
+\emph on
+dno
+\emph default
+: in questo caso l'indice dovrebbe essere 
+\emph on
+clustered
+\emph default
+ (alternativamente l'ottimizzatore sceglierebbe di ordinare la relazione
+ E in base all'attributo 
+\emph on
+dno
+\emph default
+) poichè mi aiuta ad effettuare il GROUP BY.
+\end_layout
+
+\begin_layout Standard
+Prendiamo un'altra query
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+SELECT E.dno
+\end_layout
+
+\begin_layout Plain Layout
+
+FROM Employees as E
+\end_layout
+
+\begin_layout Plain Layout
+
+WHERE E.hobby='stamps'
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+L'indice sull'attributo 
+\emph on
+hobby
+\emph default
+ deve essere clustered? Dipende nuovamente dalla selettività del predicato
+ su 
+\emph on
+hobby
+\emph default
+.
+ Se il predicato è poco selettivo e quindi ho molte tuple, se l'indice risulta
+ clustered si riesce ad avere il risultato in poco tempo, se invece il predicato
+ è molto selettivo e quindi le tuple risultano poche che sia clustered o
+ unclustered ha poca importanza (si noti che in questo caso rispetto a quanto
+ detto precedentemente, il predicato è di uguaglianza e non di range).
+\end_layout
+
+\begin_layout Standard
+E nel seguente caso?
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+SELECT E.dno
+\end_layout
+
+\begin_layout Plain Layout
+
+FROM Employees as E
+\end_layout
+
+\begin_layout Plain Layout
+
+WHERE E.eid=552
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Il fatto che l'indice sia 
+\emph on
+clustered 
+\emph default
+o 
+\emph on
+unclustered
+\emph default
+ (su E.eid) è irrilevante poichè il predicato WHERE riguarda l'attributo
+ chiave.
+\end_layout
+
+\begin_layout Standard
+Consideriamo ancora una nuova query
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+SELECT E.name, D.mgr
+\end_layout
+
+\begin_layout Plain Layout
+
+FROM Employees as E, Departments as D
+\end_layout
+
+\begin_layout Plain Layout
+
+WHERE D.name='Toy' AND E.dno=D.dno
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Gli indici su D.name e E.dno devono essere clustered? Probabilmente ci saranno
+ pochi dipartimenti che soddisfano il predicato, quindi l'indice può essere
+ 
+\emph on
+unclustere
+\emph default
+d: viceversa l'indice che utilizzeremoper risolvere il join attraverso l'
+\emph on
+index nested loop
+\emph default
+ dovrebbe essere 
+\emph on
+clustered.
+\end_layout
+
+\begin_layout Standard
+Analizziamo un'ultima query
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+SELECT E.name, D.mgr
+\end_layout
+
+\begin_layout Plain Layout
+
+FROM Employees as E, Departments as D
+\end_layout
+
+\begin_layout Plain Layout
+
+WHERE E.hobby='stamps' AND E.dno=D.dno
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+In questo caso quale relazione dovrebbe essere esterna? E quali indici risultano
+ utili?
+\begin_inset Newline newline
+\end_inset
+
+Un 
+\emph on
+sort-merge join
+\emph default
+ potrebbe sfruttare un B+tree 
+\emph on
+clustered
+\emph default
+ su D.dno; inoltre se il predicato su E.hobby è selettivo un indice (clustered)
+ sull'attributo 
+\emph on
+hobby
+\emph default
+ potrebbe essere utile.
+\end_layout
+
+\begin_layout Standard
+In generale il costo dell'accesso ai record di una tabella segue l'andamento
+ mostrato in figura (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:andamentoindiciaccesso"
+
+\end_inset
+
+).
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:andamentoindiciaccesso"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename andamentoindiciaccesso.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsubsection
+Indici multi-attributo
+\end_layout
+
+\begin_layout Standard
+Prendiamo la seguente query
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+SELECT E.eid
+\end_layout
+
+\begin_layout Plain Layout
+
+FROM Employees as E
+\end_layout
+
+\begin_layout Plain Layout
+
+WHERE E.age BETWEEN 20 AND 30
+\end_layout
+
+\begin_layout Plain Layout
+
+	AND E.sal BETWEEN 3000 AND 5000
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Un indice B+tree 
+\emph on
+clustered
+\emph default
+ sugli attributi (E.age, E.sal) potrebbe essere utile.
+ Mentre un indice sulla coppia (E.sal, E.age)? Potrebbe essere anch'esso utile.
+ Dipende tutto dalla selettività dei predicati.
+\end_layout
+
+\begin_layout Standard
+E nel seguente caso?
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+SELECT E.eid
+\end_layout
+
+\begin_layout Plain Layout
+
+FROM Employees as E
+\end_layout
+
+\begin_layout Plain Layout
+
+WHERE E.sal BETWEEN 3000 AND 5000
+\end_layout
+
+\begin_layout Plain Layout
+
+	AND E.age=25
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+L'indice su (E.age, E.sal) conviene decisamente di più poichè le tuple residue
+ lasciate da E.age=25 risulteranno molto minori.
+\end_layout
+
+\begin_layout Subsubsection
+Indici per INDEX ONLY
+\end_layout
+
+\begin_layout Standard
+Prendiamo la seguente query
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+SELECT D.mgr
+\end_layout
+
+\begin_layout Plain Layout
+
+FROM Departments as D, Employees as E
+\end_layout
+
+\begin_layout Plain Layout
+
+WHERE D.dno=E.dno
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Se abbiamo un indice denso sull'attributo E.dno possiamo usarlo per un 
+\emph on
+index nested loop 
+\emph default
+(quindi con la relazione E interna)
+\emph on
+.
+ 
+\emph default
+Il piano risulta essere INDEX ONLY poichè una volta controllata l'esistenza
+ di un match nel join, basterà ritornare il manager del dipartimento e quindi
+ non ha alcun senso che l'indice sia 
+\emph on
+clustered
+\emph default
+ infatti nessun record della relazione E deve essere recuperato.
+\end_layout
+
+\begin_layout Standard
+Se invece modifichiamo la query in
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+SELECT D.mgr, E.eid
+\end_layout
+
+\begin_layout Plain Layout
+
+FROM Departments as D, Employees as E
+\end_layout
+
+\begin_layout Plain Layout
+
+WHERE D.dno=E.dno
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+in cui vengono richiesti anche dati della relazione E , se abbiamo un indice
+ denso, come prima, su E.dno lo possiamo usare per un 
+\emph on
+index nested loop 
+\emph default
+(immaginiamo E interna e D esterna) con però l'accortezza che l'indice deve
+ essere 
+\emph on
+clustered
+\emph default
+ poichè altrimenti si avrebbero troppi accessi casuali.
+ Se abbiamo un B+tree 
+\emph on
+denso 
+\emph default
+sulla coppia di attributi (E.dno, E.eid) possiamo ancora usare un piano di
+ accesso INDEX ONLY e nuovamente non è necessario che l'indice risulti 
+\emph on
+clustered
+\emph default
+.
+ Un indice hash andrebbe bene? No, infatti per avere un indice hash occorre
+ avere i dati per effettuare la ricerca, cioè occorre avere la coppia (E.dno,
+ E.eid), ma non avendo E.eid (poichè è il risultato della query) non posso
+ usarlo, mentre l'indice B+tree sì poichè basta avere solo un prefisso (in
+ questo caso E.dno) della chiave con cui è stato generato.
+\end_layout
+
+\begin_layout Standard
+Analizziamo la seguente query
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+SELECT E.dno, COUNT(*)
+\end_layout
+
+\begin_layout Plain Layout
+
+FROM Employees as E
+\end_layout
+
+\begin_layout Plain Layout
+
+GROUP BY E.dno
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Se abbiamo un indice su E.dno lo possiamo utilizzare per un piano di accesso
+ INDEX ONLY semplicemente contando quante tuple ho.
+\end_layout
+
+\begin_layout Standard
+Modificando la query come segue
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+SELECT E.dno, COUNT(*)
+\end_layout
+
+\begin_layout Plain Layout
+
+FROM Employees as E
+\end_layout
+
+\begin_layout Plain Layout
+
+WHERE E.sal=10000
+\end_layout
+
+\begin_layout Plain Layout
+
+GROUP BY E.dno
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+risulta più conveniente avere un indice sulla coppia (E.sal, E.dno) o su (E.dno,
+ E.sal)? La prima scelta risulta essere migliore poichè il numero di tuple
+ residue che poi serviranno per il GROUP BY risulteranno decisamente inferiori.
+ Ma è meglio un indice 
+\emph on
+hash
+\emph default
+ o B+tree? In questo caso il B+tree risulta conveniente poichè dobbiamo
+ successivamente ordinare (per effettuare il group by) per l'attributo E.dno.
+\end_layout
+
+\begin_layout Standard
+Controlliamo una nuova query
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+SELECT E.dno, MIN(E.sal)
+\end_layout
+
+\begin_layout Plain Layout
+
+FROM Employees as E
+\end_layout
+
+\begin_layout Plain Layout
+
+GROUP BY E.dno
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+e ci chiediamo nuovamente se risulta più conveniente avere un indice sulla
+ coppia (E.sal, E.dno) o su (E.dno, E.sal).
+ In questo caso un indice B+tree sulla coppia (E.dno, E.sal) ci darebbe immeditame
+nte il risultato (poichè l'ordinamento dovuto al group by permetterebbe
+ di avere subito l'informazione sul minimo, cioè la prima tupla di ogni
+ E.dno), mentre il piano di accesso che utilizzi l'indice (E.sal, E.dno) richiedere
+bbe anch'esso un B+tree ma risulterebbe comunque meno efficiente.
+\end_layout
+
+\begin_layout Standard
+Analizziamo un ultima query
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+SELECT AVG(E.sal)
+\end_layout
+
+\begin_layout Plain Layout
+
+FROM Employees as E
+\end_layout
+
+\begin_layout Plain Layout
+
+WHERE E.age=25
+\end_layout
+
+\begin_layout Plain Layout
+
+	AND E.sal BETWEEN 3000 AND 5000
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Conviene avere un indice sulla coppia (E.sal, E.age) o su (E.age, E.sal)? In
+ questo caso un indice B+tree su (E.age, E.sal) ci darebbe immeditamente il
+ risultato, mentre il piano di accesso che utilizza l'indice (E.sal, E.age)
+ richiederebbe anch'esso un B+tree ma sarebbe comunque meno efficiente.
+\end_layout
+
+\begin_layout Subsection
+Tuning del Database
+\end_layout
+
+\begin_layout Standard
+Come precedentemente anticipato il tuning del database è fondamentale.
+ È richiesto tutte quelle volte in cui le statistiche del database variano:
+ ciò suggerisce che si rende anche necessario aggiornare le statistiche,
+ in quanto in caso di aggiornamenti e modifiche, le scelte effettuate sulla
+ costruzioni di indici, query o quant'altro potrebbe essersi inficiata e
+ occorre dunque la modifica delle scelte effettuate.
+\end_layout
+
+\begin_layout Standard
+Il tuning riguarda diversi punti che andremo brevente ad elencare.
+\end_layout
+
+\begin_layout Enumerate
+
+\series bold
+Tuning degli indici
+\series default
+: che può avvenire attraverso la rivalutazione delle scelte in base a statistich
+e modificate, dall'aggiornamento delle statistiche degli indici e del database
+ e dalla riorganizzazione periodica gli indici.
+\end_layout
+
+\begin_layout Enumerate
+
+\series bold
+Tuning dello schema concettuale
+\series default
+: che può avvenire attraverso la denormalizzazione, la decomposizione verticale,
+ la decomposizione orizzontale e ad un'evenutale creazione di viste.
+\end_layout
+
+\begin_layout Enumerate
+
+\series bold
+Tuning di query (e viste)
+\series default
+: che può avvenire attraverso l'uso di UNION piuttosto che del predicato
+ OR, oppure attraverso l'eliminazione della clausola DISTINCT (poichè magaril
+ il dbms non riesce a riscrivere automaticamente la query eliminandolo),
+ o alla sostituzione delle sub-query con dei join (sempre per lo stesso
+ motivo che il dbms non sappia come riscrivere le query), o con l'eliminazione
+ delle tabelle temporanee, o con la riscrittura di predicati con condizioni
+ aritmetiche (ad esempio conviene avere 
+\begin_inset Formula $E.age=2\cdot D.age$
+\end_inset
+
+ piuttosto che 
+\begin_inset Formula $\frac{E.age}{2}=D.age$
+\end_inset
+
+) o infine con selezioni con valori NULL.
+\end_layout
+
+\begin_layout Enumerate
+
+\series bold
+Impatto della concorrenza
+\series default
+: che può avvenire riducendo il livello di 
+\emph on
+isolation
+\emph default
+ delle query (magari alcune transazioni permettono la dirty read, e quindi
+ richiedono un livello di isolation più bassa).
+\end_layout
+
+\begin_layout Section
+Strumenti Automatici
+\end_layout
+
+\begin_layout Standard
+Quasi tutti i 
+\emph on
+dmbs 
+\emph default
+commerciali forniscono degli strumenti automatici per la progettazione fisica
+ e il tuning del database.
+ Alcuni esempi possono essere DB2 design advisor, SQL Server database tuning
+ advisor, Oracle access advisor, 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+ldots
+\end_layout
+
+\end_inset
+
+ Tipicamente si basano sull'analisi 
+\begin_inset Quotes eld
+\end_inset
+
+
+\emph on
+what-if
+\emph default
+?
+\begin_inset Quotes erd
+\end_inset
+
+ in cui si usa l'ottimizzatore per valutare l'impatto di una possibile scelta.
+ Ogni sistema ha poi una varietà di sturmenti per la gestione fisica dei
+ dati, l'analisi dei piani di accesso, ecc
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+ldots
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Una raccomandazione di cui tener conto: i suggerimenti forniti dagli 
+\emph on
+advisor 
+\emph default
+si rifersicono unicamente al 
+\emph on
+workload
+\emph default
+ fornito.
+ Non è possibile, cioè, trarre considerazioni generali che valgano per workload
+ diversi da quello fornito.
+ Questo significa che non è mai opportuno 
+\begin_inset Quotes eld
+\end_inset
+
+sovra-ottimizzare
+\begin_inset Quotes erd
+\end_inset
+
+ un database (cioè renderlo perfettamente ottimo con i dati forniti con
+ la conseguenza che alla prima variazione di statistiche tutto il lavoro
+ fatto diventa inutile): occorre comunque che il Database Administrator
+ conosca quali siano le conseguenze di ciascuna azione suggerita dall'advisor.
+\end_layout
+
+\begin_layout Standard
+In DB2 le informazioni statistiche su tabelle e indici sono fondamentali
+ per permettere all'ottimizzatore di operare scelte accurate.
+ Il comando messo a disposizione per collezionare le statistiche è 
+\emph on
+RUNSTATS
+\emph default
+.
+ Esistono però molte varianti tra cui la seguente
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+RUNSTATS ON TABLE MySchema.TableName WITH DISTRIBUTION 
+\end_layout
+
+\begin_layout Plain Layout
+
+	ON ALL COLUMNS AND DETAILED INDEXES ALL
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+in cui la forma WITH DISTRIBUTION forza DB2 a colleezionare statistiche
+ dettagliate sulle distribuzioni dei valori delle varie colonne (vedasi
+ 
+\emph on
+istogrammi 
+\emph default
+e valori frequenti).
+ La forma DETAILED INDEXES ALL invece genera informazioni utili per capire
+ il costo di una scansione via indice: in particolare il sistema genera
+ una lista di 11 
+\emph on
+PAGE_FETCH_PAIRS
+\emph default
+ in cui ogni coppia ha la forma (
+\emph on
+buffer_size
+\emph default
+, 
+\emph on
+#I/O
+\emph default
+) e stima quante operazioni I/O (fisiche) saranno necessarie eseguire per
+ effettuare una scansione completa avendo a disposizione un certo numero
+ di buffer (buffer_size).
+\end_layout
+
+\begin_layout Standard
+Alcuni esempi di curve 
+\emph on
+PAGE_FETCH_PAIRS 
+\emph default
+
+\begin_inset Quotes eld
+\end_inset
+
+tipiche
+\begin_inset Quotes erd
+\end_inset
+
+
+\emph on
+,
+\emph default
+ facendo riferimento alla figura (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:fetchpagesize"
+
+\end_inset
+
+), sono le seguenti:
+\end_layout
+
+\begin_layout Enumerate
+
+\emph on
+Clustering
+\emph default
+ praticamente nullo
+\end_layout
+
+\begin_layout Enumerate
+Buon 
+\emph on
+clustering
+\emph default
+, avendo un buffer size modesto si evitano I/O inutili
+\end_layout
+
+\begin_layout Enumerate
+Situazione intermedia, assunta dall'ottimizzatore in assenza di statistiche
+ dettagliate
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:fetchpagesize"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename pagefetchsize.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace defskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+È possibile controllare se la 
+\emph on
+riorganizzazione dei dati
+\emph default
+ risulta necessaria: il comando messo a disposizione è 
+\series bold
+REORGCHK
+\series default
+, e vediamolo applicato
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+REORGCHK ON TABLE MySchema.TableName
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Il comando fornisce alcuni indicatori utili per capire se una 
+\emph on
+table
+\emph default
+ deve essere riorganizzata fisicamente (lo stesso vale per gli indici).
+ Il comando esegue automaticamente anche RUNSTATS secondo la modalità presente
+ in catalogo (cioè utilizza la stessa modalità di RUNSTATS che fornisce
+ i dati già presenti nel catalogo).
+\end_layout
+
+\begin_layout Standard
+In figura (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:esempioreorgchk"
+
+\end_inset
+
+) viene mostrato un esempio di informazioni fornite da REORGCHK, in cui
+ vengono forniti tre indicatori con relativi valori di soglia (in caso il
+ valore risulti minore o maggiore, a seconda dei casi, del valore di soglia
+ viene emesso un WARNING).
+\end_layout
+
+\begin_layout Description
+F1 Percentuale di record in overflow (richiede che il valore sia 
+\begin_inset Formula $<5\%$
+\end_inset
+
+)
+\end_layout
+
+\begin_layout Description
+F2 Percentuale di spazio utilizzato nelle pagine allocate (richiede che
+ il valore sia 
+\begin_inset Formula $>70\%$
+\end_inset
+
+)
+\end_layout
+
+\begin_layout Description
+F3 
+\begin_inset Formula $\frac{NPAGES}{FPAGES}$
+\end_inset
+
+ (richiede che il valore sia
+\begin_inset Formula $>80\%$
+\end_inset
+
+) in cui NPAGES è il numero di pagine che contengono effettivamente una
+ tupla, invece FPAGES è il numero di pagine totali assegnate alla tabella.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:esempioreorgchk"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename esempioreorgchk.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+In caso la riorganizzazione risulti necessaria, DB2 mette a disposizione
+ i seguenti comandi:
+\end_layout
+
+\begin_layout Enumerate
+Per riorganizzare i dati e gli indici:
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+REORG TABLE MySchema.MyTable
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+Per riorganizzare solo gli indici
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+REORG INDEXES ALL FOR TABLE MySchema.MyTable
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Esempio
+\end_layout
+
+\begin_layout Standard
+Mostriamo un esempio di ciò che abbiamo appena visto.
+ Per generare una situazione in cui la riorganizzazione puà rendersi necessaria
+ generiamo una tabella con molte righe, eseguiamo su essa 
+\emph on
+REORGCHK
+\emph default
+, poi cancelliamo buona parte delle tuple e rieseguiamo 
+\emph on
+REORGCHK
+\emph default
+.
+\end_layout
+
+\begin_layout Standard
+Generiamo intanto i dati creando la seguente tabella
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+CREATE TABLE TEST (
+\end_layout
+
+\begin_layout Plain Layout
+
+	A	INT,
+\end_layout
+
+\begin_layout Plain Layout
+
+	B	INT,
+\end_layout
+
+\begin_layout Plain Layout
+
+	C    CHAR(100)
+\end_layout
+
+\begin_layout Plain Layout
+
+)
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+in cui C ci serveo solo a 
+\begin_inset Quotes eld
+\end_inset
+
+occupare
+\begin_inset Quotes erd
+\end_inset
+
+ spazio.
+\begin_inset Newline newline
+\end_inset
+
+Per generare i dati usiamo un 
+\emph on
+trigger
+\emph default
+ ricorsivo: DB2 supporta al massimo 16 livelli di ricorsione, ma non permette
+ la 
+\begin_inset Quotes eld
+\end_inset
+
+ricorsione multipla
+\begin_inset Quotes erd
+\end_inset
+
+ (ovvero non possiamo avere più di un'azione di inserimento nel trigger).
+\end_layout
+
+\begin_layout Standard
+Utilizziamo il seguente trigger
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+CREATE TRIGGER AUTO_INSERT
+\end_layout
+
+\begin_layout Plain Layout
+
+AFTER INSERT ON TEST
+\end_layout
+
+\begin_layout Plain Layout
+
+FOR EACH STATEMENT
+\end_layout
+
+\begin_layout Plain Layout
+
+WHEN ( 10000> (SELECT COUNT(*) FROM TEST) )
+\end_layout
+
+\begin_layout Plain Layout
+
+INSERT INTO TEST(A,B,C)
+\end_layout
+
+\begin_layout Plain Layout
+
+	SELECT MOD(3*A+1,20),MOD(3*B+1,50),C FROM TEST
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Il trigger va creato dopo l'inserimento del primo record e prima dell'inseriment
+o del secondo:
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+INSERT INTO TEST VALUES (1,10,' ')
+\end_layout
+
+\begin_layout Plain Layout
+
+INSERT INTO TEST VALUES (2,20,' ')
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Siamo riusciti a generare così 
+\emph on
+16384
+\emph default
+ record (
+\begin_inset Formula $16384=2+2+4+6+16+\ldots+8192$
+\end_inset
+
+).
+\end_layout
+
+\begin_layout Standard
+Eseguiamo quindi un RUNSTATS (in cui B16884 è lo schema in cui si trova
+ la nostra relazione TEST)
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+RUNSTATS ON TABLE B16884.TEST
+\end_layout
+
+\begin_layout Plain Layout
+
+	WITH DISTRIBUTION ON ALL COLUMNS
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+e dunque effuttiamo un REORGCHK che mostra il risultato in figura (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:esempio01"
+
+\end_inset
+
+)
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:esempio01"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename esempio01.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Effettuiamo successivamente alcune cancellazioni utilizzando la seguente
+ query
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+DELETE FROM TEST
+\end_layout
+
+\begin_layout Plain Layout
+
+WHERE B>3
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+e richiediamo le statistiche ottenendo il risultato mostrato in figura (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:esempio02"
+
+\end_inset
+
+), in cui si vuole evidenziare il valore F2 (in cui l'utilizzo effettivo
+ è crollato al solo 26%), mentre si noti che F3 risulta essere ancora 100
+ (nonostante NP sia calato di una unità).
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:esempio02"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename esempio02.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+ed infine riorganizziamo la tabella con il seguente statement
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+REORG TABLE B16884.TEST
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+che porta al risultato della seguente figura (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:esempio03"
+
+\end_inset
+
+)
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:esempio03"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename esempio03.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+in cui si vede che il valore di NP e FP è diminuito portandosi a raggiungere
+ lo stesso valore, e F2 è tornato ad essere al 100%.
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace defskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Informazioni dettagliate sul piano di accesso scelto dall'ottimizzatore
+ possono essere mantenute in un insieme di tabelle chiamate 
+\series bold
+Explan Tables
+\series default
+.
+ Le Explain tables possono essere esaminate mediante tool grafico del Command
+ Editor (Visual Explain) oppure mediante semplici interrogazioni SQL.
+\end_layout
+
+\begin_layout Standard
+In figura (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:visualexplain"
+
+\end_inset
+
+) viene mostrato la richiesta di visualizzazione attraverso il Visual Explain
+ del piano di accesso generato utilizzando il Command Editor di DB2.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:visualexplain"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename visualexplain.png
+	width 100text%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_body
+\end_document

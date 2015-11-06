@@ -1,0 +1,6126 @@
+#LyX 2.0 created this file. For more info see http://www.lyx.org/
+\lyxformat 413
+\begin_document
+\begin_header
+\textclass article
+\use_default_options true
+\maintain_unincluded_children false
+\language italian
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\float_placement H
+\paperfontsize default
+\spacing single
+\use_hyperref false
+\papersize default
+\use_geometry false
+\use_amsmath 1
+\use_esint 1
+\use_mhchem 1
+\use_mathdots 1
+\cite_engine basic
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\use_refstyle 1
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Title
+Tecnologie della Basi Di Dati M
+\end_layout
+
+\begin_layout Author
+Antonio Davide Calì
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset CommandInset href
+LatexCommand href
+name "WWW.ANTONIOCALI.COM"
+target "http://www.antoniocali.com/"
+
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+Anno Accademico 2013/2014
+\begin_inset Newline newline
+\end_inset
+
+Docenti: Marco Patella, Paolo Ciaccia
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset toc
+LatexCommand tableofcontents
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Part
+Ottimizzazione di Interrogazioni
+\end_layout
+
+\begin_layout Section
+Ottimizzazione delle query
+\end_layout
+
+\begin_layout Standard
+Come visto in precedenza la risoluzione di un'interrogazione (anche semplice)
+ può essere realizzata in diversi modi e con costi differenti: basti pensare
+ all'operatore logico join, esso può essere implementato attraverso molti
+ algoritmi ognuno dei quali si basa sulla presenza di alcuni fattori (come
+ ad esempio indici, o relazioni ordinatate).
+\end_layout
+
+\begin_layout Standard
+Punto fondamentale di ogni 
+\emph on
+dmbs
+\emph default
+ è riuscire a scegliere il modo più veloce per risolvere una determinata
+ query.
+ A tal fine il 
+\emph on
+dbms
+\emph default
+ si basa sul 
+\emph on
+query manager
+\emph default
+, il quale dispone di un 
+\emph on
+ottimizzatore
+\emph default
+ e di un 
+\emph on
+valutatore dei piani di accesso
+\emph default
+.
+\end_layout
+
+\begin_layout Standard
+L'ottimizzazione di una query (compito dell'ottimizzatore) richiede l'
+\emph on
+enumerazione
+\emph default
+ dei possibili piani di accesso (ricordiamo che un piano di accesso è un
+ modo concreto per risolvere le query, cioè è la sequenza di azioni effettivamen
+te da eseguire) per la sua risoluzione e la 
+\emph on
+stima del costo 
+\emph default
+di ognuno di questi al fine di selezionare il piano dal costo minore stimato.
+ La stima del costo di ogni piano di accesso viene effettuata dal valutatore
+ dei piani di accesso usando stastiche fornite dai cataloghi.
+ Si noti che un problema ancora in fase di studio è il seguente: il fatto
+ che l'ottimizzatore si basa sulle stime del valutatore di piani, quale
+ probabilità si ha che la scelta del piano di accesso risulti non essere
+ ottimale ma sub-ottimale se la stima effettuata dal valutatore dei piani
+ è errata? La risoluzione di questo problema non riguarda il corso che stiamo
+ trattando, ma si voglia notare la grande connessione dei due moduli.
+\end_layout
+
+\begin_layout Subsection
+Ottimizzatore
+\end_layout
+
+\begin_layout Standard
+Iniziamo subito presentando il funzionamento dell'ottimizzatore in DB2.
+ La figura (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:optimizerdb2"
+
+\end_inset
+
+) mostra le varie fasi che vengono attraversate.
+ Ricordiamo dapprima che per poter eseguire al meglio una interrogazione
+ ogni 
+\emph on
+dbms
+\emph default
+ utilizza un ottimizzatore che ha come compito speficifico di ricevere in
+ input una data Query scritta in SQL (che ricordiamo essere un linguaggio
+ procedurale, dunque non specifica effettivamente il modo di risolvere ciò
+ che è richiesto) e da questo derivare un piano di accesso composto da operatori
+ fisici e metodi di accesso ai dati: per fare questo lavoro l'ottimizzatore
+ deve poter confrontare diversi piani di accesso, compito assegnato al valutator
+e dei pianidi accesso che utilizzando statistiche presenti nei 
+\emph on
+cataloghi
+\emph default
+ stiam il costo di ogni singolo operatore e dunque (sommando i costi) di
+ ogni piano di accesso.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:optimizerdb2"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename optimizerdb2.png
+	width 100text%
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Analizziamo in breve le varie fasi per poi discuterle in maniera più approfondit
+a.
+\end_layout
+
+\begin_layout Standard
+Avendo una Query da risolvere, la prima fase a cui viene sottoposta è la
+ 
+\emph on
+Parse Query
+\emph default
+ che permette un controllo semantico e lessicale della stessa per vedere
+ se la query è scritta 
+\begin_inset Quotes eld
+\end_inset
+
+bene
+\begin_inset Quotes erd
+\end_inset
+
+ oppure no.
+ Subito dopo passa per il 
+\emph on
+Check Semantics
+\emph default
+, poichè anche se scritta sintatticamente bene, potrebbe essere errata a
+ livello semantico come ad esempio se richiede di analizzare un attributo
+ non esistente di una determinata relazione.
+ La fase successiva è il 
+\emph on
+Rewrite Query 
+\emph default
+durante la quale la Query viene riscritta in un modo alternativo tentando
+ di eliminare alcuni aspetti quali magari la ricorsione o le subquery.
+ Il 
+\emph on
+Pushdown Analysis 
+\emph default
+serve per decidere, ad esempio, quali condizioni e predicati effettuare
+ per prima, ad esempio se è presente una clausola WHERE locale applicabile
+ prima di effettuare il join con una relazione.
+ L'
+\emph on
+Optimize Access Plan
+\emph default
+ è la prima vera fase di ottimizzazione (che insieme al 
+\emph on
+Remote SQL Generator
+\emph default
+ che non tratteremo, fase che serve a gestire dati distribuiti) che genera
+ il piano di accesso ritenuto ottimale.
+ Lo schema gira intorno al 
+\emph on
+Query Graph Model
+\emph default
+, cioè un modello a grafo (più spesso sarà un albero) rappresentativo della
+ query stessa (è una rappresentazione interna) in cui i nodi rappresentano
+ i vari 
+\emph on
+operatori
+\emph default
+ mentre gli archi sono i 
+\emph on
+dati 
+\emph default
+a cui vengono applicati.
+ Una volta trovato il piano di accesso ottimale viene generato del codice
+ eseguibile attraverso la fase 
+\emph on
+Generate Excutable Code
+\emph default
+ il quale viene dunque eseguito durante la fase di 
+\emph on
+Execute Plan.
+
+\emph default
+ È possibile, inoltre, su DB2, visualizzare attraverso l'
+\emph on
+Explain Table 
+\emph default
+(nella fattispecie attraverso il 
+\emph on
+Visual Explain
+\emph default
+) il piano di accesso che è stato generato: viene data effettivamente la
+ possibilità di controllarlo visivamente (o attraverso riga di comando con
+ il 
+\emph on
+db2exfmt Tool
+\emph default
+).
+ Bisogna far particolare attenzione ai casi in cui l'ottimizzazione si basa
+ su funzioni parametrici, cioè in cui l'ottimizzazione viene effettuata
+ attraverso delle funzioni parametriche che vengono poi riempite con i dati
+ effettivi passate dalla query: in questo caso, il 
+\emph on
+dbms
+\emph default
+ potrebbe generare diversi piani di accesso (e quindi non solo uno, cioè
+ quello ottimale) proprio perchè a seconda del dato effettivamente passato,
+ un piano di accesso potrebbe risultare migliore di un altro.
+\end_layout
+
+\begin_layout Subsubsection
+Parsing e check semantico
+\end_layout
+
+\begin_layout Standard
+Il primo passo consiste nel verificare la validità lessicale e sintattica
+ della query (
+\emph on
+parsing
+\emph default
+): al termine di questo passo viene prodotta una prima rappresentazione
+ interna che evidenzia gli oggetti interessati (relazioni, attributi, ecc
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+ldots
+\end_layout
+
+\end_inset
+
+).
+ La fase di 
+\emph on
+check semantico 
+\emph default
+facendo uso dei 
+\emph on
+cataloghi
+\emph default
+ verificha che gli oggetti referenziati esistano effettivamente, controllando
+ inolter che gli operatori siano applicati a dati di tipo opportuno e infine
+ che l'utente abbia i privilegi necessari per eseguire le operazioni presente
+ nella query stessa.
+\end_layout
+
+\begin_layout Subsubsection
+Riscrittura di query
+\end_layout
+
+\begin_layout Standard
+Ha lo scopo di semplificare la query da ottimizzare.
+ Le attivita di riscrittura della query sono diverse: risoluzione di viste,
+ trasformazione di subquery in join, eliminazione di join ridondanti (ad
+ esempio derivate da altre riscritture), spostamento/eliminazione di DISTINCT,
+ pushdown dei predicati e trasformazione dei predicati OR in predicati IN.
+\end_layout
+
+\begin_layout Paragraph
+Risoluzione di viste
+\end_layout
+
+\begin_layout Standard
+Per un semplice esempio si consideri la seguente vista
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+CREATE VIEW EmpSalaries(EmpNo,Last,First,Salary)
+\end_layout
+
+\begin_layout Plain Layout
+
+AS SELECT EmpNo,LastName,FirstName,Salary
+\end_layout
+
+\begin_layout Plain Layout
+
+   FROM Employee
+\end_layout
+
+\begin_layout Plain Layout
+
+   WHERE Salary>2000
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+e la seguente query che referenzia la vista prima indicata
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+SELECT Last,First
+\end_layout
+
+\begin_layout Plain Layout
+
+FROM EmpSalaries
+\end_layout
+
+\begin_layout Plain Layout
+
+WHERE Last LIKE 'B%'
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+La risoluzione della vista porta a riscrivere la query come
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+SELECT LastName,FirstName
+\end_layout
+
+\begin_layout Plain Layout
+
+FROM Employee
+\end_layout
+
+\begin_layout Plain Layout
+
+WHERE Salary>2000
+\end_layout
+
+\begin_layout Plain Layout
+
+AND LastName LIKE 'B%'
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+La riscrittura della query (che inizialmente refernziava la VIEW EmpSalaries),
+ ora referenzia la relazione Employee su cui la VIEW si basava e nella riscrittu
+ra vengono implementati in AND il predicato presente sulla VIEW e il predicato
+ di selezione della query stessa.
+\end_layout
+
+\begin_layout Paragraph
+Query innestate
+\end_layout
+
+\begin_layout Standard
+Le subquery sono query SELECT usate nella clausola WHERE di un'altra query.
+ Una subquery si dice 
+\emph on
+correlata 
+\emph default
+se fa riferimento ad attributi (
+\begin_inset Quotes eld
+\end_inset
+
+variabili
+\begin_inset Quotes erd
+\end_inset
+
+) delle relazioni nel blocco 
+\begin_inset Quotes eld
+\end_inset
+
+esterno
+\begin_inset Quotes erd
+\end_inset
+
+ altrimenti è detta 
+\emph on
+costante
+\emph default
+.
+ In genere si producono piani di accesso per la subquery come se fossero
+ query a parte (e quindi gestite in maniera autonoma): per evitare però
+ di 
+\begin_inset Quotes eld
+\end_inset
+
+perdere
+\begin_inset Quotes erd
+\end_inset
+
+ dei piani di accesso a basso costo (e quindi estremamente utili), l'ottimizzato
+re cerca di riscrivere la query senza usare subquery facendola diventare
+ 
+\begin_inset Quotes eld
+\end_inset
+
+flat
+\begin_inset Quotes erd
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+Vediamo un esempio di 
+\emph on
+Unnesting.
+
+\emph default
+ Il passaggio a una forma senza subquery alle volte è immediato: ad esempio
+ la seguqne query:
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+SELECT EmpNo, PhoneNo
+\end_layout
+
+\begin_layout Plain Layout
+
+FROM Employee
+\end_layout
+
+\begin_layout Plain Layout
+
+WHERE WorkDept IN (
+\end_layout
+
+\begin_layout Plain Layout
+
+	SELECT DeptNo
+\end_layout
+
+\begin_layout Plain Layout
+
+	FROM Department
+\end_layout
+
+\begin_layout Plain Layout
+
+	WHERE DeptName='Operations'
+\end_layout
+
+\begin_layout Plain Layout
+
+)
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+viene riscritta come
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+SELECT EmpNo, PhoneNo
+\end_layout
+
+\begin_layout Plain Layout
+
+FROM Employee as E, Department as D
+\end_layout
+
+\begin_layout Plain Layout
+
+WHERE E.WorkDept = D.DeptNo
+\end_layout
+
+\begin_layout Plain Layout
+
+	AND D.DeptName = 'Operations'
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+In questo esempio la riscrittura trasforma la subquery in un join fra le
+ due relazioni: in generale la clausola IN è di facile trasformazione, trasforma
+zione non sempre banale invece in caso di IN negata (cioè NOT IN).
+\end_layout
+
+\begin_layout Standard
+Un secondo esempio, in cui è presente il NOT IN, l'unnesting risulta essere
+ più complicato.
+ La query
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+SELECT E.EmpNo
+\end_layout
+
+\begin_layout Plain Layout
+
+FROM Employee AS E
+\end_layout
+
+\begin_layout Plain Layout
+
+WHERE E.EmpNo NOT IN (
+\end_layout
+
+\begin_layout Plain Layout
+
+	SELECT EA.EmpNo
+\end_layout
+
+\begin_layout Plain Layout
+
+	FROM Emp_Act as EA
+\end_layout
+
+\begin_layout Plain Layout
+
+)
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+viene riscritta usando un outer join
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+SELECT Q.EmpNo
+\end_layout
+
+\begin_layout Plain Layout
+
+FROM (
+\end_layout
+
+\begin_layout Plain Layout
+
+	SELECT E.EmpNo, EA.EmpNo
+\end_layout
+
+\begin_layout Plain Layout
+
+	FROM Emp_Act as EA RIGHT OUTER JOIN Employee E 
+\end_layout
+
+\begin_layout Plain Layout
+
+	ON (E.EmpNo = EA.EmpNo)
+\end_layout
+
+\begin_layout Plain Layout
+
+) AS Q(EmpNo,EmpNo1)
+\end_layout
+
+\begin_layout Plain Layout
+
+WHERE Q.EmpNo1 IS NULL
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Si pensi inizialmente che una prima riscrittura potrebbe portare ad avere
+ una EXCEPT tra due relazioni, quella di 
+\begin_inset Quotes eld
+\end_inset
+
+esterna
+\begin_inset Quotes erd
+\end_inset
+
+ e quella 
+\begin_inset Quotes eld
+\end_inset
+
+interna
+\begin_inset Quotes erd
+\end_inset
+
+ (subquery) che porta ad uno stesso risultato.
+ Come invece viene mostrato nell'esempio, in questo caso la riscrittura
+ si avvale di RIGHT OUTER JOIN sulla relazione presente nella subquery,
+ infatti con il RIGHT OUTER JOIN si andranno a inserire nel risultato delle
+ tuple 
+\begin_inset Quotes eld
+\end_inset
+
+dangling
+\begin_inset Quotes erd
+\end_inset
+
+ (tuple che non fanno match sul predicato di join) che hanno dei valori
+ NULL sugli attributi della relazione 
+\begin_inset Quotes eld
+\end_inset
+
+esterna
+\begin_inset Quotes erd
+\end_inset
+
+ Employee: attraverso il predicato IS NULL vengono selezionate esattamente
+ queste ultime portando ad avere il risultato della query.
+\end_layout
+
+\begin_layout Standard
+Il 
+\emph on
+dbms
+\emph default
+ può sfruttare dei vincoli (relazionali) presenti sul modello per semplificare
+ e riscrivere le query: ad esempio se l'attributo 
+\emph on
+EmpNo
+\emph default
+ è attributo chiave della relazione Employee, allora la query
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+SELECT DISTINCT EmpNo
+\end_layout
+
+\begin_layout Plain Layout
+
+FROM Employee
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+può essere riscritta più semplicemente come
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+SELECT EmpNo
+\end_layout
+
+\begin_layout Plain Layout
+
+FROM Employee
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+poichè la clausola DISTINCT risulta essere superflua (facendo risparmiare
+ dunque la richeista di eliminazione di duplicati poichè l'attributo essendo
+ chiave né è privo).
+\end_layout
+
+\begin_layout Standard
+Un ulteriore esempio di semplificazione basata sui vincoli è quella espressa
+ dal vincolo di 
+\emph on
+Foreign Key
+\emph default
+: se ad esempio l'attributo EmpNo della relazione Emp_Act ha il vincolo
+ di 
+\emph on
+foreign key 
+\emph default
+con l'attributo EmpNo di Employee, allora la seguente query
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+SELECT EA.EmpNo
+\end_layout
+
+\begin_layout Plain Layout
+
+FROM Emp_Act as EA
+\end_layout
+
+\begin_layout Plain Layout
+
+WHERE EA.EmpNo IN (
+\end_layout
+
+\begin_layout Plain Layout
+
+	SELECT EmpNo
+\end_layout
+
+\begin_layout Plain Layout
+
+	FROM Employee
+\end_layout
+
+\begin_layout Plain Layout
+
+)
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+viene riscritta come
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+SELECT EA.EmpNo
+\end_layout
+
+\begin_layout Plain Layout
+
+FROM Emp_Act as EA
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Se inoltre EA.EmpNo ammettesse valori nulli (che si vogliono eliminare per
+ mantenere coerenza con la query richiesta), la riscrittura aggiungerebbe
+ anche la clausola
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+WHERE EA.EmpNo IS NOT NULL
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Vediamo infine un ultimo esempio di riscrittura che utilizza i vincoli sui
+ privilegi delle viste.
+ Si supponga di avere la seguente vista
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+CREATE VIEW People AS
+\end_layout
+
+\begin_layout Plain Layout
+
+	SELECT FirstName,LastName,DeptNo,MgrNo
+\end_layout
+
+\begin_layout Plain Layout
+
+	FROM Employee as E, Department as D
+\end_layout
+
+\begin_layout Plain Layout
+
+	WHERE E.WorkDept = D.DeptNo
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+e si esegua la seguente query
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+SELECT LastName,FirstName
+\end_layout
+
+\begin_layout Plain Layout
+
+FROM People
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+in cui, però, chi esegue la query non ha il privilegio di SELECT né su Employee
+ né su Department.
+ Allora il 
+\emph on
+dbms
+\emph default
+ può semplificare la query come segue
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+SELECT LastName,FirstName
+\end_layout
+
+\begin_layout Plain Layout
+
+FROM Employee
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+in cui ha sostituito la vista 
+\emph on
+People
+\emph default
+ con la relazione 
+\emph on
+Employee 
+\emph default
+(eliminando anche il join con Department poichè, per ipotesi, WorkDept ha
+ un vincolo di 
+\emph on
+foreign
+\emph default
+ 
+\emph on
+key
+\emph default
+ su DeptNo) eventualmente aggiungendo la clausola
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+WHERE WorkDept IS NOT NULL
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsubsection
+Rappresentazione interno della query
+\end_layout
+
+\begin_layout Standard
+Una query, una volta riscritta, viene elaborata per avere una rappresentazione
+ interna (utile al 
+\emph on
+dbms
+\emph default
+): come molto spesso accade la rappresentazione interna più comoda da gestire
+ è una 
+\emph on
+rappresentazione ad albero
+\emph default
+ (anche se, a volte, in caso di ricorsione si ricorre a grafi).
+ Le 
+\emph on
+foglie
+\emph default
+ sono le 
+\emph on
+relazioni
+\emph default
+ presenti nella query, i 
+\emph on
+nodi interni
+\emph default
+ rappresentano gli 
+\emph on
+operatori dell'algebra
+\emph default
+ (estesa), i vari 
+\emph on
+rami
+\emph default
+ altro non sono che i 
+\emph on
+flussi dei dati
+\emph default
+ dal basso verso l'alto e infine la 
+\emph on
+radice 
+\emph default
+rappresenta il 
+\emph on
+risultato dell'interrogazione.
+\end_layout
+
+\begin_layout Standard
+Si veda come la rappresentazione interna ad albero (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:rappresentazionealbero"
+
+\end_inset
+
+) della seguente query
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+SELECT S.snome
+\end_layout
+
+\begin_layout Plain Layout
+
+FROM Recensioni as R, Sommelier as S
+\end_layout
+
+\begin_layout Plain Layout
+
+WHERE R.sid=S.sid AND R.vid=100 AND S.val>4
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+che in algebra relazionale viene espressa come
+\begin_inset Formula 
+\[
+\pi_{snome}(\sigma_{vid=100\wedge val>4}(Recesioni\triangleright\triangleleft_{sid=sid}Sommelier))
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:rappresentazionealbero"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename rappresentazionealbero.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Piano di accesso
+\end_layout
+
+\begin_layout Standard
+Dalla prima rappresentazione ad albero (logico) mostrata al punto precedente,
+ l'ottimizzatore trasforma (arricchisce) la rappresentazione ad albero della
+ query in un 
+\emph on
+albero di operatori fisici
+\emph default
+, in cui ora ogni operatore logico è sostituito da un operatore fisico che
+ lo implementa, e le relazioni vengono contraddistinte anche con un metodo
+ di accesso per la loro lettura.
+ La figura (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:rappresentazionealberofiisco"
+
+\end_inset
+
+) mostra il passaggio.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:rappresentazionealberofiisco"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename rappresentazionealberofisico.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsubsection
+Esecuzione di piani di accesso
+\end_layout
+
+\begin_layout Standard
+Per eseguire un piano di accesso occorre valutare gli operatori dell'albero
+ a partire dal basso.
+ Esistono due possibilità di esecuzione:
+\end_layout
+
+\begin_layout Itemize
+Per 
+\emph on
+materializzazione 
+\emph default
+(non viene utilizzata poichè inefficente) in cui ogni operatore memorizza
+ il proprio risultato in una tabella temporanea.
+ Un operatore a livello più alto deve attendere che tutti gli operatori
+ di input (cioè gli operatori a livello più basso) abbiano terminato la
+ loro esecuzione per iniziare a produrre il proprio risultato.
+ Si noti che ogni operatore produce un risultato 
+\begin_inset Quotes eld
+\end_inset
+
+intermedio
+\begin_inset Quotes erd
+\end_inset
+
+ che deve essere memorizzato su una tabella temporanea di dimensioni, spesso,
+ decisamente maggiori delle dimensioni del risultato finale.
+ Il modello è sicuramente semplice da implementare, ma il problema di dover
+ gestire i risultati intermedi che potrebbero portare ad operazioni di I/O,
+ fà sì che questo modello di esecuzione non venga quasi mai implementato.
+\end_layout
+
+\begin_layout Itemize
+In 
+\emph on
+pipeline
+\emph default
+ (tramite iteratori) in cui ogni operatore richiedere un risultato agli
+ operatori di input e dunque può essere visto come una sorta di iteratore:
+ di conseguenza un'operatore non è 
+\begin_inset Quotes eld
+\end_inset
+
+bloccante
+\begin_inset Quotes erd
+\end_inset
+
+ (cioè non deve attendere che il nodo a livello più basso abbia completato
+ la sua esecuzione) ma d'altra parte non sempre è applicabile/possibile
+ (ad esempio per 
+\emph on
+sort
+\emph default
+ in quanto per riuscire ad avere la prima tupla da poter passare al nodo
+ genitore devo per forza aver scandito almeno tutta l'entità su cui sta
+ elaborando).
+\end_layout
+
+\begin_layout Paragraph
+Esecuzione per materializzazione
+\end_layout
+
+\begin_layout Standard
+Si prenda d'esempio la seguente query
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+SELECT P.ProjNo, E.EmpNo, D.*
+\end_layout
+
+\begin_layout Plain Layout
+
+FROM Department as D, Employee as E, Project as P
+\end_layout
+
+\begin_layout Plain Layout
+
+WHERE E.WorkDept = D.DeptNo AND E.EmpNo = P.RespEmp
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+che ha rappresentazione ad albero mostrata in figura (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:esecuzionepianiqueryalbero"
+
+\end_inset
+
+)
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:esecuzionepianiqueryalbero"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename esecuzionepianiaccessoqueryalbero.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+in cui 
+\bar under
+TBSCAN
+\bar default
+ rappresenta una 
+\emph on
+scansione sequenziale
+\emph default
+, 
+\bar under
+NLJOIN
+\bar default
+ rappresenta un join effettuato tramite 
+\emph on
+nested loops
+\emph default
+ e 
+\bar under
+IXSCAN
+\bar default
+ rappresenta una
+\emph on
+ index nested loops
+\emph default
+.
+ L'esecuzione per materializzazione produce come primo risultato il risultato
+ del primo join (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:materializzazioneprimojoin"
+
+\end_inset
+
+)
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:materializzazioneprimojoin"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename esecuzionepianomaterializzazioneprimojoin.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+e solo a partire da tale risultato 
+\begin_inset Quotes eld
+\end_inset
+
+intermedio
+\begin_inset Quotes erd
+\end_inset
+
+ si può calcolare il secondo join che produce il seguente risultato (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:materializzazionesecondojoin"
+
+\end_inset
+
+)
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:materializzazionesecondojoin"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename esecuzionepianomaterializzazionesecondojoin.png
+	width 100text%
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Paragraph
+Esecuzione in pipeline
+\end_layout
+
+\begin_layout Standard
+Mostriamo subito un esempio.
+ Si inizia ad eseguire il primo join il quale produrrà la prima tupla (
+\begin_inset Quotes eld
+\end_inset
+
+intermedia
+\begin_inset Quotes erd
+\end_inset
+
+) mostrata in figura (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:pipelineprimatupla"
+
+\end_inset
+
+)
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:pipelineprimatupla"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename pipelineprimatupla.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+la quale viene subito passata in input al secondo join che inizia la ricerca
+ di 
+\emph on
+matching tuples 
+\emph default
+producendo la prima tupla del risultato mostrata in figura (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:primatuplarisultato"
+
+\end_inset
+
+)
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:primatuplarisultato"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename pipelineprimatuplarisultato.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+L'esecuzione prosegue cercando eventuali ulteriori match per la tupla prodotta
+ dal primo join (si noti che nel frattempo il primo join è in attesa poichè
+ è richiesta l'elaborazione ora del secondo): quando è terminata la scandione
+ della relazione interna (Department), il secondo join richiede al primo
+ di produrre un'ulteriore tupla e il procedimento si itera.
+\end_layout
+
+\begin_layout Standard
+Poichè l'esecuzione in 
+\emph on
+pipeline
+\emph default
+ di un operatore è indipendente dal tipo di operatore è necessario sapere
+ quando effettivamente 
+\begin_inset Quotes eld
+\end_inset
+
+passare
+\begin_inset Quotes erd
+\end_inset
+
+ una tupla da un nodo ad un altro (il sistema è demand drive): ecco che
+ si presenta l'esigenza di un'interfaccia.
+ Per semplificare il codice di coordinamento dell'esecuzione dei 
+\emph on
+piani di accesso 
+\emph default
+viene implementata un'interfaccia standard per ogni tipo di operatore cioè
+ ogni operatore deve implementare dei 
+\emph on
+metodi
+\emph default
+ comuni per l'esecuzione dell'algoritmo
+\end_layout
+
+\begin_layout Description
+open inizializza e alloca il buffer, passa alcuni parametri (ad esempio
+ gli attributi necessari nel SELECT) e richiama 
+\emph on
+open 
+\emph default
+sui figli ricorsivamente
+\end_layout
+
+\begin_layout Description
+hasNext verifica se ci sono ulteriori tuple
+\end_layout
+
+\begin_layout Description
+next restituisce la prossima tupla
+\end_layout
+
+\begin_layout Description
+reset riparte dalla prima tupla (necessario ad esempio nei 
+\emph on
+nested loops
+\emph default
+)
+\end_layout
+
+\begin_layout Description
+close termina e rilascia le risorse
+\end_layout
+
+\begin_layout Standard
+Si noti che l'algoritmo di esecuzione dei piani di accesso parte dalla radice,
+ la quale partendo con il metodo 
+\emph on
+open
+\emph default
+ andrà, in maniera ricorsiva, a far chiamare il metodo 
+\emph on
+open 
+\emph default
+ai figli il quale lo faranno chiamare ai figli, etc..
+ La radice, a questo punto, richiede la prima tupla che apparterà al risultato
+ tramite il metodo 
+\emph on
+next
+\emph default
+, il quale andrà a richiedere la generazione di una tupla ai figli, i quali
+ a loro volta (a meno che non siano già delle relazioni) richiederanno ai
+ loro figli una tupla da poter elaborare e così via.
+ L'algoritmo terminata quando il metodo 
+\emph on
+hasNext
+\emph default
+ chiamato dalla radice risulterà avere valore 
+\emph on
+false.
+\end_layout
+
+\begin_layout Subsubsection
+Piani di accesso alternativi
+\end_layout
+
+\begin_layout Standard
+Vediamo come, una stessa query, possa avere un numero svariato di piani
+ di accesso alternativi.
+ Supponiamo di dover eseguire l'albero mostrato in precedenza che qui rimostriam
+o (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:pianoaccessoalternativoalbero"
+
+\end_inset
+
+)
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:pianoaccessoalternativoalbero"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename pianoaccessoalternativialbero.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Il costo dell'operazione è dato dal costo del join: 501'000 operazioni I/O
+ ovvero circa 1.4 ore.
+ Ma si potrebbe fare decisamente di peggio, ad esempio con un 
+\emph on
+prodotto cartesiano
+\emph default
+ tra le relazioni con successiva 
+\emph on
+selezione
+\emph default
+ sull'attributo di join.
+ Vogliamo dunque cercare di ridurre il costo evitando di valutare però tutte
+ le possibili alternative.
+\end_layout
+
+\begin_layout Standard
+Poichè il join è un'operazione costosa una prima soluzione è quella di diminuire
+ la dimensione degli input: una possibilità è quella di applicare le selezioni
+ 
+\emph on
+prima
+\emph default
+ di effettura il join (effettuare dunque un 
+\emph on
+push-down
+\emph default
+ dell'operazione di selezione).
+ Ad esempio la selezione 
+\emph on
+vid=100
+\emph default
+ si applica solo a Recensioni mentre la selezione 
+\emph on
+val>4
+\emph default
+ si applica solo a Sommelier: vengono dunque create delle relazioni temporanee
+ T1 e T2 che soddisfano le selezioni che successivamente vengono ordinate
+ (per poter eseguire il 
+\emph on
+mergescan
+\emph default
+).
+ Il costo complessivo è dato da 
+\begin_inset Formula $Costo=P(R)+P(T1)+P(S)+P(T2)+sort(T1)+sort(T2)+P(T1)+P(T2)=1000+10+500+250+40+1500+10+250=3560$
+\end_inset
+
+ (35 secondi).
+ Si veda come l'albero rappresentante la query si sia modificato (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:pianoalternativoalberomodificato1"
+
+\end_inset
+
+)
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:pianoalternativoalberomodificato1"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename pianoaccessoalternativialberomodificato.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Un'altra possibilità invece è quella di introdurre una proiezione: infatti
+ sia per il join che per l'output sono richiesti solo gli attributi 
+\emph on
+sid
+\emph default
+ e 
+\emph on
+snome
+\emph default
+.
+ Questo porta ad avere tabelle temporanee di dimensioni ridotte.
+ Possiamo usare ad esempio il 
+\emph on
+page nested loops
+\emph default
+ e dunque il costo risultante è dato da 
+\begin_inset Formula $Costo=P(R)+P(T1')+P(S)+P(T2')+P(T1')+P(T2')=1000+3+500+250+3+250=2006$
+\end_inset
+
+ (20 secondi).
+ Ancora una volta l'albero viene modificato come mostrato in figura (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:pianoalternativoalberomodificato2"
+
+\end_inset
+
+)
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:pianoalternativoalberomodificato2"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename pianoaccessoalternativialberomodificato2.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Infine la presenza di 
+\emph on
+indici 
+\emph default
+può ridurre ulteriormente il costo.
+ Supponiamo, ad esempio, di avere un indice hash su R.vid e uno su S.sid.
+ Possiamo utilizzare dunque l'
+\emph on
+index nested loops
+\emph default
+ il che porta il costo ad essere 
+\begin_inset Formula $costo=L(R)+f\cdot N(R)\cdot1+10+1000=1010$
+\end_inset
+
+ (10 seco).
+ Si noti che la selezione su S.val di Sommelier non può essere 
+\emph on
+pushed
+\emph default
+ poichè per effettuare un index nested loops l'attributo dell'indice deve
+ essere lo stesso dell'attributo di join, ma in questo caso l'indice è presente
+ su S.val e non su S.vid (che sarebbe l'attributo di join necessario per l'index
+ nested loops).
+ L'albero modificato risulta essere quello mostrato in figura (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:pianoalternativoalberomodificato3"
+
+\end_inset
+
+)
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:pianoalternativoalberomodificato3"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename pianoaccessoalternativialberomodificato3.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+È evidente che nella riscrittura di un piano di accesso occorre che l'ottimizzat
+ore non modifichi la semantica della query originale (cioè che i risultati
+ a cui si perviene rimangano sempre gli stessi): occorre dunque conoscere
+ l'
+\emph on
+equivalenza delle espressioni 
+\emph default
+in algebra relazionale, cioè come un operatore può essere riscritto attraverso
+ un altro operatore mantenendo però la stessa semantica.
+ Si noti che bisogna anche ricordare che nell'equivalenza si devono implementare
+ anche i valori NULL e i valori duplicati.
+ Le regole più comuni per l'equivalenza di espressioni nella modifica dei
+ piani di accesso sono il 
+\emph on
+raggruppamento e commutatività 
+\emph default
+della 
+\emph on
+selezione 
+\emph default
+e della 
+\emph on
+proiezione
+\emph default
+, la 
+\emph on
+commutatività e associatività
+\emph default
+ dell'operatore di join, il 
+\emph on
+push-down
+\emph default
+ dell'operatore di selezione sull'operatore di join
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+ldots
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Stima del costo del piano di accesso
+\end_layout
+
+\begin_layout Standard
+Per ogni nodo dell'albero fisico occorre saper stimare il 
+\emph on
+costo
+\emph default
+, la 
+\emph on
+dimensione del risultato
+\emph default
+ e l'
+\emph on
+ordinamento 
+\emph default
+(se presente o meno) 
+\emph on
+del risultato e dei risultati parziali
+\emph default
+ (è importante saperlo poichè alcuni algoritmi cambiano il loro costi a
+ seconda che i risultati siano ordinati o meno).
+ Per il 
+\emph on
+costo
+\emph default
+ si utilizzano le stime di cui abbiamo già discusso nel precedente capitolo,
+ tenendo conto che il 
+\emph on
+pipelining
+\emph default
+ permette di risparmiare il costo di scrittura e lettura dei risultati intermedi
+, cioè delle tabelle temporanee di output dei nodi interni.
+ Precisiamo inoltre che riuscendo a stimare il costo di ogni singolo operatore,
+ la composizione di essi riesce a stimare il costo del piano di accesso
+ associato.
+ Il tutto si basa su statistiche che vengono mantenuta aggiornate dal 
+\emph on
+dbms
+\emph default
+ in maniera automatica o sotto richiesta del 
+\emph on
+DB Administrator.
+\end_layout
+
+\begin_layout Standard
+In DB2 le statistiche, come già sappiamo, vengono mantenute all'interno
+ dei cataloghi presenti nello 
+\emph on
+schema SYSSTAT
+\emph default
+.
+ Esse vengono aggiornate tramte il comando 
+\series bold
+RUNSTATS
+\series default
+ e comprendo statistiche su tabelle, indici, colonne, gruppi di colonne,
+ distribuzioni
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+ldots
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+Esempi di Statistiche su tabelle
+\end_layout
+
+\begin_deeper
+\begin_layout Description
+FPAGES Numero di pagine usate da una tabella
+\end_layout
+
+\begin_layout Description
+NPAGES Numero di pagine contenenti record (
+\begin_inset Formula $\leq FPAGES$
+\end_inset
+
+ poichè a causa di eliminazioni potrebbero esserci pagine vuote non ancora
+ compattate che però non contengono record della tabella)
+\end_layout
+
+\begin_layout Description
+CARD Cardinalità di una tabella, ovvero il numero dei suoi record
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+
+\series bold
+Esempi di Statistiche su colonne
+\end_layout
+
+\begin_deeper
+\begin_layout Description
+COLCARD Cardinalità dell'attributo (ovvero la stima dei valori distinti
+ dell'attributo)
+\end_layout
+
+\begin_layout Description
+AVGCOLLEN Dimensione media dell'attributo
+\end_layout
+
+\begin_layout Description
+HIGH2KEY,
+\begin_inset space ~
+\end_inset
+
+LOW2KEY Secondo valore maggiore e minore dell'attributo
+\end_layout
+
+\begin_layout Description
+NUMNULLS Numero dei valori NULL
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+
+\series bold
+Esempi di Statistiche su indici
+\end_layout
+
+\begin_deeper
+\begin_layout Description
+NLEAF Numero delle foglie dell'indice
+\end_layout
+
+\begin_layout Description
+NLEVELS Numero dei livelli dell'indice, cioè la sua altezza
+\end_layout
+
+\begin_layout Description
+CLUSTERRATIO Grado di clusterizzazione dei dati rispetto all'indice.
+ Si noti che non esistono solo indici 
+\emph on
+clustered
+\emph default
+ e 
+\emph on
+unclustered
+\emph default
+.
+ Si prenda ad esempio una relazione di Studenti ordinata per Matricola:
+ un indice su Matricola risulterà sicuramente 
+\emph on
+clustered
+\emph default
+, ma un un indice su Età (dello studente) risulterà 
+\begin_inset Quotes eld
+\end_inset
+
+abbastanza
+\begin_inset Quotes erd
+\end_inset
+
+ clustered su Studenti poichè c'è una forte correlazione tra il numero di
+ matricola e l'età dello studente: 
+\emph on
+clusterratio 
+\emph default
+dà dunque una stima del livello di clusterizzazione dell'indice
+\end_layout
+
+\begin_layout Description
+DENSITY Percentuale di foglie memorizzate sequenzialmente
+\end_layout
+
+\begin_layout Description
+NUMRIDS Numero di RID memorizzati nell'albero
+\end_layout
+
+\end_deeper
+\begin_layout Subsubsection
+Stime del numeri di valori distinti
+\end_layout
+
+\begin_layout Standard
+È spesso necessario conoscere il numero di valori distinti di un attributo
+ (o combinazione di attributi).
+ L'approccio basato su 
+\emph on
+sorting
+\emph default
+ richiede tempo 
+\begin_inset Formula $O(P\cdot\log P)$
+\end_inset
+
+ per ogni attributo.
+ Esiste però un metodo molto più veloce basato su 
+\emph on
+hashing
+\emph default
+ noto come 
+\emph on
+linear counting
+\emph default
+ che ha complessità 
+\begin_inset Formula $O(P)$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+Per effettuare il 
+\series bold
+linear counting
+\series default
+ si predispone in RAM un array B di grandezza BX.
+ L'array B è un array di soli bit e viene inizializzato a 0.
+ Vogliamo ora sapere il numero di valori distingi per un attributo A della
+ relazione R.
+ Si scandisce l'intera relazione R e per ogni tupla r si applica una funzione
+ hash H a valori in 
+\begin_inset Formula $[0,\, B-1]$
+\end_inset
+
+ all'attributo A di interesse.
+ Si pone dunque 
+\begin_inset Formula $B[H(r.A)]=1$
+\end_inset
+
+ cioè si pone a 1 il bit dell'array risultante dalla funzione hash associata:
+ si noti che in caso di valori duplicati non vi è alcun problema poichè
+ essi andranno tutti a finire nella stessa posizione dell'array.
+ Alla fine della scansione della relazione, si contano il numero Z di bit
+ rimasti a 0.
+ La stima del numero di valori distinti di A, indicata con NK(R.A), è data
+ da
+\begin_inset Formula 
+\[
+NK(R.A)\thickapprox BX\cdot\ln\left(\frac{BX}{Z}\right)
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Precisiamo che al termine dell'esecuzione i bit dell'array che hanno valore
+ 1 sono bit che sono stati colpiti dalla funzione hash almeno una volta,
+ mentre quelli che hanno valore 0 sono posizioni che la funzione hash non
+ ha mai generato.
+ Si noti inoltre che il numero di zeri Z non può essere uguale a 0 (altrimenti
+ la formula risulta impossibile): bisogna garantire che 
+\begin_inset Formula $Z>0$
+\end_inset
+
+ (e per far ciò si può porre 
+\begin_inset Formula $BX=N$
+\end_inset
+
+, tanto essendo un array di bit non occupperà molto spazio).
+ Inoltre, da come si vede dalla formula, il numero delle tuple N della relazione
+ (valore di input) non è una variabile del problema, risulta essere ininfluente,
+ questo proprio per il motivo prima spiegato sulla presenza di duplicati
+ o meno.
+\end_layout
+
+\begin_layout Standard
+Come si è arrivati alla formula sulla stima? Viene seguito un procedimento
+ analogo al modello di Cardennas:
+\end_layout
+
+\begin_layout Enumerate
+\begin_inset Formula $\frac{1}{BX}$
+\end_inset
+
+ equivale alla probabilità che una determinata posizione dell'array B venga
+ generata da un 
+\begin_inset Quotes eld
+\end_inset
+
+lancio
+\begin_inset Quotes erd
+\end_inset
+
+ della funzione hash
+\end_layout
+
+\begin_layout Enumerate
+\begin_inset Formula $1-\frac{1}{BX}$
+\end_inset
+
+ equivale alla probabilità che una determinata posizione 
+\bar under
+non
+\bar default
+ venga generata da un lancio
+\end_layout
+
+\begin_layout Enumerate
+\begin_inset Formula $\left(1-\frac{1}{BX}\right)^{NK}$
+\end_inset
+
+ equivale alla probabilità che una determinata posizione 
+\bar under
+non
+\bar default
+ venga generata da 
+\begin_inset Formula $NK$
+\end_inset
+
+ lanci
+\end_layout
+
+\begin_layout Enumerate
+\begin_inset Formula $1-\left(1-\frac{1}{BX}\right)^{NK}$
+\end_inset
+
+ equivale alla probabilità che una determinata posizione venga generata
+ almeno una volta in 
+\begin_inset Formula $NK$
+\end_inset
+
+ lanci
+\end_layout
+
+\begin_layout Enumerate
+\begin_inset Formula $BX\cdot\left[1-\left(1-\frac{1}{BX}\right)^{NK}\right]$
+\end_inset
+
+ equivale alla probabilità che una qualsiasi posizione (ho moltiplicato
+ per BX) venga generata almeno una volta in 
+\begin_inset Formula $NK$
+\end_inset
+
+ lanci
+\end_layout
+
+\begin_layout Standard
+Di conseguenza data l'array B di dimensione BX, il numero di 
+\begin_inset Quotes eld
+\end_inset
+
+uni
+\begin_inset Quotes erd
+\end_inset
+
+ presenti alla fine del procedimento equivale a 
+\begin_inset Formula $BX-Z$
+\end_inset
+
+ (numero totale meno il numero di zeri) e questo equivale proprio a
+\begin_inset Formula 
+\[
+BX-Z=BX\cdot\left[1-\left(1-\frac{1}{BX}\right)^{NK}\right]
+\]
+
+\end_inset
+
+ che altro non è il punto 5 del procedimento prima analizzato.
+ Attraverso alcuni passaggi aritmetici otteniamo
+\begin_inset Formula 
+\[
+\left(1-\frac{1}{BX}\right)^{NK}=\left(1-\frac{1}{BX}\right)^{BX\cdot\left(\frac{NK}{BX}\right)}\thicksim e^{-\frac{NK}{BX}}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+andando a sostituire otteniamo dunque
+\begin_inset Formula 
+\[
+BX-Z\thickapprox BX\cdot\left(1-e^{-\frac{NK}{BX}}\right)=BX-BX\cdot e^{-\frac{NK}{BX}}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+e quindi
+\begin_inset Formula 
+\[
+Z=BX\cdot e^{-\frac{NK}{BX}}\rightarrow\ln\left(\frac{Z}{BX}\right)\thickapprox-\frac{NK}{BX}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+e dunque
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+NK\thickapprox BX\cdot\ln\left(\frac{BX}{Z}\right)
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Il metodo è ovviamente applicabile a più attributi, o combinazione di essi,
+ anche applicato in parallelo.
+ Dunque è un calcolo veloce per avere una stima dei valori distinti.
+\end_layout
+
+\begin_layout Subsubsection
+Istogrammi
+\end_layout
+
+\begin_layout Standard
+Il solo numero di valori distinti può portare a stime poco accurate che
+ possono quindi influenzare in modo impredicibile il processo di ottimizzazione.
+ Ad esempio dati N dipendenti e NK(ruolo) ruoli: quanti dipendenti hanno
+ il ruolo di 'operaio'? Secondo la stima prima descritta 
+\begin_inset Formula $\frac{N}{NK(ruolo)}$
+\end_inset
+
+.
+ Quanti dipendenti hanno invece il ruolo di 'direttore di filiale'? Sempre
+ 
+\begin_inset Formula $\frac{N}{NK(ruolo)}$
+\end_inset
+
+.
+ Come si vede la stima descritta presuppone una distribuzione uniforme,
+ la quale, spesso, è molto lontana dalla realtà dei dati.
+ Si ha bisogno dunque di informazioni più dettagliate sulla distribuzione
+ dei valori: ecco che praticamente tutti i dbms si basano e implementano
+ 
+\emph on
+istogrammi.
+\end_layout
+
+\begin_layout Standard
+Esistono diversi tipi di istogrammi: 
+\emph on
+Equi-width,
+\emph default
+ 
+\emph on
+Equi-depth
+\emph default
+ e 
+\emph on
+Compressed.
+\end_layout
+
+\begin_layout Standard
+Partendo da un'esempio in cui la distribuzione delle N=45 tuple con NK=15
+ valori distinti è data dalla seguente figura (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:esempiodistribuzione"
+
+\end_inset
+
+)
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:esempiodistribuzione"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename esempiodistribuzione.png
+	width 100text%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+descriviamo i varii istogrammi vedendo come poi implementano la loro distribuzio
+ne all'esempio qui sopra descritto.
+\end_layout
+
+\begin_layout Paragraph
+Equi-width
+\end_layout
+
+\begin_layout Standard
+Nell'istogramma 
+\emph on
+equi-width 
+\emph default
+il dominio viene suddiviso in B intervalli della stessa ampiezza, cioè preso
+ ad esempio un range di valori da 0 a 100, lo possiamo suddividere in B=10
+ intervalli di ampiezza 10 ottenendo [0,10], [10,20], [20,30], 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+ldots
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Il problema di questo modello è che risulta molto poco accurati, non suddivide
+ l'intervallo dei dati in maniera 
+\begin_inset Quotes eld
+\end_inset
+
+dipendente
+\begin_inset Quotes erd
+\end_inset
+
+ dalla vera distribuzione: ecco che non vi è alcuna garanzia sull'errore
+ che si può commettere.
+\end_layout
+
+\begin_layout Standard
+La figura (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:esempiodistribuzioneequiwidth"
+
+\end_inset
+
+) mostra l'istogramma 
+\emph on
+equi-width
+\emph default
+ applicato all'esempio prima citato.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:esempiodistribuzioneequiwidth"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename esempiodistribuzioneequiwidth.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace defskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Paragraph
+Equi-depth
+\end_layout
+
+\begin_layout Standard
+Nell'istogramma 
+\emph on
+equi-depth 
+\emph default
+il dominio viene suddiviso in B intervalli in modo che il numero di tuple
+ in ogni livello sia circa lo stesso, cioè se preso preso il nostro dominio
+ lo dividiamo in 4 parti, vogliamo, intuitivamente, che ogni intervallo
+ contenga circa il 25% delle tuple.
+ 
+\end_layout
+
+\begin_layout Standard
+Il problema di questo modello, che risulta decisamente migliore dell'
+\emph on
+equi-width
+\emph default
+, si ha in presenza di molti valori frequenti causando dei 
+\begin_inset Quotes eld
+\end_inset
+
+picchi
+\begin_inset Quotes erd
+\end_inset
+
+ su alcuni intervalli.
+\end_layout
+
+\begin_layout Standard
+La figura (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:esempiodistribuzioneequidepth"
+
+\end_inset
+
+) mostra l'istogramma 
+\emph on
+equi-depth 
+\emph default
+applicato all'esempio prima citato.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:esempiodistribuzioneequidepth"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename esempiodistribuzioneequidepth.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace defskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Paragraph
+Compressed
+\end_layout
+
+\begin_layout Standard
+L'istogramma 
+\emph on
+Compressed
+\emph default
+ è equivalente all'istogramma 
+\emph on
+equi-depth
+\emph default
+, solo che per ognnuno dei V valori più frequenti, viene mantenuto un contatore
+ separato.
+ L'istogramma compressed risulta essere il più usato fra i 
+\emph on
+dbms.
+\end_layout
+
+\begin_layout Standard
+La figura (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:esempiodistribuzionecompressed"
+
+\end_inset
+
+) mostra l'istogramma 
+\emph on
+compressed
+\emph default
+ applicato all'esempio prima citato.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:esempiodistribuzionecompressed"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename esempiodistribuzionecompressed.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Query
+\end_layout
+
+\begin_layout Standard
+Tutto ciò che abbiamo introdotto finora è finalizzato all'ottimizzazione
+ delle query.
+ Vediamo dunque come è possibile gestire una 
+\series bold
+Query su singola relazione
+\series default
+.
+\end_layout
+
+\begin_layout Subsubsection
+Su Singola relazione
+\end_layout
+
+\begin_layout Standard
+Se la query contiene un'unica relazione nella clausola FROM dobbiamo valutare
+ solo le 
+\emph on
+proiezioni 
+\emph default
+e le 
+\emph on
+selezioni
+\emph default
+ più eventuali 
+\emph on
+raggruppamenti
+\emph default
+ e 
+\emph on
+operazioni aggregate
+\emph default
+.
+\end_layout
+
+\begin_layout Standard
+Esistono quattro possibili soluzioni:
+\end_layout
+
+\begin_layout Enumerate
+Scansione sequenziale
+\end_layout
+
+\begin_layout Enumerate
+Uso di un solo indice (eventualmente clustered)
+\end_layout
+
+\begin_layout Enumerate
+Uso di più indici
+\end_layout
+
+\begin_layout Enumerate
+Uso solo di un indice (non si accede ai dati, il caso INDEX ONLY)
+\end_layout
+
+\begin_layout Standard
+Vediamo i diversi casi applicati ad un esempio pratico.
+ Vogliamo risolvere la seguente query su singola relazione
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+SELECT rivista
+\end_layout
+
+\begin_layout Plain Layout
+
+FROM Recensioni
+\end_layout
+
+\begin_layout Plain Layout
+
+WHERE vid=417 AND anno>2005
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Sappiamo che esiste un indice hash sull'attributo 
+\emph on
+vid
+\emph default
+ di Recensioni, un indice B+tree sull'attributo 
+\emph on
+anno
+\emph default
+ e un indice B+tree su (
+\emph on
+vid, anno, rivista
+\emph default
+)
+\end_layout
+
+\begin_layout Paragraph
+Scansione sequenziale
+\end_layout
+
+\begin_layout Standard
+Con la scansione sequenziale si leggono tutte le pagine della relazione
+ Recensioni e si effettuano selezione e proiezione sul momento, dunque il
+ costo è dato da 
+\begin_inset Formula $costo=P(R)$
+\end_inset
+
+ (numero di pagine della relazione).
+\end_layout
+
+\begin_layout Paragraph
+Uso di un solo indice
+\end_layout
+
+\begin_layout Standard
+Esistendo diversi indici, scegliamo l'indice più selettivo (cioè quello
+ che 
+\begin_inset Quotes eld
+\end_inset
+
+taglia
+\begin_inset Quotes erd
+\end_inset
+
+ più tuple) che risulta essere l'indice su 
+\emph on
+vid
+\emph default
+.
+ Si leggono dunque i record tramite le RID che l'indice su vid fornice e
+ infine sulle tuple lette viene valutato il predicato su 
+\emph on
+anno
+\emph default
+ ed effettuata la proiezione sull'attributo 
+\emph on
+rivista.
+\end_layout
+
+\begin_layout Paragraph
+Uso di più indici
+\end_layout
+
+\begin_layout Standard
+Si usa sia l'indice su 
+\emph on
+vid
+\emph default
+ sia l'indice su 
+\emph on
+anno
+\emph default
+.
+ Le RID ottenute da entrambi gli indici si intersecano e si leggono dunque
+ i record associate alle RID presenti nell'intersezione: infine si effettua
+ la proiezione su 
+\emph on
+rivista
+\emph default
+.
+\end_layout
+
+\begin_layout Paragraph
+Uso solo di un indice (INDEX ONLY)
+\end_layout
+
+\begin_layout Standard
+Essendo presente un indice B+tree su (vid, anno, rivista) è possibile ricavare
+ tutti i dati del risultato senza accedere effettivamente ai dati.
+ Si utilizza dunque l'indice composto per selezionare i 
+\begin_inset Quotes eld
+\end_inset
+
+record
+\begin_inset Quotes erd
+\end_inset
+
+ utili e restituendo solo il valore dell'attributo rivista.
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace defskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+L'
+\series bold
+ottimizzatore 
+\series default
+in DB2 
+\begin_inset Quotes eld
+\end_inset
+
+classifica
+\begin_inset Quotes erd
+\end_inset
+
+ i predicati presenti nella query in quattri classi (la lista è in ordine
+ di efficienzza decrescente):
+\end_layout
+
+\begin_layout Enumerate
+
+\series bold
+Range-delimiting:
+\series default
+ i predicati 
+\emph on
+range-delimiting
+\emph default
+ delimitano il range delle foglie dell'indice a cui accedere (ad esempio
+ il predicato WHERE vid=4 finisce in questa categoria)
+\end_layout
+
+\begin_layout Enumerate
+
+\series bold
+Index SARGable:
+\series default
+ i predicati 
+\emph on
+index SARGable
+\emph default
+ non delimitano il range di foglie, ma riducono solo attraverso l'indice
+ il numero di dati che corrispondono alle RID che generiamo.
+ Se ad esempio abbiamo un indice su (A,B,C) e il predicato è WHERE 
+\begin_inset Formula $A=5\, AND\, C>10$
+\end_inset
+
+, il predicato 
+\emph on
+C>10 
+\emph default
+non delimiterà il numero di foglie a cui bisogna accedere all'indice perchè
+ non è un prefisso della chiave con l'indice è generato, ma nonostante questo
+ si può utilizzare l'indice su (A,B,C) per ottenere direttemente un numero
+ inferiore di RID a cui bisognerà poi accedere: in pratica la condizione
+ C>10 viene valutata sull'indice e non sui dati.
+ In questo caso, dunque, C>10 è un predicato 
+\emph on
+Index SARGable
+\end_layout
+
+\begin_layout Enumerate
+
+\series bold
+DATA SARGable:
+\series default
+ i predicati 
+\emph on
+data SARGable
+\emph default
+ sono predicati utilizzabili all'istante dell'accesso ai dati
+\end_layout
+
+\begin_layout Enumerate
+
+\series bold
+Residual: 
+\series default
+sono tutti i predicati rimanenti, ad esempio subquery correlate, il predicato
+ ANY, il predicato ALL, 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+ldots
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+La tabella (Tab.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "tab:predicatidb2"
+
+\end_inset
+
+) riassume gli effetti dei 4 tipi di predicati.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float table
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "tab:predicatidb2"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+noindent
+\backslash
+resizebox{
+\backslash
+textwidth}{!}{
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Tabular
+<lyxtabular version="3" rows="5" columns="5">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0">
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\series bold
+Range-Delimiting
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\series bold
+Index SARGable
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\series bold
+Data SARGable
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\series bold
+Residual
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\series bold
+Riduzione Index I/O
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Sì
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+NO
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+NO
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+NO
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\series bold
+Riduzione Data I/O
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Sì
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Sì
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+NO
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+NO
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\series bold
+Riduzione num.
+ tuple
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Sì
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Sì
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Sì
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+NO
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\series bold
+Riduzione output finale
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Sì
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Sì
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Sì
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Sì
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Ricordiamo infine che i metodi di accesso in DB2 ai dati sono per 
+\emph on
+scansione sequenziale
+\emph default
+, per scansione tramite 
+\emph on
+indice B+tree
+\emph default
+, per scansione tramite 
+\emph on
+lista di RID
+\emph default
+ ottenuta per unione o intersezione (ma non entrambe) da 2 o più indici.
+ L'accesso tramite indice può avvenire per test di predicati come IS (NOT)
+ NULL o predicati di uguaglianza o uguaglianza con una costante
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+ldots
+\end_layout
+
+\end_inset
+
+, oppure tramite ordinamento.
+\end_layout
+
+\begin_layout Subsubsection
+Su più relazioni
+\end_layout
+
+\begin_layout Standard
+In caso di più relazioni, il predicato FROM contiene più di una relazione.
+ Il primo problema da affrontare dunque è come effettuare il join (a livello
+ logico) delle N relazioni coinvolte.
+\end_layout
+
+\begin_layout Standard
+Il numero possibile di modi per effettuare il join (includendo i prodotti
+ cartesiani, poichè se ho un join fra A1 e A2 e un join fra A2 e A3 allora
+ fra A1 e A3 esiste una relazione di prodotto cartesiano e non di join)
+ è dato da 
+\begin_inset Formula 
+\[
+\frac{\left(2\cdot\left(N-1\right)\right)!}{\left(N-1\right)!}=N!\cdot\frac{\binom{2\cdot\left(N-1\right)}{\left(N-1\right)}}{N}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+in cui 
+\begin_inset Formula $N!$
+\end_inset
+
+ altro non è il numero di permutazioni delle N relazioni, mentre il secondo
+ fattore è il numero di modi in cui è possibile 
+\begin_inset Quotes eld
+\end_inset
+
+mettere le parentesi
+\begin_inset Quotes erd
+\end_inset
+
+ e dunque di attribuire delle priorità a dei join piuttosto che ad altri.
+\end_layout
+
+\begin_layout Standard
+Si noti che il numero di join cresce fattorialmente:
+\end_layout
+
+\begin_layout Itemize
+2 modi avendo 2 relazioni
+\end_layout
+
+\begin_layout Itemize
+12 modi avendo 3 relazioni
+\end_layout
+
+\begin_layout Itemize
+120 modi avendo 4 relazioni
+\end_layout
+
+\begin_layout Itemize
+1680 modi avendo 5 relazioni
+\end_layout
+
+\begin_layout Itemize
+30'240 modi avendo 6 relazioni
+\end_layout
+
+\begin_layout Itemize
+665'280 modi avendo 7 relazioni
+\end_layout
+
+\begin_layout Itemize
+17'297'280 modi avendo 8 relazioni
+\end_layout
+
+\begin_layout Standard
+Date ad esempio 3 relazioni R1, R2 ed R3, i 12 possibili modi di combinare
+ i join sono
+\end_layout
+
+\begin_layout Enumerate
+\begin_inset Formula $(R1\triangleright\triangleleft R2)\triangleright\triangleleft R3$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+\begin_inset Formula $(R2\triangleright\triangleleft R1)\triangleright\triangleleft R3$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+$(R1
+\backslash
+triangleright
+\backslash
+triangleleft R3)
+\backslash
+triangleright
+\backslash
+triangleleft R2$
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+$(R3
+\backslash
+triangleright
+\backslash
+triangleleft R1)
+\backslash
+triangleright
+\backslash
+triangleleft R2$
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+$(R2
+\backslash
+triangleright
+\backslash
+triangleleft R3)
+\backslash
+triangleright
+\backslash
+triangleleft R1$
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+$(R3
+\backslash
+triangleright
+\backslash
+triangleleft R2)
+\backslash
+triangleright
+\backslash
+triangleleft R1$
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+$R1
+\backslash
+triangleright
+\backslash
+triangleleft( R2
+\backslash
+triangleright
+\backslash
+triangleleft R3)$
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+$R2
+\backslash
+triangleright
+\backslash
+triangleleft( R1
+\backslash
+triangleright
+\backslash
+triangleleft R3)$
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+$R1
+\backslash
+triangleright
+\backslash
+triangleleft( R3
+\backslash
+triangleright
+\backslash
+triangleleft R2)$
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+$R3
+\backslash
+triangleright
+\backslash
+triangleleft( R1
+\backslash
+triangleright
+\backslash
+triangleleft R2)$
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+$R2
+\backslash
+triangleright
+\backslash
+triangleleft( R3
+\backslash
+triangleright
+\backslash
+triangleleft R1)$
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+$R3
+\backslash
+triangleright
+\backslash
+triangleleft( R2
+\backslash
+triangleright
+\backslash
+triangleleft R1)$
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Determinazione piano ottimale
+\end_layout
+
+\begin_layout Standard
+L'ottimizzatore dispone di una 
+\emph on
+strategia di enumerazione 
+\emph default
+dei piani di accesso i cui compiti principali sono 
+\emph on
+enumerare 
+\emph default
+tutti i piani che potenzialmente possono risultare ottimali senza generare
+ i piani di accesso che sicuramente non possono risultare tali.
+ Con questo si intende una strategia algoritmica di creazione di ogni singolo
+ piano di accesso, cioè, se prendiamo l'esempio sui join, la strategia potrebbe
+ ad esempio per prima cosa generare tutte le possibili N! permutazioni e
+ successivamente per ogni permutazione mettere le parentesi.
+\end_layout
+
+\begin_layout Standard
+Lo spazio dei possibili piani di accesso è, tipicamente, molto vasto (esponenzia
+le in N, si veda anche solo un join fra 8 relazioni), infatti non solo ogni
+ operatore può essere realizzato in più modi, inoltre ogni query può essere
+ riscritta in modi diversi ma equivalenti ed infine possono esistere diverse
+ strutture che agevolino l'accesso ai dati e dunque per accedere ad ogni
+ relazione possono esistere più modi.
+ Per questo motivo, in genere, vengono applicate regole 
+\emph on
+euristiche
+\emph default
+ per ridurre lo spazio di ricerca: da questo si conclude che l'ottimo non
+ è garantito (sono regole euristiche) ma generalmente si trova una soluzione
+ valida in tempo ragionevole.
+ Una tipica regola euristica, adottata praticamente sempre, è la non generazione
+ dei piani di accesso che prevedono l'utilizzo di prodotti cartesiani.
+\end_layout
+
+\begin_layout Standard
+Si noti che diversi 
+\emph on
+dbms
+\emph default
+ mettono a disposizione strumenti che permettono di controllare esplicitamente
+ i tipi di piani considerati, ad esempio DB2 permette di impostare un parametro
+ sul livello di ottimizzazione (caso tipico è il livello 5 in cui i prodotti
+ cartesiani vengono scartati) che va dal livello 0 al livello 9.
+\end_layout
+
+\begin_layout Subsubsection
+Left-deep trees
+\end_layout
+
+\begin_layout Standard
+Notiamo per prima cosa che data una sequenza di operazioni, nell'esempio
+ che mostriamo una sequenza di join, è possibile generare diversi alberi
+ a seconda di come vengono inserite le parentesi.
+ Si vedano i due esempi in figura che mostrano gli alberi di un'ipotetica
+ sequenza 
+\begin_inset Formula $R1\triangleright\triangleleft R2\triangleright\triangleleft R3$
+\end_inset
+
+ con i due possibili modi di combinare le parentesi 
+\begin_inset Formula $(R1\triangleright\triangleleft R2)\triangleright\triangleleft R3$
+\end_inset
+
+ (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:leftdeep"
+
+\end_inset
+
+) e 
+\begin_inset Formula $R1\triangleright\triangleleft(R2\triangleright\triangleleft R3)$
+\end_inset
+
+ (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:bushytree"
+
+\end_inset
+
+).
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:leftdeep"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename leftdeep.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:bushytree"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename bushytree.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Una regola euristica per ridurre lo spazio di ricerca, che spesso viene
+ applicata, è data dall'utilizzo dei soli 
+\emph on
+left-deep trees
+\emph default
+ (un esempio è mostrato in Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:leftdeep"
+
+\end_inset
+
+), ovvero alberi di join in cui il figlio destro di un nodo è sempre una
+ relazione del database: gli alberi che non rispettano questa caratteristica
+ vengono chiamati 
+\emph on
+bushy
+\emph default
+ (un esempio è mostrato in Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:bushytree"
+
+\end_inset
+
+).
+ Tentiamo di spiegarci meglio, quando diciamo che il figlio destro di un
+ nodo deve essere una relazione del database si intende che effettivamente
+ i dati sono reperibili da un predicato monotabellare: questo implica che
+ è possibile che la relazione possa avere dei predicati locali come una
+ selezione o una proiezione, ma sicuramente non sarà mai frutto di un join
+ poichè l'output uscente da un join non è 
+\begin_inset Quotes eld
+\end_inset
+
+una relazione del database
+\begin_inset Quotes erd
+\end_inset
+
+.
+ Inoltre, come detto precedentemente, ogni albero (ricordiamo che l'albero
+ corrisponde ad una rappresentazione di un determinato piano di accesso)
+ contenente un prodotto cartesiano non viene generato.
+\end_layout
+
+\begin_layout Standard
+Il figlio destro di ogni nodo, come abbiamo detto, è una relazione: questa
+ risulta essere la 
+\emph on
+relazione interna
+\emph default
+ che è obbligatoriamente materializzata cioè i cui risultati sono reperibili
+ immediatamente poichè non derivano da un join.
+ Si voglia precisare che sarebbe possibile anche avere un join nel figlio
+ destro, ma ciò non rispecchia l'euristica del left-deep tree: infatti potrebbe
+ anche essere possibile generare 
+\begin_inset Quotes eld
+\end_inset
+
+al momento
+\begin_inset Quotes erd
+\end_inset
+
+ il join del figlio destro; non per forza questo risultato può risultare
+ sempre penalizzante, ma si noti che, solitamente, se il figlio sinistro
+ è una relazione qualsiasi che richiede il join con il figlio destro, il
+ figlio destro deve essere 
+\begin_inset Quotes eld
+\end_inset
+
+ripetuto
+\begin_inset Quotes erd
+\end_inset
+
+ più volte poichè i join richiedono di controllare più volte la relazione
+ interna (che è rappresentata dal figlio destro), di conseguenza il dover
+ riconsiderare (il che vuol dire ricalcolare) ogni volta il join del figlio
+ destro per la valutazione del join con il figlio sinistro potrebbe essere
+ molto costoso (ultima precisazione: si potrebbe pensare di utilizzare una
+ tabella temporanea per salvare il join del figlio destro, ma questo implichereb
+be l'utilizzo dell'esecuzione per materializzazione e non per pipeline).
+ In questo modo è possibile sempre generare piani in 
+\emph on
+pipeline
+\emph default
+.
+ La soluzione dei 
+\emph on
+left-deep trees
+\emph default
+ è la soluzione utilizzata nel dbms 
+\emph on
+System R
+\emph default
+.
+\end_layout
+
+\begin_layout Standard
+L'utilizzo dei 
+\emph on
+left-deep trees
+\emph default
+ riduce, in parte, il numero dei piani di accesso generabili: infatti per
+ ogni permutazione dei join esiste una solo modo di disporre le parentesi
+ per costruire effettivamente un left-deep trees.
+ Ad esempio avendo la sequenza 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+$R1
+\backslash
+triangleright
+\backslash
+triangleleft R2
+\backslash
+triangleright
+\backslash
+triangleleft  R3
+\backslash
+triangleright
+\backslash
+triangleleft R4$
+\end_layout
+
+\end_inset
+
+ l'unico modo per generare un 
+\emph on
+left-deep trees
+\emph default
+ è disporre le parentesi nel seguente modo 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+$((R1
+\backslash
+triangleright
+\backslash
+triangleleft R2)
+\backslash
+triangleright
+\backslash
+triangleleft  R3)
+\backslash
+triangleright
+\backslash
+triangleleft R4$
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Vediamo un esempio: si prenda la seguente query
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+SELECT S.snome, V.vnome, R.anno
+\end_layout
+
+\begin_layout Plain Layout
+
+FROM Sommelier as S, Recensioni as R, Vini as V
+\end_layout
+
+\begin_layout Plain Layout
+
+WHERE S.sid=R.sid AND R.vid=V.vid
+\end_layout
+
+\begin_layout Plain Layout
+
+	AND R.rivista="Sapore DiVino"
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Le possibili sequenze di 
+\emph on
+join
+\emph default
+ che risultano essere left-deep trees sono solo 4: infatti i possibili modi
+ di combinare 3 relazioni come abbiamo visto sono 12, ma di queste sei risultano
+ essere 
+\emph on
+alberi bushy
+\emph default
+ e infine altre due risultano avere dei 
+\emph on
+prodotti cartesiani
+\emph default
+ e dunque 
+\begin_inset Formula $4=12-6\, bushy-2\, cartesiani$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+$(R
+\backslash
+triangleright
+\backslash
+triangleleft S)
+\backslash
+triangleright
+\backslash
+triangleleft V$
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+$(S
+\backslash
+triangleright
+\backslash
+triangleleft R)
+\backslash
+triangleright
+\backslash
+triangleleft V$
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+$(R
+\backslash
+triangleright
+\backslash
+triangleleft V)
+\backslash
+triangleright
+\backslash
+triangleleft S$
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+$(V
+\backslash
+triangleright
+\backslash
+triangleleft R)
+\backslash
+triangleright
+\backslash
+triangleleft S$
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsubsection
+Proprietà di piani di accesso
+\end_layout
+
+\begin_layout Standard
+Il primo modo di operare per determinare il piano di accesso migliore è
+ di enumerare i piani di accesso e per ognuno di essi valutarne il costo
+ appliccando tutti i possibili algoritmi fisici per l'implementazione di
+ un determinato operatore logico: ci si rende subito conto che questo modo
+ ingenuo non può portare ad ottenere il risultato in maniera veloce.
+ Un modo più furbo di operare si basa sul concetto di 
+\begin_inset Quotes eld
+\end_inset
+
+dominazione
+\begin_inset Quotes erd
+\end_inset
+
+ che introdurremo a breve: grazie ad esso la generazione dei piani di accesso
+ da 
+\begin_inset Formula $O(N!)$
+\end_inset
+
+ diverrà 
+\begin_inset Formula $O(2^{N})$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+ootiamo che pgni nodo di un piano di accesso può anche essere visto come
+ la radice di un piano di accesso 
+\begin_inset Quotes eld
+\end_inset
+
+parziale
+\begin_inset Quotes erd
+\end_inset
+
+ o 
+\begin_inset Quotes eld
+\end_inset
+
+completo
+\begin_inset Quotes erd
+\end_inset
+
+ e che ogni piano di accesso è caratterizzato da determinate 
+\emph on
+proprietà 
+\emph default
+quali
+\emph on
+:
+\end_layout
+
+\begin_layout Enumerate
+Costo (il costo per eseguire il piano di accesso)
+\end_layout
+
+\begin_layout Enumerate
+Cardinalità (il numero di tuple del risultato)
+\end_layout
+
+\begin_layout Enumerate
+Schema (quali attributi genera il risultato del piano di accesso)
+\end_layout
+
+\begin_layout Enumerate
+Relazioni (su quali relazioni lavora il piano)
+\end_layout
+
+\begin_layout Enumerate
+Predicati applicati (che predicati sono stati applicati durante l'esecuzione
+ del piano di accesso)
+\end_layout
+
+\begin_layout Enumerate
+Ordine (l'ordine con cui vengono restituite le tuple in output)
+\end_layout
+
+\begin_layout Enumerate
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+ldots
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+La 
+\emph on
+proprietà di un nodo 
+\emph default
+si può pensare come funzione delle proprietà dei figli e della proprietà
+ dell'operatore del nodo stesso 
+\begin_inset Formula $\rightarrow proprietà\, nodo=f(proprietà\, figli,\, operatore\, nodo)$
+\end_inset
+
+ infatti, ad esempio, il costo di un nodo padre è sicuramente maggiore del
+ costo dei nodi figli poichè sarà somma di questi ultimi più il costo dell'opera
+tore del nodo padre.
+\begin_inset VSpace defskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Paragraph
+Ordini significativi
+\end_layout
+
+\begin_layout Standard
+Tra tutte le proprietà di un piano di accesso, l'ordine risulta di estrema
+ importanza, infatti come sappiamo potrebbe influire sui costi e implementazioni
+ di determinati algoritmi.
+\end_layout
+
+\begin_layout Standard
+L'ordine delle tuple di un nodo è detto 
+\emph on
+significativo
+\emph default
+ se può influenzare le operazioni ancora da compierere o il risultato finale.
+ Prendiamo ad esempio la seguente query
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+SELECT S.snome, V.vnome, R.anno
+\end_layout
+
+\begin_layout Plain Layout
+
+FROM Sommelier as S, Recensioni as R, Vini as V
+\end_layout
+
+\begin_layout Plain Layout
+
+WHERE R.sid=S.sid AND R.vid=V.vid
+\end_layout
+
+\begin_layout Plain Layout
+
+	AND V.vnome="Merlot"
+\end_layout
+
+\begin_layout Plain Layout
+
+ORDER BY S.snome, V.cantina
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+dopo il join tra V e R gli ordini significativi sono:
+\end_layout
+
+\begin_layout Enumerate
+
+\emph on
+sid
+\emph default
+ infatti può influenzare il join con S (ad esempio con un merge-scan che
+ richiede l'ordinamento dell'attributo di join)
+\end_layout
+
+\begin_layout Enumerate
+
+\emph on
+snome
+\emph default
+ poichè semplifica l'ORDER BY
+\end_layout
+
+\begin_layout Enumerate
+
+\emph on
+snome, cantina 
+\emph default
+poichè risolve completamente l'ORDER BY
+\end_layout
+
+\begin_layout Standard
+ma non risulta in alcun modo significativo il solo ordine su 
+\emph on
+cantina
+\emph default
+ (poichè non aiuta nell'ORDER BY) o su 
+\emph on
+vid 
+\emph default
+(poichè non è di utilità nel join rimanente con S)
+\emph on
+.
+\end_layout
+
+\begin_layout Subsubsection
+Pruning di piani parziali
+\end_layout
+
+\begin_layout Standard
+La seguente osservazione è alla base della determinazione efficiente del
+ piano ottimale:
+\end_layout
+
+\begin_layout Standard
+Un piano di accesso (parziale) 
+\emph on
+AP
+\emph default
+ per 
+\emph on
+i
+\emph default
+ relazioni 
+\begin_inset Formula $R_{1},\, R_{2},\,\ldots,\, R_{i}$
+\end_inset
+
+, il cui risultato è ordinato secondo un ordine 
+\emph on
+O
+\emph default
+ e il cui costo è maggiore di quello di un piano 
+\emph on
+AP' 
+\emph default
+per le stesse relazioni e con lo stesso ordine (o più significativo), non
+ può essere esteso in un piano di accesso a costo minimo (cioè AP non deve
+ essere considerato ed espanso).
+ Si dice che 
+\emph on
+AP' 
+\emph default
+
+\begin_inset Quotes eld
+\end_inset
+
+domina
+\begin_inset Quotes erd
+\end_inset
+
+ 
+\emph on
+AP 
+\emph default
+cioè che le proprietà di AP' dominano quelle di AP.
+\end_layout
+
+\begin_layout Standard
+Tentiamo di capire meglio: prendiamo due piani di accesso AP e AP' e dimentichia
+moci dell'ordine O.
+ Supponiamo che il costo di AP sia superiore al costo di AP' (ricordiamo
+ che il costo è una proprietà del piano di accesso) ma che le restanti proprietà
+ siano uguali: entrambi i piani sono potenzialmente validi per essere estesi
+ (cioè per essere ulteriormente sviluppati per riuscire ad arrivare al risultato
+ finale).
+ Dato che le proprietà, ad eccezion fatta per il costo, sono identiche,
+ dal punto di vista 
+\begin_inset Quotes eld
+\end_inset
+
+esterno
+\begin_inset Quotes erd
+\end_inset
+
+ cioè del nodo padre, esse sono indistinguibili cioè producono gli stessi
+ identici risultati (magari con un ordine diverso, ma abbiamo deciso di
+ ignorarlo).
+ Dato che il costo di AP risulta maggiore di quello di AP' è 
+\bar under
+sicuramente
+\bar default
+ inutile espandere AP poichè in qualsiasi modo io prosegua per la risoluzione
+ ulteriore del piano di accesso, il costo non sarà mai inferiore al miglior
+ modo di sviluppare il piano di accesso che partiva però da AP' proprio
+ perchè a costo inferiore: di conseguenza il piano AP può essere ignorato.
+ In caso considerassimo ora anche l'ordine O, se AP e AP' hanno lo stesso
+ ordine allora si ricade nel caso precedente, se l'ordine O non risulta
+ significativo (cioè non traggo alcun vantaggio ad avere un ordinamento
+ piuttosto che un altro) posso ignorarlo e ricadere nuovamente nel caso
+ precedente, se invece hanno ordini diversi ma AP ha un ordine meno significativ
+o (che solitamente vuol dire disordinato) rispetto all'ordine di AP' allora
+ possiamo ancora dire che AP' domina AP (sempre a parità delle restanti
+ proprietà e con il costo di AP' minore di quello di AP).
+ Se invece AP avente costo maggiore di AP', risulta avere un ordine più
+ significativo (o non comparabile) dell'ordine di AP' allora non posso più
+ dire che AP' domina AP.
+ Facciamo un'esempio di quest'ultima affermazione: mettiamo che nella mia
+ query sia presente un ORDER BY 
+\emph on
+cantina
+\emph default
+ e che il piano AP' abbia un ordine significativo sull'attributo sid (poichè,
+ ad esempio, riesce a risolvermi in fretta un join successivo) mentre AP
+ abbia un ordine significativo su 
+\emph on
+cantina
+\emph default
+ (poichè risolve completamente l'ORDER BY): i due ordini non risultano comparabi
+li poichè non posso dire a priori quale dei due risulterà migliore, di conseguen
+za AP' non domina AP e AP non domina AP'.
+\end_layout
+
+\begin_layout Standard
+Facciamo un esempio che risolva la seguente query
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+SELECT R.A, R.B, S.C
+\end_layout
+
+\begin_layout Plain Layout
+
+FROM R, S
+\end_layout
+
+\begin_layout Plain Layout
+
+WHERE R.J=S.H AND R.A>5
+\end_layout
+
+\begin_layout Plain Layout
+
+ORDER BY R.B
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+confrontando di seguito 3 possibili piani di accesso (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:confrontopianiaccesso"
+
+\end_inset
+
+)
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:confrontopianiaccesso"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename confrontopianiaccesso.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Possiamo dire che AP1127 
+\emph on
+domina
+\emph default
+ AP224 poichè a parità di proprietà, il costo di AP1127 risulta essere minore
+ rispetto a quello di AP224.
+ Allo stesso modo, però, possiamo dire che AP546 
+\bar under
+non
+\bar default
+ domina AP1127: nonostante abbia un costo inferiore AP546 non risulta ordinato
+ per R.B (cosa che AP1127 è).
+ Si noti che neppure AP1127 domina AP546, poichè nonostante abbia un ordinamento
+ significativo, il suo costo risulta maggiore rispetto a AP546.
+\end_layout
+
+\begin_layout Standard
+Un ulteriore esempio sul 
+\emph on
+pruning 
+\emph default
+chirificatore può essere il seguente: si ipotizzi che venga utilizzato solo
+ il 
+\emph on
+nested loops
+\emph default
+ per risolvere il join e che non ci sia alcun ordinamento 
+\emph on
+significativo
+\emph default
+ (quindi non vi è alcun ORDER BY, GROUP BY, DISTINCT, 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+ldots
+\end_layout
+
+\end_inset
+
+).
+ Si ipotizzi inoltre che per una query effettuata sulle relazioni R1, R2
+ ed R3 sia sempre più conveniente avere la relazione R1 come esterna; allora
+ con le seguenti ipotesi nessun piano con la sequenza 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+$(R2
+\backslash
+triangleright
+\backslash
+triangleleft R1)
+\backslash
+triangleright
+\backslash
+triangleleft R3$
+\end_layout
+
+\end_inset
+
+ potrà essere ottimale poichè R1 risulta essere relazione interna.
+\end_layout
+
+\begin_layout Subsection
+Generazione di piani di accesso
+\end_layout
+
+\begin_layout Standard
+Per la generazione di piani di accesso (PdA da ora in poi) si può pensare
+ di utilizzare il seguente 
+\series bold
+algoritmo di programmazione dinamica:
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+Livello 1
+\series default
+: determina per ogni R
+\begin_inset Formula $_{i}$
+\end_inset
+
+ e ogni ordine 
+\emph on
+significativo 
+\emph default
+O (incluso il caso non ordinato) il piano parziale migliore (al livello
+ 1 implica come accedere ai dati della relazione R)
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+Livello i (
+\begin_inset Formula $2\leq i\leq N$
+\end_inset
+
+)
+\series default
+: Per ogni ordine 
+\emph on
+significativo 
+\emph default
+O e per ogni sottoinsieme di 
+\emph on
+i relazioni
+\emph default
+ determina il piano parziale migliore 
+\emph on
+a partire dal risultato del passo i-1
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+Livello N+1
+\series default
+: determina il piano di accesso ottimale, aggiungendo se necessario il costo
+ di ordinamento finale del risultato
+\end_layout
+
+\begin_layout Standard
+Con questo algoritmo il numero di PdA valutati è 
+\begin_inset Formula $O(2^{N})$
+\end_inset
+
+.
+ L'algoritmo appena descritto opera in modo 
+\emph on
+breadth-first 
+\emph default
+(cioè per 
+\begin_inset Quotes eld
+\end_inset
+
+livelli
+\begin_inset Quotes erd
+\end_inset
+
+ che equivale al numero di relazioni considerate, cioè si noti che ad esempio
+ al livello 2 vengono generati tutti i livelli 
+\begin_inset Quotes eld
+\end_inset
+
+promettenti
+\begin_inset Quotes erd
+\end_inset
+
+ di due relazioni utilizzando come metodi di accesso quelli provenienti
+ dal passo 1).
+ Nella pratica la generazione di nuovi piani procede in maniera più efficace
+ tipicamente espandendo i piani di accesso parziali più 
+\begin_inset Quotes eld
+\end_inset
+
+promettenti
+\begin_inset Quotes erd
+\end_inset
+
+ (che tipicamente vuol dire quelli a costo minore) e quindi in maniera 
+\emph on
+depth-first
+\emph default
+.
+ Questo normalmente permette di eliminare un maggior numero di piani parziali
+ poichè permette di raggiungere più velocemente una soluzione 
+\begin_inset Quotes eld
+\end_inset
+
+completa
+\begin_inset Quotes erd
+\end_inset
+
+ (poichè viene espanso un solo piano per livello) il che potrebbe permette
+ la conclusione celere della generazione del PdA ottimale.
+ A conseguenza di ciò bisogna estendere il concetto di dominazione: se AP'
+ 
+\emph on
+domina
+\emph default
+ AP non solo deve avere costo minore per lo stesso ordine significativo
+ O sulle stesse relazioni, ma deve verificare che le relazioni elaborate
+ da AP' includano quelle elaborate da AP.
+ Si passa dunque da 
+\begin_inset Formula $eguaglianza\Rightarrow inclusione$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Paragraph
+Esempio 1
+\end_layout
+
+\begin_layout Standard
+Facciamo un esempio: si consideri la seguente query
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+SELECT S.snome, R.rivista
+\end_layout
+
+\begin_layout Plain Layout
+
+FROM Recensioni as R, Sommelier as S
+\end_layout
+
+\begin_layout Plain Layout
+
+WHERE R.sid=S.sid AND R.vid=100
+\end_layout
+
+\begin_layout Plain Layout
+
+	AND S.val=4
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Sono disponibili indici B+tree 
+\emph on
+unclustered
+\emph default
+ (non ordinati) su R.vid, R.sid, S.val e S.sid (un indice per ogni attributo).
+ Gli unici algoritmi di join disponibili sono il 
+\emph on
+nested loop
+\emph default
+ e l'
+\emph on
+index nested loop
+\emph default
+.
+ Le relazioni hanno i seguenti dati
+\end_layout
+
+\begin_layout Itemize
+N(R)=2000, P(R)=400, NK(R.vid)=100, L(R.vid)=20, NK(R.sid)=200, L(R.sid)=25
+\end_layout
+
+\begin_layout Itemize
+N(S)=200, P(S)=100, NK(S.val)=20, L(S.val)=3, NK(S.sid)=200, L(S.sid)=5
+\end_layout
+
+\begin_layout Standard
+Vediamo come l'algoritmo di generazione di PdA procede (i PdA evidenziati
+ in grassetto sono 
+\begin_inset Quotes eld
+\end_inset
+
+dominanti
+\begin_inset Quotes erd
+\end_inset
+
+).
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+Passo 1
+\series default
+: si valuta il metodo di accesso di costo minimo per ogni relazione.
+ Non vi è alcun ordine significativo da tener conto (poichè non vi è alcun
+ ORDER BY, GROUP BY, 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+ldots
+\end_layout
+
+\end_inset
+
+ e perchè l'unico algoritmo di join disponibile è il nested loop).
+ 
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+
+\bar under
+Relazione R
+\bar default
+:
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Cardinalità risultato
+\begin_inset Formula $=\frac{2000}{100}=20$
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Itemize
+(AP1) Costo sequenziale
+\begin_inset Formula $=400$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+(AP2)
+\series default
+ Costo indice R.vid
+\begin_inset Formula $=\frac{20}{200}+\Phi(\frac{2000}{100},400)=1+20=21$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Si vede che AP2 domina AP1
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+
+\bar under
+Relazione S
+\bar default
+:
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Cardinalità risultato
+\begin_inset Formula $=\frac{200}{20}=10$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+(AP3) Costo sequenziale
+\begin_inset Formula $=100$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+(AP4)
+\series default
+ Costo indice S.val
+\begin_inset Formula $=\frac{3}{20}+\Phi\left(\frac{200}{20},100\right)=1+10=11$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Si vede che AP4 domina AP3
+\end_layout
+
+\end_deeper
+\end_deeper
+\begin_layout Itemize
+
+\series bold
+Passo 2
+\series default
+: si espande AP4 poichè ha costo minimo (costo 11, ricordiamo che stiamo
+ facendo una depth-first quindi si espande per primo sempre il piano con
+ costo minimo) considerando il join che si ha con la relazione R
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+
+\bar under
+Nested loop
+\bar default
+:
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Costo di partenza
+\begin_inset Formula $=11$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Numeri di loop
+\begin_inset Formula $=10$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Costo per ogni loop
+\begin_inset Formula $=21$
+\end_inset
+
+ (dato dall'indice su R.vid, si veda AP2)
+\end_layout
+
+\begin_layout Itemize
+(AP5) Costo del nested loop
+\begin_inset Formula $=11+10\cdot21=221$
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+
+\bar under
+Index nested loop
+\bar default
+ (con indice su R.sid):
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Costo di partenza
+\begin_inset Formula $=11$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Numeri di loop
+\begin_inset Formula $=10$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Costo per ogni loop
+\begin_inset Formula $=\frac{25}{200}+\Phi\left(\frac{2000}{200},400\right)=11$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+(AP6)
+\series default
+ Costo dell'index nested loop
+\begin_inset Formula $=11+10\cdot11=121$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+AP6 domina AP5.
+\end_layout
+
+\end_deeper
+\end_deeper
+\begin_layout Itemize
+
+\series bold
+Passo 3
+\series default
+: si espande AP2 (con costo 21) poichè al passo 2 abbiamo trovato solo PdA
+ con costi superiori a 21, considerando il join con la relazione S
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+
+\bar under
+Nested loop
+\bar default
+:
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Costo di partenza
+\begin_inset Formula $=21$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Numeri di loop
+\begin_inset Formula $=20$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Costo per ogni loop
+\begin_inset Formula $=11$
+\end_inset
+
+ (dato dall'indice S.val, si veda AP4)
+\end_layout
+
+\begin_layout Itemize
+(AP7) Costo del nested loop
+\begin_inset Formula $=21+20\cdot11=241$
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+
+\bar under
+Index nested loop
+\bar default
+ (con indice su S.sid):
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Costo di partenza
+\begin_inset Formula $=21$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Numeri di loop
+\begin_inset Formula $=20$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Costo per ogni loop
+\begin_inset Formula $=1+1=2$
+\end_inset
+
+ (poichè sid è chiave della relazione S)
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+(AP8)
+\series default
+ Costo del nested loop
+\begin_inset Formula $=21+20\cdot2=61$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+AP8 domina AP7.
+\end_layout
+
+\end_deeper
+\end_deeper
+\begin_layout Itemize
+
+\series bold
+Passo 4
+\series default
+: si cerca di espandere AP8 che ha costo minimo (costo 61).
+ Si vede che tutti i join sono stati effettuati e risolti.
+ Conclusione: AP8 è il piano di accesso di costo minimo.
+ L'albero che viene generato è il seguente (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:esempiogenerazionipianiaccesso"
+
+\end_inset
+
+)
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:esempiogenerazionipianiaccesso"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename esempiogenerazionepianiaccesso.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Paragraph
+Esempio 2
+\end_layout
+
+\begin_layout Standard
+Prendiamo la seguente query
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+SELECT S.snome, R.rivista, V.cantina
+\end_layout
+
+\begin_layout Plain Layout
+
+FROM Recensioni as R, Sommelier as S, Vini as V
+\end_layout
+
+\begin_layout Plain Layout
+
+WHERE R.sid=S.sid AND R.vid=V.vid
+\end_layout
+
+\begin_layout Plain Layout
+
+	AND S.val=4 AND V.vnome='Merlot'
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Esistono indici B+tree 
+\emph on
+unclustered
+\emph default
+ su R.sid e su R.vid.
+ Esistono indinci B+tree 
+\emph on
+clustered
+\emph default
+ su S.sid e V.vid.
+ Si ignorano i costi di accesso ali indici.
+ I dati a disposizione sono:
+\end_layout
+
+\begin_layout Itemize
+N(R)=5000, P(R)=1000, NK(R.sid)=200, NK(R.vid)=100
+\end_layout
+
+\begin_layout Itemize
+N(S)=200, P(S)=100, NK(S.val)=10, NK(S.sid)=200
+\end_layout
+
+\begin_layout Itemize
+N(V)=100, P(V)=20, NK(V.vid)=100, NK(V.vnome)=20
+\end_layout
+
+\begin_layout Standard
+Ordini significativi: 
+\emph on
+sid
+\emph default
+ e 
+\emph on
+vid
+\emph default
+ (poichè utili in caso di join).
+ 
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+Passo 1
+\series default
+: si trovano i metodi di accesso di costo minimo alle relazioni, conservando
+ anche quelli che generano ordinamenti utili
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+(AP1) Scansione di R: Costo
+\begin_inset Formula $=1000$
+\end_inset
+
+, risultati
+\begin_inset Formula $=5000$
+\end_inset
+
+, ordine: nessuno
+\end_layout
+
+\begin_layout Itemize
+(AP2) Indice su R.sid: Costo
+\begin_inset Formula $=5000$
+\end_inset
+
+, risultati
+\begin_inset Formula $=5000$
+\end_inset
+
+, ordine: 
+\emph on
+sid
+\end_layout
+
+\begin_layout Itemize
+(AP3) Indice su R.vid: Costo
+\begin_inset Formula $=5000$
+\end_inset
+
+, risultati
+\begin_inset Formula $=5000$
+\end_inset
+
+, ordine: 
+\emph on
+vid
+\end_layout
+
+\begin_layout Itemize
+(AP4) Scansione di S (con selezione su 
+\emph on
+val
+\emph default
+): Costo
+\begin_inset Formula $=100$
+\end_inset
+
+, risultati
+\begin_inset Formula $=\frac{200}{10}=20$
+\end_inset
+
+, ordine: 
+\emph on
+sid
+\end_layout
+
+\begin_layout Itemize
+(AP5) Scansione di V (con selezione su 
+\emph on
+vnome
+\emph default
+): Costo
+\begin_inset Formula $=20$
+\end_inset
+
+, risultati
+\begin_inset Formula $=\frac{100}{20}=5$
+\end_inset
+
+, ordine: 
+\emph on
+vid
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+
+\series bold
+Passo 2
+\series default
+: si espande AP5 (Costo minimo: 20) considerando solo il join 
+\begin_inset Formula $V\triangleright\triangleleft R$
+\end_inset
+
+ (poichè 
+\begin_inset Formula $V\triangleright\triangleleft S$
+\end_inset
+
+ è un prodotto cartesiano e per l'euristica utilizzata i piani che contengono
+ prodotti cartesiani vengono ignorati)
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+
+\bar under
+Index nested loop
+\bar default
+: 
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Costo di partenza
+\begin_inset Formula $=20$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Numeri di loop
+\begin_inset Formula $=5$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Costo per ogni loop
+\begin_inset Formula $=\frac{5000}{100}=50$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+(AP6
+\series default
+) Costo
+\begin_inset Formula $=20+5\cdot50=270$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Ordine: 
+\emph on
+vid
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+
+\bar under
+Merge-scan
+\bar default
+:
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Costo di partenza
+\begin_inset Formula $=20$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Costo di merge
+\begin_inset Formula $=5000$
+\end_inset
+
+ (poichè indice 
+\emph on
+unclustered
+\emph default
+ su R.vid)
+\end_layout
+
+\begin_layout Itemize
+(AP7) Costo
+\begin_inset Formula $=20+5000=5020$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Ordine: 
+\emph on
+vid
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+Dimensione del risultato
+\begin_inset Formula $=\frac{5000}{20}=250$
+\end_inset
+
+ (il 20 al denominatore è dato al numero dei risultati presenti su AP5).
+ AP6 domina AP5.
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+
+\series bold
+Passo 3
+\series default
+: si espande AP4 (costo 100) poichè al passo 2 sono stati trovati PdA con
+ costi superiori a 100, considerando il solo join 
+\begin_inset Formula $S\triangleright\triangleleft R$
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+
+\bar under
+Index nested loop
+\bar default
+:
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Costo di partenza
+\begin_inset Formula $=100$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Numeri di loop
+\begin_inset Formula $=20$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Costo per ogni loop
+\begin_inset Formula $=\frac{5000}{200}=25$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+(AP8)
+\series default
+ Costo
+\begin_inset Formula $=100+20\cdot25=600$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Ordine: 
+\emph on
+sid
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+
+\bar under
+Merge-scan
+\bar default
+:
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Costo di partenza
+\begin_inset Formula $=100$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Costo di merge
+\begin_inset Formula $=5000$
+\end_inset
+
+ (poichè indice 
+\emph on
+unclustered 
+\emph default
+su R.sid)
+\end_layout
+
+\begin_layout Itemize
+(AP9) Costo
+\begin_inset Formula $=100+5000=5100$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Ordine: 
+\emph on
+sid
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+Dimensione del risultato
+\begin_inset Formula $=\frac{5000}{10}=500$
+\end_inset
+
+.
+ AP8 domina AP9.
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+
+\series bold
+Passo 4
+\series default
+: si espande AP6 (costo 270) poichè fra AP6 e AP8 (notiamo che AP7 e AP9
+ non vengono neppure presi in considerazioni poichè dominati) risulta avere
+ il costo minore, considerando il join con S (la sequenza di join è 
+\begin_inset Formula $(V\triangleright\triangleleft R)\triangleright\triangleleft S$
+\end_inset
+
+)
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+
+\bar under
+Index nested loop
+\bar default
+:
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Costo di partenza
+\begin_inset Formula $=270$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Numeri di loop
+\begin_inset Formula $=250$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Costo per ogni loop
+\begin_inset Formula $=1$
+\end_inset
+
+ (
+\emph on
+sid
+\emph default
+ chiave di S)
+\end_layout
+
+\begin_layout Itemize
+(AP10) Costo
+\begin_inset Formula $=270+250\cdot1=520$
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+
+\bar under
+Sort-merge
+\bar default
+:
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Costo di partenza
+\begin_inset Formula $=270$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Costo di sort
+\begin_inset Formula $=4\cdot P(temp)$
+\end_inset
+
+ (dove temp è la relazione temporanea per ordinare 
+\emph on
+sid
+\emph default
+)
+\end_layout
+
+\begin_layout Itemize
+Costo di merge
+\begin_inset Formula $=P(temp)+P(temp)+100$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+(AP11)
+\series default
+ Costo
+\begin_inset Formula $=270+4\cdot10+10+10+100=430$
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+Dimensione del risultato
+\begin_inset Formula $=\frac{250}{10}=25$
+\end_inset
+
+.
+ AP11 domina AP10.
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+
+\series bold
+Passo 5
+\series default
+: si cerca di espandere AP11 (costo 430).
+ Si vede che tutti i join sono stati effettuati e risolti.
+ Conclusione: AP11 è il piano di accesso di costo minimo in quanti tutti
+ i piani parziali sono dominati da AP11.
+ L'albero che viene generato è il seguente (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:esempio2creazionealberoaccesso"
+
+\end_inset
+
+)
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:esempio2creazionealberoaccesso"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename esempioduecreazionepianoaccesso.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsubsection
+Ricerca greedy
+\end_layout
+
+\begin_layout Standard
+Talvolta, per diminuire ulteriormente lo spazio di ricerca, si mantiene
+ per ogni livello solamente la soluzione a costo minimo o a parità di costo
+ quella che produce il minor numero di record: il costo della ricerca diventa
+ lieneare nel numero delle relazioni, ma evidentemente può portare a perdere
+ la soluzione migliore.
+ 
+\series bold
+NB 
+\series default
+Si voglia ricordare che per query 
+\emph on
+ad hoc
+\emph default
+ dobbiamo minimizzare il tempo totale, dato dal costo di trovare il miglior
+ piano di accesso (ottimizzazione) ed effettivamente metterla in pratica
+ (soluzione).
+\end_layout
+
+\end_body
+\end_document

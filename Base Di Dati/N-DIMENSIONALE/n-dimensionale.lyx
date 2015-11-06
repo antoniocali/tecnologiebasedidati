@@ -1,0 +1,4108 @@
+#LyX 2.0 created this file. For more info see http://www.lyx.org/
+\lyxformat 413
+\begin_document
+\begin_header
+\textclass article
+\use_default_options true
+\maintain_unincluded_children false
+\language italian
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize default
+\spacing single
+\use_hyperref false
+\papersize default
+\use_geometry false
+\use_amsmath 1
+\use_esint 1
+\use_mhchem 1
+\use_mathdots 1
+\cite_engine basic
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\use_refstyle 1
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Title
+Tecnologie delle Basi di Dati M
+\end_layout
+
+\begin_layout Author
+Antonio Davide Calì
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset CommandInset href
+LatexCommand href
+name "WWW.ANTONIOCALI.COM"
+target "http://www.antoniocali.com/"
+
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+Anno Accademico 2013/2014
+\begin_inset Newline newline
+\end_inset
+
+Docenti: Marco Patella, Paolo Ciaccia
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset toc
+LatexCommand tableofcontents
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Part
+Strutture di Indicizzazione n-Dimensionali
+\end_layout
+
+\begin_layout Standard
+Finora abbiamo parlato di strutture tradizionali, con richieste che tipicamente
+ si trovano tutti i giorni su database relazioniali.
+ Affrontiamo ora un argomento a margine, ovvero le struttre di indicizzazione
+ n-dimensionali.
+\end_layout
+
+\begin_layout Standard
+Come abbiamo visto, B+tree è in grado di risolvere interrogazioni che coinvolgon
+o più attributi: infatti, B+tree per indici multi-attributo sfrutta un'ordinamen
+to lessicografico degli attributi e di conseguenza riesce a risolvere le
+ query (in realtà riesce a risolvere non solo le query su tutti gli attributi,
+ ma anche solo su un prefisso della chiave).
+ L'efficienza in risoluzione è suffiginte?
+\end_layout
+
+\begin_layout Standard
+Esistono diversi tipi di interrogazioni n-dimensionali:
+\end_layout
+
+\begin_layout Enumerate
+
+\series bold
+point query
+\series default
+: dati da sole uguaglianze 
+\begin_inset Formula $A_{1}=v_{1},\, A_{2}=v_{2},\,\ldots,\, A_{n}=v_{n}$
+\end_inset
+
+ in cui ogni attributo ha un valore esatto.
+ Se pensiamo a una tupla in uno spazio a n-dimensioni, una 
+\emph on
+point query
+\emph default
+ altro non è che trovare il punto delle cordinate 
+\begin_inset Formula $(v_{1},\, v_{2},\,\ldots,v_{n})$
+\end_inset
+
+ e quindi come una ricerca puntuale.
+\end_layout
+
+\begin_layout Enumerate
+
+\series bold
+window query
+\series default
+: in cui sono presenti intervalli 
+\begin_inset Formula $l_{1}\leq A_{1}\leq h_{1},\, l_{2}\leq A_{2}\leq h_{2},\,\ldots,\, l_{n}\leq A_{n}\leq h_{n}$
+\end_inset
+
+, di conseguenza una ricerca 
+\emph on
+window query
+\emph default
+ è chiedere le tuple presenti all'interno di una 
+\begin_inset Quotes eld
+\end_inset
+
+finestra
+\begin_inset Quotes erd
+\end_inset
+
+ (dove per finiestra intendiamo l'iper-rettangolo che viene definito dall'intere
+sezione di tutti gli intervalli).
+ 
+\series bold
+NB 
+\series default
+Una 
+\emph on
+point query
+\emph default
+ è un caso particolare di 
+\emph on
+window query
+\emph default
+ in cui i due estremi dell'intervallo coincidono.
+\end_layout
+
+\begin_layout Enumerate
+
+\series bold
+nearest neighbor query
+\series default
+: 
+\begin_inset Formula $A_{1}\thickapprox v_{1},\, A_{2}\thickapprox v_{2},\,\ldots,\, A_{n}\thickapprox v_{n}$
+\end_inset
+
+.
+ È una ricerca particolare che, sapendo che una tupla con esettamente i
+ valori 
+\begin_inset Formula $(v_{1},\, v_{2},\,\ldots,\, v_{n})$
+\end_inset
+
+ non esiste, richiede di trovare una (o più) tupla il più possibile vicina
+ a quella 
+\begin_inset Quotes eld
+\end_inset
+
+target
+\begin_inset Quotes erd
+\end_inset
+
+.
+ In una situazione del genere è richiesto anche di implementare una definizione
+ di 
+\begin_inset Quotes eld
+\end_inset
+
+distanza
+\begin_inset Quotes erd
+\end_inset
+
+ fra tuple per riuscire ad indicare la tupla più vicina.
+\end_layout
+
+\begin_layout Standard
+E se il valore del dato non fosse 
+\begin_inset Quotes eld
+\end_inset
+
+puntuale
+\begin_inset Quotes erd
+\end_inset
+
+? Con ciò intendiamo,ad esempio, che una tupla possa avere più valori sugli
+ attributi.
+ Di conseguenza la tupla non viene rappresentata da un unico punto, ma può
+ essere vista, ad esempio in due dimensioni, come un segmento.
+ Le cose dati 
+\begin_inset Quotes eld
+\end_inset
+
+non puntuali
+\begin_inset Quotes erd
+\end_inset
+
+ si complicano, in quanto anche la ricerca window query non può essere più
+ effettuata controllando singoli punti.
+ Si potrebbe pensare di poter controllare solo gli estremi del segmento,
+ ma questo non risulta sufficiente poichè gli estremi potrebbero essere
+ al di fuori della 
+\begin_inset Quotes eld
+\end_inset
+
+finestra
+\begin_inset Quotes erd
+\end_inset
+
+ richiesta dalla 
+\emph on
+window query
+\emph default
+ ma l'intersezione fra il segmento e la finestra stessa potrebbe non essere
+ ugualmente vuota.
+\end_layout
+
+\begin_layout Standard
+Alcuni esempi di utilizzo di strutture di indicizzazione n-dimensionali
+ possono essere 
+\emph on
+sistemi informativi 
+\emph default
+geografici/spaziali, quindi con coordinate di punti per identificare luoghi
+ e città o con oggetti con estensione, come regioni, vie fiumi, oppure possono
+ essere utili per 
+\emph on
+basi di dati multimediale
+\emph default
+ in cui viene effettuata una ricerca basata sul 
+\begin_inset Quotes eld
+\end_inset
+
+contentuto
+\begin_inset Quotes erd
+\end_inset
+
+ in cui è necessaria la rappresentazione del contenuto per mezzo di caratteristi
+che numeriche e la similarità del contenuto si ottiene valutando la similarità
+ delle caratteristiche (cioè se due oggetti hanno caratteristiche simili
+ allora si ritiene che abbiano anche contenuti simili).
+\end_layout
+
+\begin_layout Standard
+Vediamo come sia possibile utilizzare il B+tree.
+ Supponiamo di avere una 
+\emph on
+window query
+\emph default
+ su due attributi (A,B) in cui ogni intervallo rappresenta il 10% del totale
+ (cioè entrambi gli intervalli A e B della query abbiano una selettività
+ del 10%) e in cui ci aspettiamo di recuperare l'1% dei dati (dato dal prodotto
+ delle selettività dei singoli interevalli).
+ Le possibili soluzioni sono:
+\end_layout
+
+\begin_layout Enumerate
+L'uso di 1 singolo B+tree 
+\emph on
+bi-dimensionale
+\emph default
+ (A,B) e si controlli, in figura (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:singolobtreebidimensionale"
+
+\end_inset
+
+), come i dati distribuiti vengono recuperati (si suppone che la capacità
+ delle foglie sia di 3 record).
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:singolobtreebidimensionale"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename singolobtreebidimensionale.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Si vede che si accede prima all'intervallo di A, quindi al 10% delle foglie,
+ attraverso l'indice, ma non il fatto che l'intervallo di B abbia anche
+ esso una selettività del 10% è del tutto superfluo, poichè accedo ugualmente
+ a tutte le foglie che A mi restituisce e solo sui dati che recupero da
+ queste foglie riesco a controllare la selezione su B.
+ Di conseguenza avere anche la selezione su B non riesce a diminuire in
+ alcun modo il numero di foglie a cui si vuole accedere.
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+L'uso di 2 B+tree 
+\emph on
+mono-dimensionali
+\emph default
+ (A), (B) e si controlli, in figura (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:duebtreemonodimensionali"
+
+\end_inset
+
+), come i dati vengono recuperati.
+ In questo caso si accede al 20% dei dati.
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:duebtreemonodimensionali"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename duebtreemonodimensionali.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+In questo caso il risultato è peggiore.
+ Infatti accedere prima al 10% dei dati dovuti alla lettura di A e poi ad
+ altri 10% dei dati dovuti alla letture delle foglie grazie a B e solo successiv
+amente effettuare la vera selezione, mi richiede di aver letto il 20% dei
+ dati quando in realtà la selettività che ci eravamo immaginati era del
+ solo 1%.
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+Si noti che aumentando la dimensione da due a 3, ci si aspetta che la selezione
+ della window query sia dello 0,1% e utilizzando un B+tree tri-dimensionale
+ si avrebbe ancora il 10% di letture di foglie, mentre utilizzando tre B+tree
+ mono-dimensionali richiederebbe il 30%.
+ Come si vede all'aumentare della dimensione le performance tendono a peggiorare
+ notevolmente (pensando soprattutto alla selettività che ci si aspetta dalla
+ query).
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace defskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+In entrambi i casi troppo lavoro viene sprecato.
+ La causa è nel fatto che punti vicini nello spazio sono assegnati a foglie
+ lontane, nel primo caso dalla 
+\begin_inset Quotes eld
+\end_inset
+
+linearizzazione
+\begin_inset Quotes erd
+\end_inset
+
+ degli attributi (dovuto all'ordinamento lessicografico), cioè al tentativo
+ di dare un ordine totale a uno spazio a due dimensioni, nel secondo dall'ignora
+re completamente il secondo attributo.
+ Gli indici multi-dimensionali (
+\emph on
+spaziali
+\emph default
+) cercano di mantenere la prossimità spaziale dei record.
+\end_layout
+
+\begin_layout Section
+Indicizzazione spaziale
+\end_layout
+
+\begin_layout Standard
+Il problema nasce negli anni '70 a causa dell'insorgere di problemi 2/3-D
+ come la cartografica, il GIS (Geographic Information System), il VLSI,
+ il CAD, 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+ldots
+\end_layout
+
+\end_inset
+
+ Venne recuperato successivamente negli anni '90 per risolvere i problemi
+ posti da nuove applicazioni come i Database multimediali e il Data mining.
+\end_layout
+
+\begin_layout Standard
+Esistono diversi approcci per gli indici spaziali:
+\end_layout
+
+\begin_layout Enumerate
+Derivati da struttere 1-D come ad esempio k-d-B-Tree, EXCELL, Grid file
+\end_layout
+
+\begin_layout Enumerate
+Mapping da n-D a 1-D come ad esempio Z-order, Gray-order.
+ Si noti, come già detto, che si cerca di dare un ordine totale (cosa possibile
+ in 1-D) a strutture che ordine totale non hanno (appena si supera la prima
+ dimensione).
+ Evidentemente non si riesce a mentenere il principio di 
+\emph on
+località
+\emph default
+ che discuteremo a breve.
+\end_layout
+
+\begin_layout Enumerate
+Struttre create ad-hoc per gestire n dimensioni come ad esempio R-tree,
+ R*-tree, X-tree, 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+ldots
+\end_layout
+
+\end_inset
+
+ Si noti che di strutture di questo tipo ne esistono a centinaia.
+\end_layout
+
+\begin_layout Paragraph
+Classificazione
+\end_layout
+
+\begin_layout Standard
+Possiamo classificare gli indici spaziali per il tipo di oggetti, tipo di
+ suddivisione o tipo di organizzazione.
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+Tipo di oggetti
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Per 
+\emph on
+punti
+\emph default
+ (i record non possono avere un'estensione spaziale)
+\end_layout
+
+\begin_layout Itemize
+Per 
+\emph on
+regioni
+\emph default
+.
+ I punti non sono altro che un caso specifico di regioni.
+ Come abbiamo già detto precedentemente questo può accadere per tuple multivalor
+e, o ad esempio se si vuole indicizzare un oggetto con estensione come ad
+ esempio un lago, un fiume.
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+
+\series bold
+Tipo di suddivisione
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Sullo 
+\emph on
+spazio
+\emph default
+ (le divisioni avvengono sulla base di considerazioni globali, stile linear
+ hashing, in cui ad esempio facevamo lo split di un bucket indipendentemente
+ dal bucket che andava in overflow).
+ Si usano per distribuzioni uniformi, semplice da gestire
+\end_layout
+
+\begin_layout Itemize
+Sugli 
+\emph on
+oggetti
+\emph default
+ (le divisioni avvengono sulla base di considerazioni locali, stile B-tree,
+ cioè si divide lo spazio dove è più necessario).
+ Si usano per distribuzioni arbitrarie, complicate da gestire.
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+
+\series bold
+Tipo di organizzazione
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Basata su 
+\emph on
+albero
+\emph default
+ (stile B+tree)
+\end_layout
+
+\begin_layout Itemize
+Basata su 
+\emph on
+hash
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+\begin_inset VSpace defskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Ci sono alcune generalità sugli indici spaziali che valgono sempre.
+ Un 
+\emph on
+requisito di base
+\emph default
+ è il
+\emph on
+ Local Order Preservation
+\emph default
+ (cioè di preservare un ordine locale dei dati).
+ Per far ciò si deve:
+\end_layout
+
+\begin_layout Itemize
+Raggruppare gli oggetti (punti) in pagine, garantendo che all'interno di
+ ciascuna pagina vi siano oggetti 
+\begin_inset Quotes eld
+\end_inset
+
+vicini
+\begin_inset Quotes erd
+\end_inset
+
+ nello spazio n-D
+\end_layout
+
+\begin_layout Itemize
+Escludere l'uso di funzioni hash che non preservano l'ordine (sembra contradditt
+orio con quanto detto sul tipo di organizzazione, ma effettivamente si utilizzer
+anno principi simili ad una funzione hash, senza effettivamente usarla).
+\end_layout
+
+\begin_layout Standard
+Il problema è non banale in quanto in n-D non è definito un ordine globale
+ e dunque alcune soluzioni definiscono un ordine in n-D per riuscire a risolvere
+ il problema (almeno in parte).
+\end_layout
+
+\begin_layout Standard
+Un approccio generale agli indici spaziali è di organizzare lo spazio in
+ 
+\emph on
+regioni
+\emph default
+ (o celle) in cui ogni 
+\emph on
+cella
+\emph default
+ corrisponde (non sempre con corrispondenza uno a uno) con una pagina.
+\end_layout
+
+\begin_layout Subsection
+k-d-tree
+\end_layout
+
+\begin_layout Standard
+Il k-d-tree (Bentley, 1975) è una struttura pensata per la memoria centrale,
+ dunque non è paginata e non è bilanciata.
+ È sostanzialmente un albero binario di ricerca in cui ogni livello è 
+\emph on
+etichettato 
+\emph default
+(ciclicamente) con una delle n coordinate e in ogni nodo c'è un 
+\emph on
+separatore 
+\emph default
+dato dal valore mediano dell'intervallo che si sta partizionando.
+ Partendo dalla radice, che ad esempio etichettiamo con A1 (quindi andrà
+ a dividere i dati per l'attributo A), che risulta essere il valore mediano
+ dei valori di A, compariranno nel suo figlio sinistro le tuple tali che
+ 
+\begin_inset Formula $A\leq A1$
+\end_inset
+
+ e nel figlio destro le tuple tali che 
+\begin_inset Formula $A>A1$
+\end_inset
+
+.
+ Al livello successivo, essendo partiti con la radice etichettata per A,
+ dobbiamo ora etichettare i nodi per B: indicato con B1 il valore mediano
+ dei valori di B allora nel figlio sinistro compariranno le tuple tali che
+ 
+\begin_inset Formula $B\leq B1$
+\end_inset
+
+ e nel figlio destro le tuple tali che 
+\begin_inset Formula $B>B1$
+\end_inset
+
+ e così procedendo fino ad avere una partizione dei dati in modo che ogni
+ foglia riesca a contenere (fisicamente) i dati.
+\end_layout
+
+\begin_layout Standard
+Supponiamo che ogni foglia possa contenere fino a 3 oggetti che sono disposti
+ nello 
+\begin_inset Quotes eld
+\end_inset
+
+spazio
+\begin_inset Quotes erd
+\end_inset
+
+ come nella seguente figura (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:esempiokdtree01"
+
+\end_inset
+
+)
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:esempiokdtree01"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename esempiokdtree01.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Il 
+\emph on
+k-d-tree
+\emph default
+ corrispondente che si crea è mostrato in figura (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:esempiokdtree01-albero"
+
+\end_inset
+
+), in cui A1 è il valore mediano di tutti i valori di A, B1 è il valore
+ mediano di tutti i valori di B, A2 è il valore mediano dei valori di A
+ che stanno nella porzione di piano a sinistra di A1, 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+ldots
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:esempiokdtree01-albero"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename esempiokdtree01-albero.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Per effettuare una ricerca si seguono tutti i rami interessati dalla query,
+ ad esempio se si vogliono cercare i 3 oggetti mostrati in figura (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:esempiokdtree02"
+
+\end_inset
+
+)
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:esempiokdtree02"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename esempiokdtree02.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+allora la ricerca viene effettuata sull'albero come segue (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:esempiokdtree02-albero"
+
+\end_inset
+
+).
+ La ricerca deve controllare tutte le foglie che hanno un'intersezione non
+ vuota con la window query.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:esempiokdtree02-albero"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename esempiokdtree02-albero.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Quando si deve inserire un nuovo elemento si cerca la foglia che deve contenerlo
+ e se la foglia è piena (overflow) avviene uno 
+\emph on
+split
+\emph default
+ verso il basso (come accade in un albero binario).
+ L'albero non è bilanciato, come si vede, e periodicamente richiede una
+ riorganizzazione.
+ Le cancellazioni sono estremamente complicate, soprattuto se si vogliono
+ effettuare dei 
+\emph on
+merge
+\emph default
+ delle foglie sotto utilizzate (underflow).
+ Esistono diverse varianti per gestire in maniera diversa i separatori come
+ ad esempio il 
+\emph on
+BSP tree
+\emph default
+ che utilizza iperpiani non paralleli agli assi oppure il 
+\emph on
+VAMsplit kd-tree
+\emph default
+ che scelgono la coordinata migliore di split (e quindi non il valore mediano)
+ per ogni nodo come quella avente la maggior varianza.
+\end_layout
+
+\begin_layout Subsection
+k-d-B-tree
+\end_layout
+
+\begin_layout Standard
+Il 
+\emph on
+k-d-B-tree
+\emph default
+ (Robinson, 1981) è una versione paginata del 
+\emph on
+k-d-tree
+\emph default
+.
+ La struttura risultante assomiglia molto ad un B+tree.
+ Ogni 
+\emph on
+nodo
+\emph default
+ (che corrisponde ad una pagina) corrisponde ad una 
+\emph on
+regione
+\emph default
+ (iper-) rettangolare dello spazio, chiamata 
+\emph on
+box
+\emph default
+ o 
+\emph on
+brick
+\emph default
+, ottenuta come unione delle regioni figlie avente assi paralleli agli assi
+ cartesiani.
+ Se nel B+tree in ogni nodo interno avevo più separatori (numerici) che
+ mi permettevano di distinguere i figli, nel k-d-B-tree avviene praticamente
+ la stessa cosa, solo che invece che separatori numerici utilizziamo dei
+ iper-rettangoli.
+ Internamente i nodi sono organizzati come dei 
+\emph on
+k-d-tree
+\emph default
+: si noti che la 
+\begin_inset Quotes eld
+\end_inset
+
+grandezza
+\begin_inset Quotes erd
+\end_inset
+
+ dell'albero dipende dalla capacità di una pagina.
+\end_layout
+
+\begin_layout Standard
+Mettiamo di aver suddiviso i dati come segue attraverso i vari box (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:esempiokdBtree"
+
+\end_inset
+
+)
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:esempiokdBtree"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename esempiokdBtree.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Il 
+\emph on
+k-d-B-tree
+\emph default
+ che ne deriva è mostrato in figura (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:esempiokdBtree-albero"
+
+\end_inset
+
+), in cui si vede la divisione ad albero bilanciato e la rappresentazione
+ di un singolo nodo (in questo caso la radice) come un 
+\emph on
+k-d-tree
+\emph default
+.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:esempiokdBtree-albero"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename esempiokdBtree-albero.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Da come si può vedere dall'immagine di esempio la root è strutturata come
+ un k-d-tree, quindi sarà possibile che al suo interno ci siano dei 
+\begin_inset Quotes eld
+\end_inset
+
+nodi interni
+\begin_inset Quotes erd
+\end_inset
+
+, come in questo caso avviene, per dividere e indirizzare i suoi figli.
+ 
+\end_layout
+
+\begin_layout Standard
+Se un nodo indice (regione) va in 
+\emph on
+overflow
+\emph default
+ la situazione risulta più complessa che nel B-tree poichè sarà necessario
+ sia uno split verso il basso (poichè è un k-d-tree) sia uno split verso
+ l'alto (poichè è un B+tree).
+ Si veda il seguente esempio (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:esempiokdBtree-split"
+
+\end_inset
+
+) in cui è richiesto lo 
+\emph on
+split
+\emph default
+ del blocco dati E che richiede la partizione di E, quindi di A e infine
+ anche della radice.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:esempiokdBtree-split"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename esempiokdBtree-split.png
+	width 100text%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Quando avviene uno 
+\emph on
+split 
+\emph default
+la ridistribuzione che ne segue non è sempre bilanciata, poichè non è sempre
+ possibile.
+ Non vi è dunque nessun limite inferiore sull'utilizzazione di memoria allocata
+ (che si aggira intorno al 
+\begin_inset Formula $\thicksim50-70\%$
+\end_inset
+
+).
+ Come si vede dall'esempio precedente, A è stata partizionata in A e A'
+ sulla base del 
+\emph on
+primo
+\emph default
+ separatore.
+\end_layout
+
+\begin_layout Standard
+Esiste un algoritmo migliore per effettuare la separazione, detto Algoritmo
+ di 
+\emph on
+Robinson
+\emph default
+ il quale considera un iperpiano che distribuisca in modo 
+\emph on
+equilibrato 
+\emph default
+i nodi, ma che richiede che lo split si propaghi non solo verso l'alto (come
+ avviene notoriamente nel B+tree) ma anche verso il basso, verso i discendenti.
+\end_layout
+
+\begin_layout Standard
+Rivediamo l'esempio (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:esempiokdBtree-robinson"
+
+\end_inset
+
+) in cui questa volta A viene in A e A', ma anche D (figlio di A) viene
+ suddiviso in D e D'.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:esempiokdBtree-robinson"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename esempiokdBtree-robinson.png
+	width 100text%
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+hB-tree
+\end_layout
+
+\begin_layout Standard
+L'
+\emph on
+hB-tree
+\emph default
+ (Lomet & Salzberg, 1990) è un ulteriore variante del 
+\emph on
+k-d-B-tree
+\emph default
+ in cui le regioni possono ora contenere dei 
+\begin_inset Quotes eld
+\end_inset
+
+buchi
+\begin_inset Quotes erd
+\end_inset
+
+ (hB sta per 
+\begin_inset Quotes eld
+\end_inset
+
+
+\emph on
+holey brick
+\emph default
+
+\begin_inset Quotes erd
+\end_inset
+
+).
+ Questo comporta alcuni effetti positivi come:
+\end_layout
+
+\begin_layout Itemize
+
+\emph on
+Split di un blocco dati
+\emph default
+: Si riesce a garantire che i dati si ripartiscano al peggio in un rapporto
+ 2:1 (ad esempio 
+\begin_inset Formula $\frac{2}{3}$
+\end_inset
+
+ in un blocco e 
+\begin_inset Formula $\frac{1}{3}$
+\end_inset
+
+ nell'altro).
+\end_layout
+
+\begin_layout Itemize
+
+\emph on
+Split di un nodo indice
+\emph default
+: Si ottiene un bilanciamento (e quindi un limite inferiore all'occupazione
+ di memoria) senza dover propagare gli split ai discendenti.
+\end_layout
+
+\begin_layout Standard
+Come nel 
+\emph on
+k-d-B-tree
+\emph default
+ ogni nodo è internamente organizzato come un 
+\emph on
+k-d-tree
+\emph default
+ con la differenza che ogni nodo può essere 
+\begin_inset Quotes eld
+\end_inset
+
+puntato
+\begin_inset Quotes erd
+\end_inset
+
+ da diverse separazioni.
+ Si guardi l'esempio (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:esempiohbtree"
+
+\end_inset
+
+) in cui viene mostrato sia lo spazio dei dati sia l'
+\emph on
+hB-tree
+\emph default
+ che ne deriva, in cui si vede il nodo A essere puntato da due nodi indice.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:esempiohbtree"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename esempiohbtree.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Vediamo come funziona lo split.
+ Supponiamo che ogni pagina possa contenere al più 7 nodi e che la radice
+ vada in 
+\emph on
+overflow
+\emph default
+.
+ La situazione iniziale è la seguente (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:esempiohbtree-split01"
+
+\end_inset
+
+)
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:esempiohbtree-split01"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename esempiohbtree-split01.png
+	width 100text%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+La situazione successiva allo split della radice diventa la seguente (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:esempiohbtree-split02"
+
+\end_inset
+
+)
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:esempiohbtree-split02"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename esempiohbtree-split02.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+EXCELL
+\end_layout
+
+\begin_layout Standard
+
+\emph on
+EXCELL
+\emph default
+ (Tamminen, 1982), estensione su n-dimensioni dell'
+\emph on
+extandable hashing
+\emph default
+, usa una directory 
+\emph on
+hash-based
+\emph default
+ (cioè ha lo stesso comportamento di una funzione hash, ma non la utilizza),
+ ovvero suddivide lo spazio in una griglia regolare in 
+\emph on
+n
+\emph default
+ dimensioni.
+ Ogni 
+\emph on
+cella
+\emph default
+ della directory corrisponde a una pagina dati, ma non necessariamente vicecersa
+ (come accade nell'extandable hashing).
+ L'indirizzo di una cella è formato facendo l'
+\emph on
+interleaving
+\emph default
+ dei bit delle coordinate, cioè alternando ciclicamente un bit di ogni coordinat
+a.
+ All'interno di ogni cella c'è un puntatore a un bucket, solo che in questo
+ caso le stringhe di bit di ogni cella non sono ottenute con un generatore
+ pseudo-causale (come accadeva nell'extendable hashing) ma ottenute dividendo
+ lo spazio in maniera regolare: proprio per questo motivo posso avere duplicazio
+ne di puntatori.
+\end_layout
+
+\begin_layout Standard
+Vediamo un esempio (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:excell"
+
+\end_inset
+
+) in cui l'area dati viene 
+\begin_inset Quotes eld
+\end_inset
+
+mappata
+\begin_inset Quotes erd
+\end_inset
+
+ nella directory
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:excell"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename EXCELL.png
+	width 100text%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Si vede dall'immagine che ogni indirizzo, ad esempio l'indirizzo di C, viene
+ ottenuto alternato i bit, infatti si ottiene col primo bit della coordinata
+ A (0), il primo bit della coordinata B (1) e infine il secondo bit della
+ coordinata A (0) ottenento 010.
+\end_layout
+
+\begin_layout Standard
+Quando una pagina dati va in 
+\emph on
+overflow
+\emph default
+ si esegue uno split e si distinguono due casi per la directory:
+\end_layout
+
+\begin_layout Enumerate
+Se il blocco era referenciato da due (o più) celle si modificano solo i
+ puntatori
+\end_layout
+
+\begin_layout Enumerate
+Altrimenti si raddoppia la directory utilizzando un bit in più
+\end_layout
+
+\begin_layout Standard
+Vediamo un esempio.
+ Si prenda l'area dati e la directory mostrate nella figura precedente (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:excell"
+
+\end_inset
+
+) e si supponga che la cella A vada in overflow.
+ Dato che è referenziata da più celle, semplicemente A viene divisa in A
+ e F ed è sufficiente modificare il puntatore della cella 001 facendola
+ puntare a F.
+ La situazione che si crea è quella mostrata in figura (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:EXCELL-esempio01"
+
+\end_inset
+
+)
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:EXCELL-esempio01"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename EXCELL-esempio01.png
+	width 100text%
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Immaginiamo successivamente che C vada in 
+\emph on
+overflow
+\emph default
+, ne è richiesto lo split ma in questo caso C è referenziato da una sola
+ cella, dunque viene divisa in C e G ed occorre raddoppiare la directory
+ usando un bit in più per la coordinata B.
+ La situazione finale è la seguente (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:EXCELL-esempio02"
+
+\end_inset
+
+)
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:EXCELL-esempio02"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename EXCELL-esempio02.png
+	width 100text%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Per EXCELL valgono gli stessi ragionamenti visti per 
+\emph on
+extendible hashing
+\emph default
+: si noti però che il raddoppio della directory non sempre riesce a risolvere
+ l'
+\emph on
+overflow
+\emph default
+ di un bucket, per lo stesso motivo per cui poteva non risolverlo nell'extendibl
+e hashing.
+ EXCELL funziona molto bene in caso di distribuzione uniforme dei dati.
+\end_layout
+
+\begin_layout Subsection
+Grid file
+\end_layout
+
+\begin_layout Standard
+Il 
+\emph on
+Grid File
+\emph default
+ (Nievergelt et al., 1984) generalizza 
+\emph on
+EXCELL
+\emph default
+, permettendo la definizione di intervalli di ampiezza arbitraria.
+ A tale scopo sono necessarie 
+\emph on
+d scale
+\emph default
+ che contengono i valori usati come separatori in ciascuna dimensione, non
+ usando infatti più i bit per dividere lo spazio in maniera uniforme, ma
+ valori come separatori ho bisogno di mantenere informazioni su questi separator
+i.
+ Nel caso di intervalli definiti mediante partizionamente binario, le scale
+ sono di fatto analoghe alle directory del dynamic hashing.
+\end_layout
+
+\begin_layout Standard
+Un esempio di 
+\emph on
+Grid File
+\emph default
+ è mostrato in figura (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:gridfile"
+
+\end_inset
+
+).
+ Si vede fin da subito che ora lo directory non è più suddivisa in un numero
+ di celle potenza di due, proprio perchè non siamo più collegati ai bit.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:gridfile"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename gridfile.png
+	width 100text%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Quando una pagina dati va in 
+\emph on
+overflow
+\emph default
+, si esegue uno split e si distinguono due casi per la directory:
+\end_layout
+
+\begin_layout Enumerate
+Se il blocco era referenziato da due (o più) celle si modificano solo i
+ puntatori
+\end_layout
+
+\begin_layout Enumerate
+Altrimenti si aggiunge un separatore alla directory.
+\end_layout
+
+\begin_layout Standard
+Si prenda da esempio la figura prima illustrata (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:gridfile"
+
+\end_inset
+
+) nel quale avviene un 
+\emph on
+overflow
+\emph default
+ da parte di C: la cella C viene divisa in C e F ed è sufficiente modificare
+ il puntatore della cella a F.
+ Il risultato finale è mostrato in figura (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:gridfile-split01"
+
+\end_inset
+
+)
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:gridfile-split01"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename gridfile-split01.png
+	width 100text%
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Supponiamo che successivamente D vada in 
+\emph on
+overflow
+\emph default
+: poichè esiste solo una cella che la referenzia è richiesto di suddivedere
+ la directory.
+ Dunque D viene divisa in D e G e occorre aumentare la directory suddividendo
+ ulteriormente, ad esempio, la coordinata A.
+ Il risultato finale è mostrato in figura (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:gridfile-split02"
+
+\end_inset
+
+)
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:gridfile-split02"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename gridfile-split02.png
+	width 100text%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+In caso di distribuzioni non uniformi, la gestione di N punti può richiedere
+ un numero di celle proporzionale a 
+\begin_inset Formula $O(N^{d})$
+\end_inset
+
+, questo può accadere se i valori ad esempio sono distribuiti su una diagonale,
+ richiederebbe appunto la suddivisione in N
+\begin_inset Formula $^{d}$
+\end_inset
+
+ celle.
+ La struttura regolare del partizionamente dello spazio semplifica però
+ la risuolzuione di 
+\emph on
+window query
+\emph default
+.
+ Si nota anche che quando si introduce un nuovo valore separatore bisogna
+ tener conto che si hanno effetti non solo 
+\begin_inset Quotes eld
+\end_inset
+
+locali
+\begin_inset Quotes erd
+\end_inset
+
+ sul bucket di overflow, ma anche su tutti i bucket della stessa colonna
+ o stessa riga (a seconda del separatore che sto introducendo).
+ Il problema principale rimane l'organizzazione della directory: normalmente
+ le scale sono mantenute in memoria centrale.
+ In casi (quasi-)statici la directory può essere memorizzata come array
+ multi-dimensionale su disco, invece in casi dinamici è necessario paginare
+ la directory, il che porta ai 
+\emph on
+Grid File multi-livello.
+\end_layout
+
+\begin_layout Subsection
+Ordinamento mono-dimensionale
+\end_layout
+
+\begin_layout Standard
+Si potrebbe pensare di utilizzare strutture monodimensionali per strutturare
+ lo spazio.
+ Si cerca dunque di 
+\begin_inset Quotes eld
+\end_inset
+
+linearizzare
+\begin_inset Quotes erd
+\end_inset
+
+ lo spazio n-dimensionale in modo da poter utilizzare struttre monodimensionali
+ come B+tree.
+ Si ottengono delle curve che 
+\begin_inset Quotes eld
+\end_inset
+
+riempono lo spazio
+\begin_inset Quotes erd
+\end_inset
+
+ chiamate 
+\emph on
+space-filling curve
+\emph default
+: perchè esse siano utili devono fare in modo che punti vicini nello spazio
+ siano vicini anche nella linearizzazione (requisito di 
+\emph on
+località
+\emph default
+).
+\end_layout
+
+\begin_layout Standard
+Esistono diversi tipi di 
+\emph on
+space-filling curve
+\emph default
+, ne mostriamo di seguito alcuni esempi
+\end_layout
+
+\begin_layout Description
+Z-order 
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename z-order.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Description
+Peano-Hilber 
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename peano-hilbert.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Description
+Gray-order 
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename gray-order.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Description
+Ordine
+\begin_inset space ~
+\end_inset
+
+lessicografico 
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename ordinelessicografico.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Come è evidente il requisito di località non è soddisfatto da nessuna delle
+ curve.
+ Pertanto la ricerca per 
+\emph on
+window query
+\emph default
+ soffre molto degli stessi problemi del B+tree multi-attributo: si possono
+ notare infatti analogie.
+ Inoltre la ricerca 
+\emph on
+nearset neighbor
+\emph default
+ si complica ulteriormente.
+\end_layout
+
+\begin_layout Subsection
+R-tree
+\end_layout
+
+\begin_layout Standard
+L'
+\emph on
+R-tree 
+\emph default
+è una struttura ad albero 
+\emph on
+bilanciata
+\emph default
+ e 
+\emph on
+paginata
+\emph default
+, basata sull'innestamento gerarchico (cioè il padre è costruito a partire
+ dai figli) di 
+\emph on
+overlapping regions
+\emph default
+.
+ Ogni nodo corrisponde ad una 
+\emph on
+regione rettangolare
+\emph default
+, definita come l'
+\emph on
+MMB 
+\emph default
+che contiene tutte le regioni figlie.
+ L'utilizzazione di ogni nodo varia tra il 100% e un valore minimo (
+\begin_inset Formula $\leq50\%$
+\end_inset
+
+) che è un parametro di progetto dell'R-tree.
+ Utilizza meccanismi di gestione simili a quelli del B+tree con la differenza
+ che l'inserimento di un oggetto e gli eventuali split che ne conseguono
+ possono essere gestiti con politiche diverse.
+ È una struttura estremamente simile a un B+tree, tanto che il B+tree ne
+ è un suo caso particolare, quando si ricade in una dimensione e l'MMB altro
+ non diventa che l'intervallo utilizzato nei B+tree.
+ Il fatto che ci siano 
+\emph on
+overlapping regions
+\emph default
+, cioè regioni che si sovrappongono, è dovuto al fatto che stiamo trattando
+ uno spazio n-dimensionale in cui non è presente un ordinamento totale degli
+ elementi.
+\end_layout
+
+\begin_layout Standard
+L'
+\emph on
+MMB
+\emph default
+ (
+\emph on
+Minimum Bounding Box
+\emph default
+) è il più piccolo rettangolo (Minuum), con i lati paralleli agli assi coordinat
+i (Box), che contiene tutte le regioni figlie (Bounding).
+ È definito come un prodotto di 
+\emph on
+n
+\emph default
+ intervalli (si veda la figura 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:intervallndimensioni"
+
+\end_inset
+
+).
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:intervallndimensioni"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename intersezionenintervalli.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Un'(iper-)rettangolo (che non è un MMB, poichè un iper-rettangolo non ha
+ gli assi obbligatoriamente gli assi paralleli agli assi cartesiani) 
+\emph on
+n
+\emph default
+-dimensionale ha 2
+\begin_inset Formula $^{n}$
+\end_inset
+
+ vertici: per poter definire un (iper-)rettangolo basta specificare le coordinat
+e di tutti i suoi vertici.
+ L'algoritmo per il calcolo dell'(iper-)rettangolo più piccolo che contenga
+ un insieme di N punti ha complessità 
+\begin_inset Formula $O(N^{2})$
+\end_inset
+
+ in 2-dim, 
+\begin_inset Formula $O(N^{3})$
+\end_inset
+
+ in 3-dim, ma non è noto alcun algoritmo per dimensioni maggiori di 3.
+\end_layout
+
+\begin_layout Standard
+Per definire una 
+\emph on
+box
+\emph default
+ invece servono 
+\begin_inset Formula $2\cdot n$
+\end_inset
+
+ valori: è sufficiente considerare le coordinate di due qualsiasi vertici
+ opposti: ad esempio per definire un box in 3 dimensioni bastano 6 vertici,
+ due per ogni coordinata (cioè il massimo e il minimo per ogni direzione).
+ La complessità dell'algoritmo di calcolo della 
+\emph on
+MMB
+\emph default
+ per un insieme di N punti è lineare con N, cioè 
+\begin_inset Formula $O(N)$
+\end_inset
+
+, infatti basta trovare i valori minimo e massimo per ogni coordinata.
+ Si nota dunque che MMB oltre ad essere di facile compresione, risulta molto
+ facile da creare.
+\end_layout
+
+\begin_layout Standard
+Vediamo ora un veloce confronto tra un 
+\emph on
+B+tree
+\emph default
+ e un 
+\emph on
+R-tree
+\emph default
+ (Tab.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "tab:btreevsrtree"
+
+\end_inset
+
+)
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float table
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "tab:btreevsrtree"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+noindent
+\backslash
+resizebox{
+\backslash
+textwidth}{!}{
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Tabular
+<lyxtabular version="3" rows="7" columns="2">
+<features tabularvalignment="middle" tabularwidth="100text%">
+<column alignment="center" valignment="top" width="40text%">
+<column alignment="center" valignment="top" width="50text%">
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\series bold
+B+tree
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\series bold
+R-tree
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Albero bilanciato e paginato
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Albero bilanciato e paginato
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+I dati si trovano nelle foglie
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+I dati si trovano nelle foglie
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Le foglie sono ordinate
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Non esiste ordine tra i dati
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Organizza i dati in intervall 1-D: gli intervalli non si sovrappongono
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Organizza i dati in intervalli n-D (MBB): gli intervalli si sovrappongono
+ (caratteristica dello spazio n-D)
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Il principio viene applicato ricorsivamente verso l'alto
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Il principio viene applicato ricorsivamente verso l'alto
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+La ricerca puntuale segue un solo percorso dalla radice alle foglie
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+La ricerca puntuale segue più percorsi dalla radice alle foglie
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Vediamo di seguito come un R-tree organizza i propri dati, si notino i vari
+ BMM che si sono creati e l'albero che poi viene generato (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:rtree-esempio"
+
+\end_inset
+
+)
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:rtree-esempio"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename rtree-esempio.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+I 
+\emph on
+nodi foglia
+\emph default
+ di un R-tree contengono 
+\emph on
+entry
+\emph default
+ del tipo (
+\emph on
+key
+\emph default
+, 
+\emph on
+RID
+\emph default
+), dove la 
+\emph on
+key
+\emph default
+ contiene le coordinate del record: in realtà R-tree puà anche gesitre oggetti
+ n-dimensionali con un'estensione spaziale e quindi con 
+\begin_inset Formula $key=MMB$
+\end_inset
+
+ (ad esempio potrebbe usare come 
+\emph on
+key
+\emph default
+ un MMB che rappresenta un lago).
+ I 
+\emph on
+nodi interni
+\emph default
+, invece, contengono 
+\emph on
+entry
+\emph default
+ del tipo (
+\emph on
+MBB
+\emph default
+, 
+\emph on
+PID
+\emph default
+), dove la MMB contiene le coordinate della MMB delle entry dei figlie e
+ 
+\emph on
+PID
+\emph default
+ il puntatore alla pagina dell'MMB.
+ Uniformando, ogni nodo contiene delle 
+\emph on
+entry
+\emph default
+ (
+\emph on
+key
+\emph default
+, 
+\emph on
+ptr
+\emph default
+) dove key indica un valore 
+\begin_inset Quotes eld
+\end_inset
+
+spaziale
+\begin_inset Quotes erd
+\end_inset
+
+.
+ Inoltre ogni nodo contiene un numero di 
+\emph on
+m
+\emph default
+ entry che può variare tra 
+\emph on
+c 
+\emph default
+e 
+\emph on
+C
+\emph default
+ (
+\begin_inset Formula $c\le m\le C$
+\end_inset
+
+) in cui 
+\begin_inset Formula $c\leq\frac{C}{2}$
+\end_inset
+
+ è un parametro di utilizzazione, mentre 
+\emph on
+C
+\emph default
+ dipende dal valore della dimensione 
+\emph on
+n
+\emph default
+ dello spazio e dalla dimensione della pagina: la radice è l'unico nodo
+ che puà violare il vincolo di minima utilizzazione ed avere anche due sole
+ entry per lo stesso motivo per cui accadeva in B+tree.
+ 
+\end_layout
+
+\begin_layout Standard
+Osserviamo infine la differenza sostanziale tra la ricerca del minor (iper-)rett
+angolo che contiene N punti, e la ricerca della minore 
+\emph on
+MMB 
+\emph default
+che riesca a contenerli.
+ Per l'(iper-)rettangolo, in uno spazio a 2 dimensioni gli algoritmi esistenti
+ hanno tempo 
+\begin_inset Formula $O(N^{2})$
+\end_inset
+
+, in uno spazio a 3 dimensioni 
+\begin_inset Formula $O(N^{3})$
+\end_inset
+
+ e in spazi a dimensioni maggiori si conoscono solo algoritmi esponenziali
+ nel numero di punti.
+ Tutt'altro caso invece è trovare la MMB che contenga N punti: infatti il
+ semplice algoritmo per calcolarla ha tempo 
+\begin_inset Formula $O(N\cdot d)$
+\end_inset
+
+ dove 
+\emph on
+d
+\emph default
+ indica la dimensione sul quale si sta lavorando.
+ L'algoritmo semplicemente cerca il minimo fra i minimi e il massimo fra
+ i massimi in ogni coordinata.
+\end_layout
+
+\begin_layout Subsubsection
+Ricerca
+\end_layout
+
+\begin_layout Standard
+Vediamo ora come avviene la ricerca all'interno di un R-tree.
+ Immaginiamo una ricerca per 
+\emph on
+window query
+\emph default
+: occore, quindi, trovare tutti i dati inclusi in un prodotto di 
+\emph on
+n 
+\emph default
+intervalli (ovvero in una box).
+ Tali dati possono trovarsi solamente in nodi la cui MBB ha 
+\emph on
+sovrapposizione
+\emph default
+ con la query.
+ Si veda la seguente figura (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:rtree-ricerca01"
+
+\end_inset
+
+): il nodo N' non può contenere record che soddisfino la query.
+ A causa dell'innestamento gerarchico di bounding box, se una foglia ha
+ intersezione non vuota con la 
+\emph on
+window query
+\emph default
+, allora anche il padre, ed il nonno ed ogni antenato della foglia avrà
+ intersezione con la query.
+ Quando trovo invece una box che ha intersezione nulla con la window query
+ allora sono sicuro che esplorando quel'albero non troverò alcuna soluzione
+ e dunque posso scartarlo.
+ Come sempre si scopre solo al livello delle foglie quali dati sono presenti
+ nel risultato alla 
+\emph on
+window query
+\emph default
+ e se effettivamente né esistano, di conseguenza se la nostra window query
+ ha intersezione non vuota con più di una foglia, allora bisogna esplorarle
+ tutte.
+ Conseguentemente, siccome l'algoritmo procede dalla radice verso le foglie,
+ se nel corso della ricerca la query ha intersezione non vuota con più di
+ un nodo interno (non foglia), bisogna per forza applicare l'algoritmo di
+ 
+\emph on
+backtracking
+\emph default
+, poichè, infatti, se un nodo interno porterà a un sotto-insieme di foglie,
+ l'altro nodo ne conterrà di diverse ma di cui ugualmente la visita è necessaria.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:rtree-ricerca01"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename rtree-ricerca01.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Si veda come, a livello generico, nella seguente figura (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:rtree-ricerca"
+
+\end_inset
+
+), l'algoritmo procede.
+ Siccome i dati si trovano nel box 
+\emph on
+q
+\emph default
+, il quale inizialmente ha un intersezione non vuota solo con A e B (e non
+ con C) e al livello successivo solo con i box G, H e M, i dati del risultato
+ si troveranno solo all'interno di questi Box.
+ Come si vede i risultati sono effettivamente presenti solo nella foglia
+ H e nella foglia M, quindi la foglia G è stata visita 'inutilmente' ma
+ era necessario farlo.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:rtree-ricerca"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename r-tree-ricerca.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Riprendiamo in mano gli algoritmi di ricerca che avevamo discusso quando
+ abbiamo parlato dei GiST, ed applichiamoli al'R-tree.
+\end_layout
+
+\begin_layout Standard
+Ricordiamo in velocità a cosa serve il GiST: è un modo generale per implementare
+ alberi in cui ogni nodo è una entry del tipo (chiave, puntatore), in cui
+ deve valere la 
+\emph on
+monotonicità
+\emph default
+ dei predicati ovvero che se il predicato è valido per un determinato nodo,
+ deve essere valido anche per il padre.
+\end_layout
+
+\begin_layout Paragraph
+CONSISTENT
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+Consistent(E,q)
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+Input
+\series default
+: 
+\emph on
+Entry E=(p,ptr)
+\emph default
+ e 
+\emph on
+predicato di ricerca q
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+Output
+\series default
+:
+\family typewriter
+ 
+\series bold
+if
+\series default
+ (p & q) == 
+\emph on
+false
+\emph default
+ 
+\series bold
+then
+\series default
+ 
+\emph on
+false
+\emph default
+ 
+\series bold
+else
+\series default
+ 
+\emph on
+true
+\end_layout
+
+\begin_layout Standard
+Sia p che q sono in questo caso (iper-)rettangoli.
+ 
+\emph on
+Consistent 
+\emph default
+restituisce 
+\emph on
+true
+\emph default
+ se e solo se p e q hanno sovrapposizione (
+\emph on
+overlap
+\emph default
+) non nulla.
+ 
+\emph on
+Consistent
+\emph default
+ è indifferente alla 
+\begin_inset Quotes eld
+\end_inset
+
+forma
+\begin_inset Quotes erd
+\end_inset
+
+ di q (ovvero non è richiesto che q sia un MMB mentre p lo è poichè stiamo
+ trattando un R-tree), il quale può anche essere usato per altre query (come
+ per 
+\emph on
+range
+\emph default
+ or 
+\emph on
+nearest neighbour
+\emph default
+) e potrebbe avere anche una forma curvilinea o sferica.
+ Ne consegue che la ricerca può seguire più percorsi nell'albero sia perchè
+ la 
+\emph on
+query
+\emph default
+ non è puntuale (è una window query) sia perchè le MMB si sovrappongono
+ (
+\emph on
+overlapping regions
+\emph default
+).
+\end_layout
+
+\begin_layout Standard
+È bene aprire però una parentesi sul metodo Consistent.
+ Non è detto che la ricerca sia conservativa, ovvero non è obbligatorio
+ che i risultati effettivi siano 
+\begin_inset Quotes eld
+\end_inset
+
+esatti
+\begin_inset Quotes erd
+\end_inset
+
+.
+ Esistono due casi di questo tipo: il primo, ad esempio, accade quando l'indice
+ (poichè ricordiamo che stiamo parlando di indici quando trattiamo R-tree)
+ restituisce informazioni in più rispetto ai dati che effettivamente volevamo,
+ cioè che restituisce sicuramente anche il risultato esatto, ma in più dà
+ informazioni errate: questo è dovuto al comportamento conservativo che
+ potremmo applicare al metodo Consistent.
+ Ad esempio se applichiamo un Consistent che risponda sempre 
+\emph on
+true
+\emph default
+ esso risulterà 
+\begin_inset Quotes eld
+\end_inset
+
+troppo
+\begin_inset Quotes erd
+\end_inset
+
+ conservativo (poichè nessun nodo risponde falso, neanche le foglie di conseguen
+za non è possibile che un nodo restitusica falso mentre il suo figlio avrebbe
+ potuto rispondere vero): ciò porta ad avere nel risultato finale tutti
+ i dati a disposizione di cui sicuramente un sotto-insieme è il 'vero' risultato
+ della nostra query, e che come abbiamo detto, in una caso di questo tipo
+ vengono fornite informazioni in più (tutti i restanti i dati).
+ Tutto ciò comporta ad una grande inefficienza poichè si richiede di accedere
+ a tutti i dati (come se l'indice non ci fosse), ed in questi casi si parla
+ 
+\begin_inset Quotes eld
+\end_inset
+
+
+\emph on
+falsi positivi
+\emph default
+
+\begin_inset Quotes erd
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+Dall'altra parte invece i risultati potrebbero non essere 
+\begin_inset Quotes eld
+\end_inset
+
+esatti
+\begin_inset Quotes erd
+\end_inset
+
+ perchè utilizziamo un Consistent 
+\begin_inset Quotes eld
+\end_inset
+
+troppo poco conservativo
+\begin_inset Quotes erd
+\end_inset
+
+, cioè quando il Consistent restituisce falso anche se in realtà dovrebbe
+ restituire vero e in questi casi si parla di 
+\begin_inset Quotes eld
+\end_inset
+
+
+\emph on
+falsi negativi
+\begin_inset Quotes erd
+\end_inset
+
+.
+ 
+\emph default
+Immaginiamo di avere un Consistent che restituisce sempre 
+\emph on
+false
+\emph default
+: allora il risultato di qualsiasi query sarà sempre un'insieme vuoto poichè
+ già alla radice l'algoritmo di ricerca si blocca.
+ Ovviamente anche in questo caso abbiamo un risultato 
+\begin_inset Quotes eld
+\end_inset
+
+errato
+\begin_inset Quotes erd
+\end_inset
+
+ ma in maniera opposta rispetto al caso prima trattato: infatti ora si ottengono
+ meno informazioni del 
+\begin_inset Quotes eld
+\end_inset
+
+vero
+\begin_inset Quotes erd
+\end_inset
+
+ risultato (in questo caso proprio nessuna) ma il calcolo del risultato
+ è estremamente veloce (ci si ferma al primo nodo).
+ Come sempre dunque esistono dei 
+\emph on
+trade-off
+\emph default
+: rispondere falso quando in realtà risulta vero dà una maggiore efficienza
+ poichè si taglia tutto il sotto-albero del nodo ma restituisce risultati
+ in meno di quelli effettivi, mentre rispondere vero quando in realtà risulta
+ falso aggrava la performance poichè richiede di arrivare fino alle foglie
+ per scoprire effettivamente la falsità del predicato.
+\end_layout
+
+\begin_layout Standard
+Solitamente i 
+\emph on
+dbms
+\emph default
+ adottano una tecnica chiamata 
+\emph on
+filter and refine
+\emph default
+: viene cioè utilizzato un Consistent 
+\begin_inset Quotes eld
+\end_inset
+
+molto conservativo
+\begin_inset Quotes erd
+\end_inset
+
+ in cui si preferisce avere informazioni in eccesso ma fra le quali è presente
+ effettivamente il risultato.
+ A queste ultime viene dunque applicato un ulteriore algoritmo di 
+\begin_inset Quotes eld
+\end_inset
+
+raffinamento
+\begin_inset Quotes erd
+\end_inset
+
+ che riesce ad eliminare i falsi positivi che si erano creati.
+ Questo algoritmo di 
+\begin_inset Quotes eld
+\end_inset
+
+raffinamento
+\begin_inset Quotes erd
+\end_inset
+
+ è solitamente molto costoso e applicarlo direttamente a tutto l'insieme
+ di dati potrebbe richiedere un tempo molto grande, ecco dunque che se invece
+ prima si 
+\begin_inset Quotes eld
+\end_inset
+
+filtra
+\begin_inset Quotes erd
+\end_inset
+
+ l'insieme dei dati attraverso l'indice e solo a questi ultimi viene applicato
+ l'algoritmo, la performance generale riesce ad aumentare notevolmente riuscendo
+ a dare in output il 
+\begin_inset Quotes eld
+\end_inset
+
+vero
+\begin_inset Quotes erd
+\end_inset
+
+ risultato della query.
+\begin_inset VSpace defskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Occorre, infine, specificare i 
+\emph on
+key methods
+\emph default
+ Union, (Compress, Decompress), Penalty e PickSplit ovvero i 
+\emph on
+metodi 
+\emph default
+per la costruzione dell'albero (insieme al Consistent di cui abbiamo già
+ parlato).
+ Esistono diverse 
+\begin_inset Quotes eld
+\end_inset
+
+varianti
+\begin_inset Quotes erd
+\end_inset
+
+ di R-tree, ognuna delle quali si differenzia dalle altre per uno o più
+ modi di implementare tali scelte.
+ Vedremo la realizzazione della versione orginale di R-tree e discuteremo
+ alcune varianti, fra le quali una delle più comuni R*-tree (Beckmann et
+ al, 1990).
+ Notiamo che per 
+\emph on
+Union
+\emph default
+ esiste una sola implementazione, mentre a seconda di come viene implementata
+ Penalty e PickSplit si costruiscono varianti del R-tree.
+ L'arbitrarietà delle scelte è causata dalla dimensione dello spazio maggiore
+ di uno, in particolare è dovuta al fatto che non esiste un ordine totale
+ fra gli elementi.
+\end_layout
+
+\begin_layout Paragraph
+UNION
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+Union(P)
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+Input
+\series default
+: Insieme di entry 
+\begin_inset Formula $P=\{(p_{1},\, ptr_{1}),\ldots\,,(p_{n},\, ptr_{n})\}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+Output
+\series default
+: Un predicato 
+\emph on
+r
+\emph default
+ che vale per tutte le tuple accessibili tramite uno dei puntatori delle
+ entry
+\end_layout
+
+\begin_layout Standard
+Sia il predicato 
+\emph on
+r 
+\emph default
+che i predicati 
+\emph on
+p
+\begin_inset Formula $_{j}$
+\end_inset
+
+ 
+\emph default
+sono (iper-)rettangoli.
+ Si restituisce la 
+\emph on
+MBB 
+\emph default
+contenente tutti i predicati 
+\emph on
+p
+\begin_inset Formula $_{j}$
+\end_inset
+
+.
+ 
+\emph default
+È sufficiente calcolare il valore minimo e massimo su ogni coordinata (che
+ ricordiamo essere 
+\begin_inset Formula $O(n\cdot d)$
+\end_inset
+
+).
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace defskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Paragraph
+PENALTY
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+Penalty(E
+\begin_inset Formula $_{1}$
+\end_inset
+
+, E
+\begin_inset Formula $_{2}$
+\end_inset
+
+)
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+Input
+\series default
+: Entries E
+\begin_inset Formula $_{1}$
+\end_inset
+
+=(p
+\begin_inset Formula $_{1}$
+\end_inset
+
+, ptr
+\begin_inset Formula $_{1}$
+\end_inset
+
+) e E
+\begin_inset Formula $_{2}$
+\end_inset
+
+=(p
+\begin_inset Formula $_{2}$
+\end_inset
+
+, ptr
+\begin_inset Formula $_{2}$
+\end_inset
+
+)
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+Output
+\series default
+: Un valore di 
+\begin_inset Quotes eld
+\end_inset
+
+penalità
+\begin_inset Quotes erd
+\end_inset
+
+ che risulta dall'inserire E
+\begin_inset Formula $_{2}$
+\end_inset
+
+ nel sotto-albero con radice E
+\begin_inset Formula $_{1}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Si veda l'esempio in figura (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:rtree-penalty"
+
+\end_inset
+
+) e ci si domandi quale sia il nodo migliore per inserire il punto 
+\emph on
+p.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:rtree-penalty"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename rtree-penalty.png
+	width 100text%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+Se il punto p si trova all'interno di E
+\begin_inset Formula $_{1}$
+\end_inset
+
+, la penalità è zero.
+ Altrimenti la penalità è data dall'incremento di volume (area) della 
+\emph on
+MBB
+\emph default
+.
+ Qui esiste una prima differenza con R*-tree: infatti se mentre nei nodi
+ interni applica nuovamente la minimizzazione del volume, in caso di foglie
+ applica come penalty l'incremento di sovrapposizione con le altre entry.
+ 
+\end_layout
+
+\begin_layout Standard
+Entrambi i criteri cercano di ottenere un albero con migliori prestazioni:
+ se da una parte ho un 
+\emph on
+volume grande 
+\emph default
+che porta all'aumento delle probabilità di visitare un nodo durante una
+ query, dall'altra ho un 
+\emph on
+overlap grande
+\emph default
+ il quale aumenta il numero dei nodi visitati da una query.
+ Di conseguenza minimizzare il volume vuol dire avere meno probabilità che
+ la 
+\emph on
+window query 
+\emph default
+e la MMB si intersichino, mentre minimizzare l'overlapping delle foglie
+ ha come scopo diminuire la probabilità di dover accedere a più foglie per
+ controllare uno stesso elemento.
+\end_layout
+
+\begin_layout Paragraph
+PICKSPLIT
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+PickSplit(P)
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+Input
+\series default
+: Insieme di C+1 entry
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+Output
+\series default
+: Due insiemi di entry, P
+\begin_inset Formula $_{1}$
+\end_inset
+
+ e P
+\begin_inset Formula $_{2}$
+\end_inset
+
+ di cardinalità 
+\begin_inset Formula $\geq c$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Si veda l'esempio mostrato in figura in cui si ha capacità massima 
+\begin_inset Formula $C=16$
+\end_inset
+
+ e capacità minima 
+\begin_inset Formula $c=6$
+\end_inset
+
+ e in cui aggiungendo un nuovo oggetto, la foglia vada in overflow (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:rtree-picksplit"
+
+\end_inset
+
+).
+ Esiste un problema intrinseco: in che modo divido la foglia? Il dubbio
+ nasce dalle diverse partizioni possibili che si possono creare.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:rtree-picksplit"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename rtree-picksplit.png
+	width 100text%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Cercare la divisione che porta a 
+\emph on
+minimizzare 
+\emph default
+la somma dei volumi due nodi è un problema NP-hard, ecco che si usano delle
+ euristiche per risolvere il problema.
+ Se mentre per le foglie è sempre possibile ottenere una divisione senza
+ overlapping, la cosa si complica ulteriorimente nei nodi superiori: in
+ particolare non è garantito che si trovi uno split ad 
+\emph on
+overlap
+\emph default
+ nullo, cioè è possibile che lo split in due nodi abbia un'interesezione.
+ Si veda d'esempio la seguente figura (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:rtree-picksplitnphard"
+
+\end_inset
+
+).
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:rtree-picksplitnphard"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename rtree-picksplitnphard.png
+	width 100text%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Il criterio adottato da R*-tree è più complicato e tiene in considerazione
+ sia il volume dei nodi che il loro overlap ed il perimetro (cercando dunque
+ di minimizzare perimetro e overlap nelle foglie, e volume nei nodi superiori).
+ Inoltre R*-tree supporta la re-distribuzione sia in 
+\emph on
+overflow
+\emph default
+ che in 
+\emph on
+underflow
+\emph default
+.
+ Tutte queste scelte sono effettuate in maniera 
+\emph on
+euristica
+\emph default
+, in quanto la loro efficienza viene validata unicamente in modo sperimentale.
+ Con queste specifiche si ottengono (lievi) miglioramenti nelle prestazioni
+ in inserimento, occupazione e ricerca.
+\end_layout
+
+\begin_layout Subsubsection
+R-tree vs B+tree
+\end_layout
+
+\begin_layout Standard
+Facciamo un breve confronto fra i due alberi per quanto riguarda le ricerche,
+ supponendo di avere sempre query applicate ad attributi A e B e sul quale
+ siano stati costruiti un indice R-tree su (A,B) e un indice B+tree su (A,B)
+ (in questo ordine nel caso di B+tree).
+\end_layout
+
+\begin_layout Itemize
+In caso di ricerca puntuale solo sull'attributo A, il B+tree vince sulle
+ performance, poichè sicuramente chiede di accedere a una sola foglia (al
+ più si prosegue per concatenazione di foglie), mentre con R-tree potrebbe
+ essere che il valore si trovi in una interesezione di MMB il che richiede
+ l'accesso a più foglie (con meccanismo di backtracking)
+\end_layout
+
+\begin_layout Itemize
+Caso di intervallo solo su A: ancora una volta B+tree vince, poichè si accede
+ direttamente alle foglie che risultano ordinate e si prosegue grazie alla
+ concatenazione di esse.
+ Invece su R-tree nuovamente, a causa della possibile intersezione di overlappin
+g si potrebbe dover accedere a più foglie con meccanismi di overlapping.
+\end_layout
+
+\begin_layout Itemize
+Ricerca puntuale su A e intervallo su B: B+tree è ancora da padrone, è molto
+ simle alla ricerca puntuale solo su A.
+ Si noti che nello spazio a due dimensioni una ricerca di questo tipo è
+ raffigurata da un segmento, e ancora una volta R-tree a causa di interesezione
+ potrebbe dover accedere a più foglie.
+\end_layout
+
+\begin_layout Itemize
+Ricerca intervallo su A e intervallo su B: R-tree vince, è proprio il motivo
+ per cui è stato costruito l'R-tree (rappresenta la window query).
+\end_layout
+
+\begin_layout Itemize
+Ricerca puntuale su B: con B+tree non è possibile farla, mentre con R-tree
+ è come effettuare una ricerca puntuale su A
+\end_layout
+
+\begin_layout Itemize
+Intervallo su B: con B+tree non risulta possibile, con R-tree ricadiamo
+ nel caso di ricerca per intervallo su solo A.
+\end_layout
+
+\end_body
+\end_document

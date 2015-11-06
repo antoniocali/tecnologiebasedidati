@@ -1,0 +1,6086 @@
+#LyX 2.0 created this file. For more info see http://www.lyx.org/
+\lyxformat 413
+\begin_document
+\begin_header
+\textclass article
+\use_default_options true
+\maintain_unincluded_children false
+\language italian
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize default
+\spacing single
+\use_hyperref false
+\papersize default
+\use_geometry false
+\use_amsmath 1
+\use_esint 1
+\use_mhchem 1
+\use_mathdots 1
+\cite_engine basic
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\use_refstyle 1
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Title
+Tecnologie delle Base di Dati M
+\end_layout
+
+\begin_layout Author
+Antonio Davide Calì
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset CommandInset href
+LatexCommand href
+name "WWW.ANTONIOCALI.COM"
+target "http://www.antoniocali.com/"
+
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+Anno Accademico 2013/2014
+\begin_inset Newline newline
+\end_inset
+
+Docenti: Marco Patella, Paolo Ciaccia
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset toc
+LatexCommand tableofcontents
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Part
+Gestione delle transazioni
+\end_layout
+
+\begin_layout Section
+Transazioni
+\end_layout
+
+\begin_layout Subsection
+Cosa è una transazione
+\end_layout
+
+\begin_layout Standard
+Una transazione è 
+\emph on
+un'unità logica di elaborazione
+\emph default
+ che corrisponde a 
+\emph on
+una serie di operazioni fisiche elementari 
+\emph default
+(es.
+ letture/scritture) sul 
+\emph on
+database
+\emph default
+.
+\end_layout
+
+\begin_layout Standard
+Facciamo subito qualche esempio per tentare di capire meglio cosa una transazion
+e sia.
+ Mettiamo di voler trasferire una somma di denaro da un conto corrente ad
+ un altro, le operazioni necessarie da fare sono:
+\end_layout
+
+\begin_layout Enumerate
+Prelevo i soldi dal primo conto corrente
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+
+\family typewriter
+UPDATE CC
+\begin_inset Newline newline
+\end_inset
+
+SET Saldo=Saldo-50
+\begin_inset Newline newline
+\end_inset
+
+WHERE Conto=123
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+Deposito i soldi nel secondo conto corrente
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+
+\family typewriter
+UPDATE CC
+\begin_inset Newline newline
+\end_inset
+
+SET Saldo=Saldo+50
+\begin_inset Newline newline
+\end_inset
+
+WHERE Conto=235
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+La transazione è data dall'insieme delle due operazioni elementari.
+\end_layout
+
+\begin_layout Standard
+Un altro esempio potrebbe essere l'aggiornamento degli stupendi degli impiegati
+ di una sede.
+\begin_inset Newline newline
+\end_inset
+
+
+\family typewriter
+UPDATE Imp
+\begin_inset Newline newline
+\end_inset
+
+SET Stupendio=1.1*Stipendio
+\begin_inset Newline newline
+\end_inset
+
+WHERE Sede='S01'
+\end_layout
+
+\begin_layout Standard
+In questo secondo caso, anche se l'operazione da eseguire è una sola, essa
+ deve essere eseguita su tutti gli impiegati della sede e non può ritenrsi
+ conclusa fintanto che l'aggiornamento non comprende anche l'ultimo impiegato.
+\end_layout
+
+\begin_layout Subsection
+ACID
+\end_layout
+
+\begin_layout Standard
+L'acronimo 
+\series bold
+ACID
+\series default
+ indica le 4 proprietà che il 
+\emph on
+dbms
+\emph default
+ deve garantire per ogni transazione:
+\end_layout
+
+\begin_layout Enumerate
+
+\series bold
+Atomicity
+\series default
+: una transazione è una unità di elaborazione unica ed indibisibile (atomica).
+ Il 
+\emph on
+dbms
+\emph default
+ deve garantire che la transazione debba essere eseguita come un tutt'uno,
+ cioè applicando la proprietà del tutto o niente, cioè la transazione deve
+ essre completata in tutte le sue singole operazioni elemantari oppure deve
+ annullarne l'effetto come se non fossero mai accadute.
+\end_layout
+
+\begin_layout Enumerate
+
+\series bold
+Consistency
+\series default
+: una transazione lascia il database in uno stato consistente, cioè il 
+\emph on
+dbms
+\emph default
+ deve garantire che nessuno dei vincoli di integrità del database venga
+ violato.
+ Se la transazione termina correttamente deve portare il sistema in un nuovo
+ stato consistente, altrimenti deve riuscire a portare il sistema allo stato
+ iniziale precedente (che si suppone essere consistente).
+\end_layout
+
+\begin_layout Enumerate
+
+\series bold
+Isolation
+\series default
+: una transazione deve essere eseguita in maniera indipendentemente dalle
+ altre.
+ Se più transazioni esegono in concorrenza, il 
+\emph on
+dbms
+\emph default
+ deve garantire che l'effetto netto sia equivalente a quello di una qualche
+ esecuzione sequenziale delle stesse (cioè come se fossero eseguite in maniera
+ isolata).
+\end_layout
+
+\begin_layout Enumerate
+
+\series bold
+Durability
+\series default
+: gli effetti di una transazione che ha terminato correttamente la sua esecuzion
+e devono essere 
+\emph on
+persistenti
+\emph default
+ nel tempo.
+ Il 
+\emph on
+dbms
+\emph default
+ deve proteggere il database a fronte di guasti.
+\end_layout
+
+\begin_layout Standard
+Si noti che, a volte, potrebbe essere preferibile non far rispettare alcune
+ delle proprietà prima indicate a favore della performance.
+ Una delle prime proprietà che può 
+\begin_inset Quotes eld
+\end_inset
+
+cadere
+\begin_inset Quotes erd
+\end_inset
+
+ è la 
+\series bold
+consistenza
+\series default
+: si parla, difatti, molte volte dell' 
+\emph on
+eventually-consistency
+\emph default
+ cioè di far rispettare sì la consistenza, ma solo 'eventually' (cioè alla
+ fine), cioè solo in uno stato finale, facendo passare però il sistema nel
+ tempo, attraverso stati non consistenti poichè sicuri che alla fine esso
+ convergerà in uno stato consistente.
+\end_layout
+
+\begin_layout Subsubsection
+Moduli DBMS
+\end_layout
+
+\begin_layout Standard
+Il 
+\emph on
+dbms
+\emph default
+ utilizza moduli diversi per riuscire a garantire le proprietà 
+\series bold
+ACID
+\series default
+.
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+Transaction Manager: 
+\series default
+si occupa di gestire le transazioni nella loro interessa.
+ Riceve i comandi SQL e fa in modo di coordinare le transazioni.
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+Logging & Recovery Manager: 
+\series default
+si fa carico di gestire la proprietà 
+\emph on
+atomicity
+\emph default
+ e 
+\emph on
+durability
+\emph default
+, gestendo dunque la persistenza e la proprietà del tutto o niente.
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+Concurrency Manager:
+\series default
+ serve a garantire la proprietà di 
+\emph on
+Isolation
+\emph default
+.
+ È un componente simile alla gestione del sistema operativo per gestire
+ la concorrenza.
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+DDL Compiler:
+\series default
+ si prende carico della gestione della 
+\emph on
+Consistency
+\emph default
+.
+ In pratica è un compilatore per il linguaggio DDL (Definition Data Language)
+ del database.
+ Esso genera un codice per ogni vincolo di integrità e ad ogni transazione
+ esegue un determinato blocco di codice riguardante le tuple e/o le tabelle
+ che hanno riguardato la transazione controllando che i vincoli di integrità
+ siano ancora rispettati.
+\end_layout
+
+\begin_layout Subsection
+Modello delle transazioni
+\end_layout
+
+\begin_layout Standard
+Nel modello che consideriamo una 
+\emph on
+transazione 
+\emph default
+viene vista come una sequenza di operazioni elementari di 
+\emph on
+lettura
+\emph default
+ (
+\series bold
+R
+\series default
+) e 
+\emph on
+scrittura
+\emph default
+ (
+\series bold
+W
+\series default
+) di 
+\emph on
+oggetti 
+\emph default
+(tuple e/o attributi di tupla) del database che, a partire da uno stato
+ iniziale consistente del database stesso, porta il database in un nuovo
+ stato finale consistente.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename modellotransizione.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+In generale non è richiesto, e non è neanche di interesse, che gli stati
+ intermedi in cui si trova il database siano consistenti (ed è inevitabile
+ che sia così, si veda l'esempio della transazione tra conti correnti).
+\end_layout
+
+\begin_layout Subsubsection
+Esiti di una transazione
+\end_layout
+
+\begin_layout Standard
+Nel modello considerato una transazione (il cui inizio viene indicato dalla
+ parola chiave 
+\family typewriter
+BEGIN
+\family default
+, anche se in SQL è una word-key implicita) può avere solo due esiti:
+\end_layout
+
+\begin_layout Enumerate
+
+\series bold
+Terminare correttamente:
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+Avviene solo quando l'applicazione, dopo aver eseguito tutte le operazioni
+ elementari che gli appartengono, esegue una particolare istruzione SQL
+ detta 
+\emph on
+COMMIT 
+\emph default
+(o COMMIT WORK) che comunica 
+\begin_inset Quotes eld
+\end_inset
+
+ufficialmente
+\begin_inset Quotes erd
+\end_inset
+
+ al 
+\emph on
+transaction manager
+\emph default
+ il termine delle operazioni (e quindi di essere giunti ad un nuovo stato
+ 'consistente')
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename terminazionecorretta.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+
+\series bold
+Terminare non correttamente 
+\series default
+(anticipatamente):
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+La terminazione non corretta può distinguersi ulteriormente in due casi.
+\end_layout
+
+\begin_layout Enumerate
+È la transazione stessa che, per qualche motivo (si accorge che qualcosa
+ non va), decide di 
+\emph on
+abortire
+\emph default
+ poichè non ha più senso proseguire con le azioni, eseguendo una particolare
+ istruzione SQL chiamata 
+\emph on
+ROLLBACK
+\emph default
+ (o ROLLBACK WORK).
+ Ad esempio nella transazione di denaro, il primo conto corrente non ha
+ i soldi da trasferire.
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename esempiorollback.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+È il sistema che non è in grado di garantire la corretta prosecuzione della
+ transazione che viene dunque abortita.
+ Ad esempio per un guasto al 
+\emph on
+database
+\emph default
+ o per la violazione di qualche vincolo di integrità.
+\end_layout
+
+\begin_layout Standard
+In generale se per qualche motivo la transazione non può terminare correttamente
+ la sua esecuzione, il 
+\emph on
+dbms
+\emph default
+ deve 
+\begin_inset Quotes eld
+\end_inset
+
+disfarsi
+\begin_inset Quotes erd
+\end_inset
+
+ (
+\emph on
+UNDO
+\emph default
+) delle eventuali modifiche apportate dalla transazione al database.
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+Il modello di transazione usato dai 
+\emph on
+dbms
+\emph default
+ è in realtà più articolato, in particolare è possibile definire dei cosiddetti
+ 
+\series bold
+\emph on
+savepoint
+\series default
+\emph default
+ che vengono utilizzati, in caso di 
+\emph on
+rollback
+\emph default
+, per non dover tornare allo stato iniziale consistente e 
+\begin_inset Quotes eld
+\end_inset
+
+gettare
+\begin_inset Quotes erd
+\end_inset
+
+ via tutto il lavoro fatto dalle operazioni, ma per permettere di tornare
+ ad un ultimo stato accettato come 
+\begin_inset Quotes eld
+\end_inset
+
+valido
+\begin_inset Quotes erd
+\end_inset
+
+: il savepoint stesso.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename esempiosavepoint.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Per definire un 
+\emph on
+savepoint
+\emph default
+ in 
+\series bold
+DB2
+\series default
+ si usa la seguente sintassi
+\begin_inset Newline newline
+\end_inset
+
+
+\family typewriter
+SAVEPOINT <name> ON ROLLBACK RETAIN CURSORS
+\family default
+
+\begin_inset Newline newline
+\end_inset
+
+e per eseguire un 
+\emph on
+rollback parziale
+\emph default
+ (dunque ad un savepoint) si utilizza
+\begin_inset Newline newline
+\end_inset
+
+
+\family typewriter
+ROLLBACK WORK TO SAVEPOINT <name>
+\end_layout
+
+\begin_layout Subsubsection
+Schedule
+\end_layout
+
+\begin_layout Standard
+Se un 
+\emph on
+dbms
+\emph default
+ deve supportare l'esecuzione contemporanea di diverse transazioni che accedono
+ a dati in comune, potrebbe decidere di far eseguire le transazioni in modo
+ diverso: in maniera 
+\emph on
+sequenziale
+\emph default
+ o in maniera 
+\emph on
+interleaved.
+\end_layout
+
+\begin_layout Standard
+La tecnica 
+\series bold
+sequenziale 
+\series default
+(
+\emph on
+serial execution
+\emph default
+) prevede effettivamente di far eseguire due transazioni contemporanee una
+ successiva all'altra (sequenzialmente appunto).
+ Chiameremo 
+\series bold
+\emph on
+schedule
+\emph default
+ 
+\series default
+la 
+\emph on
+successione temporale di più
+\emph default
+ 
+\emph on
+azioni elementari
+\emph default
+.
+ Ad esempio due transazioni T1 e T2 potrebbero essere eseguite in maniera
+ sequenziale come mostrato in figura (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:esecuzionesequenziale"
+
+\end_inset
+
+)
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:esecuzionesequenziale"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename esecuzionesequenziale.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Alternativamente il 
+\emph on
+dbms
+\emph default
+ potrebbe decidere di eseguire più transazioni in concorrenza, cioè utilizzando
+ la tecnica 
+\series bold
+interleaved 
+\series default
+(
+\emph on
+interleaved execution
+\emph default
+), alternando l'esecuzioni di operazione elementari di una transazione alle
+ operazioni elementari di altre transazioni.
+ Prendiamo le stesse transazioni T1 e T2 mostrate nell'esempio precedente
+ e applichiamo la tecnica 
+\emph on
+interleaved
+\emph default
+ (Fig.
+ )
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:esempiointerleaved"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename esempiointerleaved.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Eseguire più transazione concorrentemente è necessario per garantire buone
+ prestazioni, infatti, mettiamo di avere due transazioni, una 
+\begin_inset Quotes eld
+\end_inset
+
+breve
+\begin_inset Quotes erd
+\end_inset
+
+ e una 
+\begin_inset Quotes eld
+\end_inset
+
+lunga
+\begin_inset Quotes erd
+\end_inset
+
+: l'esecuzione sequenziale, nel caso sfortunato (prima lunga e poi breve)
+ porterebbe ad un tempo medio di risposta del sistema molto alto, mentre
+ con l'esecuzione concorrente il tempo medio viene ridotto notevolmente.
+ Si sfrutta la possibilità di poter assegnare la CPU ad una transazione
+ mentre una transazione concorrente è in attesa, magari, di una operazione
+ di I/O: il tutto porta ad aumentare il 
+\emph on
+throughput 
+\emph default
+(numero di transazioni elaborate nell'unità di tempo) del sistema.
+ Si veda l'esempio in figura (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:esempiolungavscorta"
+
+\end_inset
+
+) per una maggiore comprensione.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:esempiolungavscorta"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename esempiolungavscorta.png
+	scale 50
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Finora abbiamo supposto che la proprietà di 
+\series bold
+isolation
+\series default
+ sia garantita in maniera del tutto generale, ma è il 
+\emph on
+transaction manager
+\emph default
+ che deve effettivamente gestire la concorrenza in modo tale da non far
+ interferire tra loro le transazioni: infatti, se questo non avvenisse,
+ potrebbero nascere 4 tipi di problemi:
+\end_layout
+
+\begin_layout Enumerate
+
+\series bold
+Lost Update: 
+\series default
+dovuto ad update concorrenti sul database
+\end_layout
+
+\begin_layout Enumerate
+
+\series bold
+Dirty Read:
+\series default
+ dovuto a letture di dati 
+\begin_inset Quotes eld
+\end_inset
+
+sporchi
+\begin_inset Quotes erd
+\end_inset
+
+ (non ancora 
+\begin_inset Quotes eld
+\end_inset
+
+
+\emph on
+committed
+\emph default
+
+\begin_inset Quotes erd
+\end_inset
+
+)
+\end_layout
+
+\begin_layout Enumerate
+
+\series bold
+Unrepeatable Read:
+\series default
+ dovuto all'interleave di letture e scritture
+\end_layout
+
+\begin_layout Enumerate
+
+\series bold
+Phantom Row: 
+\series default
+dovuto all'inserimento di nuovi dati che potrebbero non comparire nel risultato
+ di una query.
+\end_layout
+
+\begin_layout Paragraph
+Lost Update
+\end_layout
+
+\begin_layout Standard
+Un tipico caso di 
+\emph on
+lost update
+\emph default
+ è mostrato dallo 
+\emph on
+schedule
+\emph default
+ in figura (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:esempiolostupdate"
+
+\end_inset
+
+) in cui per comodità si evidenziano, oltre alle operazioni elementari delle
+ transazioni, anche i valori che assume il valore X nel database.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:esempiolostupdate"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename esempiolostupdate.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Il problema nasce perchè T2 legge il valore di X prima che T1 (che ha già
+ letto il valore di X precedentemente e salvato localmente per applicare
+ la modifica X-1) lo modifichi e lo renda permanente (Commit).
+\end_layout
+
+\begin_layout Paragraph
+Dirty Read
+\end_layout
+
+\begin_layout Standard
+Un tipico caso di 
+\emph on
+dirty read 
+\emph default
+è mostrato dallo 
+\emph on
+schedule 
+\emph default
+in figura (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:esempiodirtyread"
+
+\end_inset
+
+).
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:esempiodirtyread"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename esempiodirtyread.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+In questo caso il problema è dovuto al fatto che la transazione T2 legge
+ un dato 
+\begin_inset Quotes eld
+\end_inset
+
+che non c'è
+\begin_inset Quotes erd
+\end_inset
+
+, cioè T2 legge un valore 
+\begin_inset Quotes eld
+\end_inset
+
+sporco
+\begin_inset Quotes erd
+\end_inset
+
+ di una transazione (T1) non ancora terminata, dovuto al fatto che T1 richiede
+ un 
+\emph on
+rollback 
+\emph default
+facendo perdere tutte le modifiche che aveva apportato: le operazioni svolte
+ da T2 si basano su un valore di X intermedio e quindi non stabile.
+ Le conseguenze sono impredicibili (dipende dalle operazioni di T2) e si
+ presenterebbero anche se T1 non abortisse.
+\end_layout
+
+\begin_layout Paragraph
+Unrepeatable Read
+\end_layout
+
+\begin_layout Standard
+Un tipico caso di 
+\emph on
+unrepeatable read 
+\emph default
+è mostrato dallo 
+\emph on
+schedule
+\emph default
+ in figura (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:unrepeatbleread"
+
+\end_inset
+
+).
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:unrepeatbleread"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename esempiounrepeatbleread.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Il problema è dovuto al fatto che una transazione (T2) legge due volte un
+ dato e trova valori diversi (dati inconsistenti), poichè nel frattempo
+ un'altra transazione (T1) ha modificato il dato.
+ Anche in questo caso si possono avere gravi conseguenze: lo stesso problema
+ si potrebbe presentare per transazioni di 
+\begin_inset Quotes eld
+\end_inset
+
+analisi
+\begin_inset Quotes erd
+\end_inset
+
+, ad esempio se T1 eseguisse la somma dell'importo fra due conti correnti
+ e T2 eseguisse il trasferimento di fondi da un conto corrente ad un altro,
+ a seconda di quando T1 esegue la sua operazione potrebbe riportare un totale
+ errato.
+\end_layout
+
+\begin_layout Paragraph
+Phantom Row
+\end_layout
+
+\begin_layout Standard
+Un tipico caso di 
+\emph on
+phantom row
+\emph default
+ è mostrato dallo 
+\emph on
+schedule 
+\emph default
+in figura (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:esempiophantomrow"
+
+\end_inset
+
+).
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:esempiophantomrow"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename esempiophantomrow.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Il problema del 
+\emph on
+phantom row
+\emph default
+ può verificarsi quando vengono inserite o cancellate tuple che un'altra
+ transazione dovrebbe logicamente considerare.
+ Nell'esempio il record 
+\emph on
+r4
+\emph default
+ è 
+\begin_inset Quotes eld
+\end_inset
+
+
+\emph on
+phantom
+\emph default
+
+\begin_inset Quotes erd
+\end_inset
+
+ poichè non è visto da T1.
+ Ad esempio se T1 fosse 
+\family typewriter
+UPDATE Prog SET Sede='Firenze' WHERE Sede='Bologna'
+\family default
+ e T2 fosse 
+\family typewriter
+INSERT INTO Prog VALUES('P03', 'Bologna') 
+\family default
+l'ultima tupla aggiunta da T2 potrebbe non essere vista dall'aggiornamento
+ richiesto da T1.
+\end_layout
+
+\begin_layout Subsubsection
+Proprietà di uno schedule
+\end_layout
+
+\begin_layout Standard
+Uno schedule può avere (essere) diverse proprietà:
+\end_layout
+
+\begin_layout Description
+Seriale uno schedule si dice 
+\emph on
+seriale
+\emph default
+ se le transazioni sono eseguite in sequenza
+\end_layout
+
+\begin_layout Description
+Serializzabile uno schedule si dice 
+\emph on
+serializzabile 
+\emph default
+se il suo effetto su una qualsiasi istanza consistente di un database è
+ equivalente all'effetto di uno schedule 
+\emph on
+seriale
+\emph default
+ che coinvolga solamente le transazioni terminate correttamente (committed).
+ Date 
+\emph on
+n
+\emph default
+ transazioni andate a buon fine (commited) ho 
+\emph on
+n!
+\emph default
+ possibili 
+\emph on
+schedule seriali, 
+\emph default
+allora uno schedule si dice serializzabile se l'effetto dello schedule è
+ equivalente ad uno di questi 
+\emph on
+n! 
+\emph default
+schedule seriali.
+ Questo implica che ci sono tanti 
+\emph on
+schedule serializzabili
+\emph default
+ ed ognuno di questo sarà equivalente ad uno dei tanti schedule seriali.
+ 
+\series bold
+NB 
+\series default
+I 
+\emph on
+schedule serializzabili 
+\emph default
+sono in numero maggiore ai 
+\emph on
+schedule seriali
+\emph default
+ poichè i serializzabili comprendo anche i schedule 
+\emph on
+interleaved 
+\emph default
+che hanno però un effetto equivalente a uno schedule seriale.
+\end_layout
+
+\begin_layout Description
+Ripristinabile
+\begin_inset space ~
+\end_inset
+
+(recoverable) uno schedule si dice 
+\emph on
+ripristinabile 
+\emph default
+se una transazione T1 che legge un dato modificato da una transazione T2
+ esegue il commit successivamente al commit di T2.
+ 
+\series bold
+NB
+\series default
+ I schedule ripristinabili sono un sottoinsieme dei schedule serializzabili.
+\end_layout
+
+\begin_layout Description
+Senza
+\begin_inset space ~
+\end_inset
+
+cascata
+\begin_inset space ~
+\end_inset
+
+di
+\begin_inset space ~
+\end_inset
+
+abort
+\begin_inset space ~
+\end_inset
+
+(cascadeless) uno schedule si dice 
+\emph on
+privo di cascata di abort 
+\emph default
+se ogni transazione puà leggere solo dati di transazioni terminete correttamente
+ 
+\series bold
+NB
+\series default
+ Uno schedule senza cascata di abort è anche uno schedule ripristinabile.
+\end_layout
+
+\begin_layout Description
+Stretto
+\begin_inset space ~
+\end_inset
+
+(strict) uno schedule si dice 
+\emph on
+stretto 
+\emph default
+se ogni transazione non legge o scrive valori usati da altre transazioni
+ attive.
+ 
+\series bold
+NB 
+\series default
+Uno schedule stretto è anche uno schedule senza cascata di abort (e dunque
+ ripristinabile).
+ Implica quindi che due schedule possano lavorare in parallelo solo se agiscono
+ su dati distinti.
+\end_layout
+
+\begin_layout Subsubsection
+Garantire Isolation
+\end_layout
+
+\begin_layout Standard
+Una comune tecnica usata dai 
+\emph on
+dbms 
+\emph default
+per evitare i problemi visti nelle sezioni precedente, consiste nell'uso
+ dei 
+\series bold
+\emph on
+lock
+\series default
+\emph default
+.
+ I 
+\emph on
+lock
+\emph default
+ (
+\begin_inset Quotes eld
+\end_inset
+
+blocchi
+\begin_inset Quotes erd
+\end_inset
+
+) sono un meccanismo comunemente usato dai sistemi operativi per disciplinare
+ l'accesso a risorse condivise.
+ Imporre un lock su una risorsa implica prendersi il diritto (esclusivo)
+ all'uso della risorsa stessa.
+ Per eseguire un'operazione è prima necessario 
+\begin_inset Quotes eld
+\end_inset
+
+
+\emph on
+acquisire
+\emph default
+
+\begin_inset Quotes erd
+\end_inset
+
+ un lock sulla risorsa interessata (ad esempio su un record).
+ La richiesta di 
+\emph on
+lock
+\emph default
+ è implicita, cioè gestita automaticamente dal 
+\emph on
+dbms
+\emph default
+, dunque non è visibile a livello SQL (anche se vedremo che anche SQL permette
+ qualcosa).
+\end_layout
+
+\begin_layout Paragraph
+Grafo di serializzabilità
+\end_layout
+
+\begin_layout Standard
+Il grafo di serializzabilità è un buon metodo grafico (non implementanto
+ del 
+\emph on
+dbms 
+\emph default
+ma utilizzato per la dimostrazione di serializzabilità)
+\emph on
+ 
+\emph default
+che permette di catturare potenziali conflitti tra transazioni di uno 
+\emph on
+schedule
+\emph default
+.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:grafoserializzabilità"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename grafoserializzabilità.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Nel grafo di serializzabilità (Esempio in Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:grafoserializzabilità"
+
+\end_inset
+
+):
+\end_layout
+
+\begin_layout Itemize
+Ogni nodo rappresenta una transazione commited (terminata), cioè una transazione
+ terminata correttamente (transazioni serializzabili)
+\end_layout
+
+\begin_layout Itemize
+Ogni arco tra 
+\begin_inset Formula $T_{i}$
+\end_inset
+
+ e 
+\begin_inset Formula $T_{j}$
+\end_inset
+
+ rappresenta un'azione di 
+\begin_inset Formula $T_{i}$
+\end_inset
+
+ che precede un'azione di 
+\begin_inset Formula $T_{j}$
+\end_inset
+
+ e con essa in conflitto (ovvero se entrambe agiscono su uno stesso dato
+ ed almeno una delle due azioni è di scrittura).
+ Vuol dire che 
+\begin_inset Formula $T_{i}$
+\end_inset
+
+ ha un'azione che precede un'azione di 
+\begin_inset Formula $T_{j}$
+\end_inset
+
+ e che con questa è in conflitto (e dunque una qualsiasi delle due azioni
+ è una scrittura).
+ Se la freccia e doppia (caso a destra fra T1 e T2) implica che ci sono
+ dei conflitti su due risorse differenti.
+\end_layout
+
+\begin_layout Paragraph
+Lock
+\end_layout
+
+\begin_layout Standard
+Esistono diversi tipi di lock (DB2 ne ha ben 11), ma quelli base e più important
+i sono:
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+S
+\series default
+ (
+\series bold
+S
+\series default
+hared): un lock condiviso è necessario per leggere
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+X 
+\series default
+(e
+\series bold
+X
+\series default
+clusive): un lock esclusivo è necessario per scrivere/modificare
+\end_layout
+
+\begin_layout Standard
+Il 
+\series bold
+\emph on
+Lock manager
+\series default
+\emph default
+ è un modulo del 
+\emph on
+dbms
+\emph default
+ che si occupa di tener traccia di quali sono le risorse correntemente utilizzat
+e e di quali transizioni le stiano usando (e in quale modo).
+ Quando una transazione T vuole operare su un dato Y, viene inviata la richiesta
+ di acquisizione del lock corrispondente (su Y) al lock manager, il quale
+ accorda il lock a T in fuzione della seguente (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:compatibilitàlock"
+
+\end_inset
+
+) tabella di compatibilità.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:compatibilitàlock"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename compatibilitàlock.png
+	scale 50
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Come si vede il lock esclusivo (lock X) è incompatibile con tutti i restanti
+ lock, mentre il lock condiviso (lock S) è compatibile solo con sé stesso.
+ Se su una risorsa Y è presente un lock S e viene richiesto da un'altra
+ transazione un nuovo lock S sulla stessa risorsa essa è concessa, invece
+ se venisse richiesto un lock X esso verrebbe negato; allo stesso modo se
+ su una risorsa Y è presente un lock esclusivo (lock X) qualsiasi altra
+ richiesta di lock (di qualsiasi tipo) sulla risorsa viene negato.
+ Quando T ha terminato di usare Y può (e deve) comunicare il rilascio del
+ look al lock manager attraverso l'
+\emph on
+unlock
+\emph default
+(Y).
+\end_layout
+
+\begin_layout Paragraph
+Strict 2-phase lock (Strict 2PL)
+\end_layout
+
+\begin_layout Standard
+Il modo con cui le transazioni rilasciano i lock acquisiti è la chiave per
+ risolvere i problemi di concorrenza.
+ Si può dimostrare che l'
+\emph on
+Isolation
+\emph default
+ è garantita se una transazione
+\end_layout
+
+\begin_layout Enumerate
+acquisisce in un primo momento tutti i lock necessari
+\end_layout
+
+\begin_layout Enumerate
+rilascia i lock solo al termine dell'esecuzione (che sia 
+\emph on
+COMMIT
+\emph default
+ o 
+\emph on
+ABORT
+\emph default
+)
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:strict2pl"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename stric2pl.png
+	scale 50
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Se vediamo il grafo come il tempo di esecuzione della transazione, essa
+ man mano acquisisce i lock a lei necessari, mantenendoli per tutta la sua
+ esecuzione rilasciando solo alla sua terminazione (e dunque non rilascia
+ un lock di una risorsa quando ha terminato di usare la risorsa, ma lo rilascia
+ solo quando la transazione termina).
+ Questo procedimento è chiamato 
+\series bold
+Protocollo Strict 2-phase lock,
+\series default
+ protrocollo stretto di lock a due fasi, questo perchè si può pensare di
+ suddividerlo in due fasi: una fase crescente (acquisizione dei lock) e
+ una fase di rilascio dei lock (al termine dell'esecuzione).
+ Con questo protocollo si possono evitare alcuni dei problemi prima citati
+ (nel caso speifico il lost update, il dirty read e unrepeatable read) poichè
+ non sarà più possibile che due transazioni 
+\emph on
+modifichino
+\emph default
+ dati contemporaneamente e/o avvengano letture sporche.
+ Lo 
+\emph on
+Strict 2PL
+\emph default
+ può però avere come effetto collaterale il 
+\emph on
+deadlock
+\emph default
+, ossia situazioni di stallo che vengono però risolte facendo abortire una
+ transazione.
+\end_layout
+
+\begin_layout Standard
+Applicando lo 
+\emph on
+Strict 2PL 
+\emph default
+si vede come facilmente vengono risolti i problemi di 
+\emph on
+lost update
+\emph default
+, 
+\emph on
+dirty read
+\emph default
+ e 
+\emph on
+unrepeatable read,
+\emph default
+ ma vediamolo applicato ad esempi concreti.
+\end_layout
+
+\begin_layout Subparagraph
+Assenza Lost Update
+\end_layout
+
+\begin_layout Standard
+Riprendiamo l'esempio precedente (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:esempiolostupdate"
+
+\end_inset
+
+) e applichiamo lo Strict 2PL, lo 
+\emph on
+schedule
+\emph default
+ si modifica come segue (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:lostupdaterisolto"
+
+\end_inset
+
+)
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:lostupdaterisolto"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename esempiolostupdaterisolto.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Ora nè T1 nè T2 riescono ad acquisire il lock per poter modificare X restando
+ in attesa (condizione di 
+\emph on
+wait
+\emph default
+).
+ Vediamo infatti che essendo presente sulla risorsa X un lock shared (lock
+ S), in realtà come si vede sono presenti due lock S sulla risorsa, la richiesta
+ del lock esclusivo (lock X) viene negata.
+ Si è verificato però un 
+\emph on
+deadlock
+\emph default
+, ma non avviene più il 
+\emph on
+lost update
+\emph default
+.
+ Se il sistema decidesse di abortire T2, ad esempio, allora T1 sarebbe in
+ grado di proseguire.
+\end_layout
+
+\begin_layout Subparagraph
+Assenza Dirty Read
+\end_layout
+
+\begin_layout Standard
+Riprendiamo l'esempio precedente (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:esempiodirtyread"
+
+\end_inset
+
+) e applichiamo lo Strict 2PL, lo schedule si modifica come segue (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:esempiodirtyreadrisolto"
+
+\end_inset
+
+)
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:esempiodirtyreadrisolto"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename esempiodirtyreadrisolto.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+In questo caso l'esecuzione corretta richiede che T2 aspetti la terminazione
+ di T1 prima di poter leggere il valore di X.
+ Come si nota dall'immagine T2 rimane in attesa dopo aver richiesto il lock
+ 
+\series bold
+S
+\series default
+ poichè T1 ha acquisito il lock 
+\series bold
+X
+\series default
+ (non permettendo alcun altro lock sulla risorsa) e ne deve dunque aspettare
+ il rilascio.
+ Effettivamente una volta effettuato l'abort (e dunque il rollback) di T1,
+ esso lascia tutti i lock presenti sulla risorsa, permettendo a questo punto
+ la prosecuzione a T2 che non leggerà dati inconsistenti.
+\end_layout
+
+\begin_layout Subparagraph
+Assenza Unrepeatable Read
+\end_layout
+
+\begin_layout Standard
+Riprendiamo l'esempio precedente (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:unrepeatbleread"
+
+\end_inset
+
+) e applichiamo lo Strict 2PL, lo schedule si modifica come segue (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:esempiounrepeatablereadrisolto"
+
+\end_inset
+
+)
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:esempiounrepeatablereadrisolto"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename esempiounrepeatablereadrisolto.png
+	scale 50
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+In questo caso T1 viene messo in attesa poichè richiede il lock 
+\series bold
+X
+\series default
+ su una risorsa detenuta anche da T2 con il lock 
+\series bold
+S
+\series default
+.
+ Quando T2 si completa e termina rilasciando il lock allora T1 può riprendere
+ la sua esecuzione e terminare anch'esso.
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace defskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subparagraph
+Proprietà di Strict 2PL
+\end_layout
+
+\begin_layout Standard
+Due 
+\emph on
+schedule
+\emph default
+ si dicono 
+\series bold
+\emph on
+conflict equivalent
+\series default
+\emph default
+ (equivalenti sui conflitti) se:
+\end_layout
+
+\begin_layout Itemize
+Hanno le stesse transazioni
+\end_layout
+
+\begin_layout Itemize
+Le operazioni in conflitto delle transazioni che terminano sono ordinate
+ alla stesso modo
+\end_layout
+
+\begin_layout Standard
+cioè se ordinano allo stesso modo i conflitti.
+\end_layout
+
+\begin_layout Standard
+Si dice che uno 
+\emph on
+schedule
+\emph default
+ è 
+\series bold
+conflict serializable
+\series default
+ se è 
+\emph on
+conflict equivalent
+\emph default
+ ad uno 
+\emph on
+schedule serializzabile.
+
+\emph default
+ Ogni 
+\emph on
+schedule conflict seriazable
+\emph default
+ è serializzabile se non consideriamo il fatto che si possano aggiungere
+ o cancellare dati (per evitare la presenza del phantom row).
+ Uno schedule è conflict serializable 
+\emph on
+se e solo se 
+\emph default
+il corrispondente grafo di serializzabilità è aciclico (cioè non presenta
+ cicli).
+ Il protocollo Strict 2PL genera solo grafi aciclici e di conseguenza ogni
+ 
+\emph on
+schedule 
+\emph default
+realizzato attraverso il protocollo Strict 2PL risulta essere 
+\emph on
+conflict serializable
+\emph default
+ e dunque 
+\emph on
+serializzabile
+\emph default
+.
+ Dunque non solo ogni schedule prodotto da Strict 2PL risulta essere serializzab
+ile, ma evita anche le cascate di abort poichè sempre stretto.
+ Ogni schedule serializzabile è anche conflict serializable con sé stesso.
+\end_layout
+
+\begin_layout Paragraph
+2PL
+\end_layout
+
+\begin_layout Standard
+Introduciamo ora il 
+\emph on
+protocollo 
+\series bold
+\emph default
+2-phase lock (2PL)
+\series default
+.
+ Esso si differenzia rispetto allo 
+\emph on
+strict 2PL
+\emph default
+ poichè mantiene il primo vincolo (acquisizione dei lock in un primo momento)
+ ma ne modifica il secondo infatti ora 
+\emph on
+ogni transazione non può più richiedere un lock dopo averne rilasciato almeno
+ uno.
+
+\emph default
+ Questo vuol dire che appena rilascia il primo lock, la transazione non
+ può più acquisirne altri.
+ Nuovamente ci troviamo a dividere ogni transazione in due fasi:
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+Growing
+\series default
+: (fase crescente) in cui vengono acquisiti i lock
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+Shrinking
+\series default
+: (fase calante) in cui vengono rilasciati i lock
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:2pl"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename 2pl.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Come si nota dall'immagine (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:2pl"
+
+\end_inset
+
+), paragonandola con quella dello 
+\emph on
+strict 2PL
+\emph default
+ (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:strict2pl"
+
+\end_inset
+
+), il protocollo 2PL permette alla transazione di rilasciare i lock mentre
+ è ancora in esecuzione e non esclusivamente al suo termine.
+\end_layout
+
+\begin_layout Standard
+Anche il protocollo 2PL genere solo grafi 
+\emph on
+aciclici
+\emph default
+ generando quindi sempre 
+\emph on
+schedule serializzabili
+\emph default
+.
+ Se il protocollo 
+\emph on
+Strict 2PL
+\emph default
+ genera solo 
+\emph on
+schedule
+\emph default
+ 
+\emph on
+stretti
+\emph default
+, gli schedule del procollo 2PL invece non lo sono, di conseguenza Strict
+ 2PL evita anche le cascate di abort.
+ Tipicamente i 
+\emph on
+dbms
+\emph default
+ utilizzano il protocollo 
+\emph on
+Strict 2PL 
+\emph default
+poichè gestire la cascata di abort (cosa che nel protocollo 2PL può avvenire)
+ risulta essere molto oneroso e di difficile implementazione.
+\end_layout
+
+\begin_layout Standard
+Ma come è possibile che se sia 
+\emph on
+Strict 2PL
+\emph default
+ che 
+\emph on
+2PL
+\emph default
+ producano entrambi schedule serializzabili uno sia 
+\begin_inset Quotes eld
+\end_inset
+
+migliore
+\begin_inset Quotes erd
+\end_inset
+
+ dell'altro, cioè uno non produca la cascata di abort e l'altro sì? Dobbiamo
+ ricordare la definizione di 
+\emph on
+schedule serializzabile
+\emph default
+ infatti esso coinvolge solamente le transazioni terminate correttamente
+ non garantendo in alcun modo la presenza o meno di problemi quali l'abort.
+\end_layout
+
+\begin_layout Paragraph
+Assenza Phantom Row
+\end_layout
+
+\begin_layout Standard
+Tra tutti i problemi visti, l'assenza di 
+\emph on
+Phantom Row
+\emph default
+ è il più difficile da risolvere.
+ Esistono diverse soluzioni al problema che differiscono per complessità
+ e livello di concorrenza.
+ Vediamone in breve qualcuna:
+\end_layout
+
+\begin_layout Enumerate
+Viene permesso ad una transazione di acquisire un 
+\emph on
+S-lock
+\emph default
+ su tutta la tabella e richiedere quindi gli 
+\emph on
+X-lock
+\emph default
+ per le tuple che si vogliono modificare (realizzazione semplice ma implica
+ bassa concorrenza)
+\end_layout
+
+\begin_layout Enumerate
+Introdurre un nuovo tipo di lock, denominato 
+\emph on
+predicate lock
+\emph default
+, riguardante tutte le tuple che soddisfano un certo predicato (ad esempio
+ Sede=
+\begin_inset Quotes erd
+\end_inset
+
+Bologna
+\begin_inset Quotes erd
+\end_inset
+
+) (di più difficile realizzazione poichè è difficile capire quali tuple
+ siano 
+\begin_inset Quotes eld
+\end_inset
+
+consistenti
+\begin_inset Quotes erd
+\end_inset
+
+ con un predicato, molto simile a ciò che avveninva nel GiST, però di contro
+ permette un'alta concorrenza)
+\end_layout
+
+\begin_layout Enumerate
+Nel caso esista un indice sulla relazione 
+\emph on
+Sede
+\emph default
+, si pone un lock sulla foglia che contiene la voce (chiave) 
+\begin_inset Quotes eld
+\end_inset
+
+Bologna
+\begin_inset Quotes erd
+\end_inset
+
+ bloccandone in maniera esclusiva (o condivisa) l'accesso alla foglia stessa
+ (poichè in caso di modifica e in caso di esistenza dell'indice, bisogna
+ come prima cosa modificare l'indice, ma se risulta bloccato allora non
+ viene il lock non viene concesso).
+\end_layout
+
+\begin_layout Standard
+Nei 
+\emph on
+dbms
+\emph default
+ in realtà la situazione è assai più complessa, sia per i tipi di 
+\emph on
+lock
+\emph default
+ presenti sia per la 
+\begin_inset Quotes eld
+\end_inset
+
+granularità
+\begin_inset Quotes erd
+\end_inset
+
+ con cui i lock possono essere richiesti e acquisiti (a livello di attributo,
+ tupla, pagina, relazione, 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+ldots
+\end_layout
+
+\end_inset
+
+).
+\end_layout
+
+\begin_layout Subsubsection
+Gestione dei lock
+\end_layout
+
+\begin_layout Standard
+Il 
+\emph on
+Lock Manager 
+\emph default
+per gestire i lock deve avere a disposizione almeno
+\end_layout
+
+\begin_layout Itemize
+Una 
+\emph on
+tabella delle transazioni attive
+\emph default
+ (in realtà è una componente del 
+\emph on
+Transaction Manager
+\emph default
+ e il lock manager non fa altro che accedervi) comprendente una lista dei
+ lock posseduti dalle transazioni attive
+\end_layout
+
+\begin_layout Itemize
+Una 
+\emph on
+tabella dei lock
+\emph default
+ che indica per ogni 
+\begin_inset Quotes eld
+\end_inset
+
+oggetto
+\begin_inset Quotes erd
+\end_inset
+
+ il tipo di lock esistente: gli 
+\begin_inset Quotes eld
+\end_inset
+
+oggetti
+\begin_inset Quotes erd
+\end_inset
+
+ possono essere pagine, record, nodi di alberi, ecc
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+ldots
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+La tabella dei lock è composta di entry contenenti diverse informazioni
+ quali:
+\end_layout
+
+\begin_layout Itemize
+l'identificatore 
+\emph on
+dell'oggetto
+\end_layout
+
+\begin_layout Itemize
+il 
+\emph on
+tipo di lock
+\emph default
+ esistente (S-lock, X-lock)
+\end_layout
+
+\begin_layout Itemize
+il 
+\emph on
+numero di transazioni
+\emph default
+ che possiedono un lock.
+ Non è di molto interesse sapere quali transazioni possiedano il lock, ma
+ solo il numero.
+\end_layout
+
+\begin_layout Itemize
+una 
+\emph on
+coda di richieste
+\emph default
+ di lock poichè se una transazione si mette in attesa sull'oggetto per un
+ determinato lock è inopportuno che la sua richiesta venga semplicemente
+ rifiutata senza tener conto di un ordine di arrivo delle richieste (gestite
+ proprio dalla coda)
+\end_layout
+
+\begin_layout Subsubsection
+Implementazione protocollo lock
+\end_layout
+
+\begin_layout Standard
+Una transazione può richiedere un lock su un 
+\begin_inset Quotes eld
+\end_inset
+
+oggetto
+\begin_inset Quotes erd
+\end_inset
+
+ specificandone il tipo.
+ Il Lock Manager, a seconda del tipo di richiesta, può agire diversamente:
+\end_layout
+
+\begin_layout Itemize
+Se la transazione richiede un 
+\emph on
+S-lock
+\emph default
+ e la coda delle richieste è vuota e sull'oggetto richiesto non vi è alcun
+ 
+\emph on
+X-lock
+\emph default
+, allora la richiesta è accettata e la 
+\emph on
+tabella dei lock
+\emph default
+ viene aggiornata.
+ Se la coda non fosse vuota sarebbe inopportuno garantire alla nuova transazione
+ l'accesso immediato, renderebbe poco 
+\begin_inset Quotes eld
+\end_inset
+
+corretto
+\begin_inset Quotes erd
+\end_inset
+
+ la presenza in attesa delle altre transazioni.
+\end_layout
+
+\begin_layout Itemize
+Se la transazione richiede un 
+\emph on
+X-lock
+\emph default
+ e sull'oggetto richiesto non vi è alcun tipo di lock (dunque la coda di
+ richieste è vuota), allora la richiesta è accettata e la 
+\emph on
+tabella dei lock
+\emph default
+ viene aggiornata
+\end_layout
+
+\begin_layout Itemize
+In caso contrario, la richiesta viene respinta ed inserita in coda, e la
+ transazione che ha richiesto il lock viene sospesa.
+\end_layout
+
+\begin_layout Standard
+Al termine di una transazione (implica che ogni transazione deve tenere
+ memoria di quali lock ha richiesto a quali risorse), che finisca con COMMIT
+ o con ABORT, vengono eseguite le seguenti azioni
+\end_layout
+
+\begin_layout Enumerate
+Vengono rilasciati tutti i 
+\emph on
+lock
+\emph default
+ che la transazione aveva ottenuto.
+ Questo vuol dire che nella tabella dei lock viene decrementato di uno il
+ numero di lock presenti sugli oggetti che sono stati appena rilasciati.
+ 
+\series bold
+NB 
+\series default
+In caso si tratti di un X-lock è ovvio che il numero massimo è 1, in caso
+ invece si tratti di un S-lock il numero può essere superiore a 1 (posso
+ avere più S-lock sulla stessa risorsa) e in questo caso se decrementando
+ di uno il numero dei S-lock il numero risulta esser uguale a zero (quindi
+ non vi è più nessun'altra transazione che abbia un S-lock sull'oggetto)
+ allora posso eliminare anche l'
+\emph on
+entry
+\emph default
+ relativa dalla tabella dei lock.
+\end_layout
+
+\begin_layout Enumerate
+Viene esaminata la prima richiesta in coda presente nella coda delle richieste
+ ed eventualmente viene svegliata la corrispondente transazione (che era
+ in attesa)
+\end_layout
+
+\begin_layout Enumerate
+Non vengono considerate le richieste successive presenti nella coda per
+ evitare 
+\emph on
+starvation 
+\emph default
+delle transazioni (cioè si esamina solo la prima richiesta nella coda).
+\end_layout
+
+\begin_layout Standard
+Ovviamente l'implementazione dei comandi di 
+\emph on
+lock
+\emph default
+ e 
+\emph on
+unlock
+\emph default
+ deve garantirne l'
+\emph on
+atomicità
+\emph default
+: occorre quindi implementare meccanismi di sincronizzazione per permettere
+ l'accesso concorrente (ad esempio i 
+\emph on
+semafori
+\emph default
+).
+\end_layout
+
+\begin_layout Subsubsection
+Gestione dei deadlock
+\end_layout
+
+\begin_layout Standard
+I protocolli di gestione dei 
+\emph on
+deadlock
+\emph default
+ sono simili a quelli già visti in altri corsi, utilizzano tecniche di prevezion
+e e tecniche di rilevamento.
+ In entrambi i casi si rende necessario eliminare (abortire) una transazione,
+ sia perchè se sono in situazione di 
+\emph on
+deadlock 
+\emph default
+per poterne uscire occorre abortire una trandazione (deadlock detection)
+ sia perchè mi accorgo che la richiesta di una transazione mi fa cadere
+ in deadlock (deadlock prevention).
+ In genere sono preferite le tecniche di rilevamento in quanto le situazioni
+ di 
+\emph on
+deadlock
+\emph default
+ sono relativamente rare.
+\end_layout
+
+\begin_layout Paragraph
+Deadlock prevention
+\end_layout
+
+\begin_layout Standard
+Per prevenire il 
+\emph on
+deadlock
+\emph default
+ si usa una semplice tecnica di 
+\emph on
+deadlock prevention:
+\end_layout
+
+\begin_layout Enumerate
+Si assegna ad ogni transazione una priorità, tipicamente data dal 
+\emph on
+timestamp
+\end_layout
+
+\begin_layout Enumerate
+Supponiamo che la transazione T1 richieda un lock sull'oggetto O e che una
+ transazione T2 possieda già un lock su O in conflitto con la richiesta
+ di T1, si può scegliere di operare in due modi:
+\end_layout
+
+\begin_deeper
+\begin_layout Enumerate
+Se T1 ha priorità > di T2 allora T1 aspetta, in caso contrario T1<T2 allora
+ T1 viene abortita (
+\emph on
+wait-die
+\emph default
+)
+\end_layout
+
+\begin_layout Enumerate
+Se T1 ha priorità > di T2 allora T2 viene abortita, in caso contrario T1<T2
+ allora T1 aspetta alternativa aspetta (
+\emph on
+wound-wait
+\emph default
+)
+\end_layout
+
+\begin_layout Standard
+In entrambi i casi non si possono verificare deadlock.
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+Quando una transazione è abortita e viene successivamente ricreata deve
+ riuscire ad ottenere lo stesso 
+\emph on
+timestamp
+\emph default
+ (e dunque la stessa priorità) originale per riuscire ad evitare il problema
+ della 
+\emph on
+starvation.
+\end_layout
+
+\begin_layout Standard
+Notiamo che 
+\emph on
+wait-die
+\emph default
+ è 
+\emph on
+non-preemptive
+\emph default
+: ne consegue che T può essere abortita solo perchè richiede un lock e non
+ a causa della richiesta di lock da altre transazione; la 
+\emph on
+wait-die
+\emph default
+ viene preferita proprio per questo motivo, cioè non può essere che una
+ transazione che sta eseguendo venga abortita a causa di un'altra, può solo
+ accadere che essa venga abortita poichè richiede un lock a una transazione
+ 
+\begin_inset Quotes eld
+\end_inset
+
+più importante
+\begin_inset Quotes erd
+\end_inset
+
+.
+ Con il 
+\emph on
+wait-die
+\emph default
+ una transazione che possiede tutti i lock di cui necessità 
+\series bold
+non può mai essere abortita
+\series default
+, di contro una transazione 
+\begin_inset Quotes eld
+\end_inset
+
+vecchia
+\begin_inset Quotes erd
+\end_inset
+
+ tende a rimanere in attesa (e ad 
+\begin_inset Quotes eld
+\end_inset
+
+invecchiare
+\begin_inset Quotes erd
+\end_inset
+
+ ulteriormente), mentre una transazione 
+\begin_inset Quotes eld
+\end_inset
+
+giovane
+\begin_inset Quotes erd
+\end_inset
+
+ può essere ripetutamente abortita fino ad arrivare ad avere una priorità
+ abbastanza elevata da essere messa in attesa.
+\end_layout
+
+\begin_layout Paragraph
+Conservative 2PL
+\end_layout
+
+\begin_layout Standard
+Un'altra politica che permette il 
+\emph on
+deadlock prevention 
+\emph default
+si basa sul protocollo di gestione delle transazioni 
+\emph on
+Conservative 2PL
+\emph default
+.
+ Il Conservative 2PL garantisce l'assenza di deadlock senza abortire alcuna
+ transazione.
+ L'idea di base è che una transazione richieda subito (all'inizio della
+ sua esecuzione) tutti i lock di cui necessita: evidentemente quando riesce
+ ad ottenere tutti i lock necessari la transazione prosegue la sua esecuzione
+ senza paura di essere abortita fino a che non termina.
+ Questo previene sicuramente i 
+\emph on
+deadlock
+\emph default
+ e le transazioni non possono essere messe in attesa; di contro però proprio
+ perchè richiedere tutti i lock necessari, essi vengono mantenuti più a
+ lungo del necessario (poichè richiedendo all'inizio tutti i lock, uno di
+ essi potrebbe servire solo su una risorsa che viene utilizzata verso la
+ fine), sopratutto se ci sono poche richieste ed inoltre potrebbe richiedere
+ più lock di quelli che in realtà servono (ad esempio se avesse una condizione
+ di scelta, tipo 
+\begin_inset Quotes eld
+\end_inset
+
+se succede X fai Y altrimenti fai Z
+\begin_inset Quotes erd
+\end_inset
+
+ richiede di acquisire tutti i lock di Y e di Z anche se ovviamente solo
+ uno di questi verrà utilizzato) e dunque riduce il parallelismo, ma in
+ compenso, se di richieste c'è ne sono molte, le transazioni non sono mai
+ in attesa e quindi i lock vengono mantenuti (mediamente) per un tempo minore
+ (rispetto ai protocolli di Strict 2PL, poichè se usassi lo strict 2PL necessito
+ di un metodo di deadlock detection, in più i deadlock durano più a lungo
+ conseguentemente le transazioni rimangono in attesa una volta cominciate
+ e mediamente mantengono il lock per un tempo maggiore rispetto al conservative).
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename conservarive2pl.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Paragraph
+Deadlock detection
+\end_layout
+
+\begin_layout Standard
+I deadlock non si verificano frequentemente e coinvolgono tipicamente poche
+ transazioni.
+ Il 
+\emph on
+deadlock detection 
+\emph default
+viene effettuato periodicamente sfruttando il 
+\emph on
+grafo delle attese
+\emph default
+ nel quale ogni nodo rappresenta una transazione attiva, e ogni arco uscente
+ da un nodo X
+\begin_inset Formula $_{i}$
+\end_inset
+
+ ed entrante in un altro nodo X
+\begin_inset Formula $_{j}$
+\end_inset
+
+ descrive una transazione in attesa (X
+\begin_inset Formula $_{i})$
+\end_inset
+
+ a causa del lock posseduto da X
+\begin_inset Formula $_{j}$
+\end_inset
+
+.
+ Un deadlock corrisponde ad un ciclo all'interno del 
+\emph on
+grafo delle attese
+\emph default
+.
+\begin_inset VSpace defskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Esiste un modo molto semplice per fare 
+\emph on
+deadlock detection
+\emph default
+: impostare un timer ad ogni transazione, se allo scadere del timer la transazio
+ne è ancora in attesa a causa di un lock (molto) probabilmente è perchè
+ ci troviamo in presenza di un deadlock, dunque la transazione viene abortita
+ e al ciclo successivo (cioè quando viene ricreata) le si assegna un timer
+ di durata maggiore (poichè in realtà potrebbe essere stata in attesa proprio
+ perchè la transazione richiede molto tempo computazionale).
+\end_layout
+
+\begin_layout Paragraph
+Transazione da abortire
+\end_layout
+
+\begin_layout Standard
+Per sbloccare una situazione di deadlock occorre scegliere una transazione
+ all'interno di un ciclo ed interromperla.
+ La scelta su quale transazione abortire si può basare su diversi criteri,
+ ad esempio:
+\end_layout
+
+\begin_layout Itemize
+Minor lavoro svolto
+\end_layout
+
+\begin_layout Itemize
+Maggior lavoro ancora da svolgere
+\end_layout
+
+\begin_layout Itemize
+Minor numero di volte in cui la transazione è stata abortita
+\end_layout
+
+\begin_layout Itemize
+Minor numero di lock posseduti.
+ Si potrebbe pensare che sarebbe più utile abortire una transazione con
+ molti lock cosicche molti lock risulterebbero libero, però se una transazione
+ ha molti lock probabilmente è perchè gli servono dunque potrebbe essere
+ poco opportuno abortirla.
+\end_layout
+
+\begin_layout Standard
+e molti altri criteri, ognuno valido e dunque la scelta dipende solo dal
+ progettista.
+\end_layout
+
+\begin_layout Subsubsection
+Controllo concorrenza in SQL
+\end_layout
+
+\begin_layout Standard
+Benchè il problema di gestire transazioni concorrenti sia a carico del 
+\emph on
+dbms
+\emph default
+, con conseguente semplificazione del codice delle applicazioni, SQL mette
+ a disposizione due meccanismi di base per influenzare il modo con cui una
+ transazione viene eseguita.
+ Come già detto la richiesta del 
+\emph on
+lock
+\emph default
+ è implicita; tuttavia, poichè acquisire i lock e gestirli richiede tempo
+ e spazio, se una transazione sa di dover elaborare molte tuple di una relazione
+ puà richiedere esplicitamente di porre un lock (ad esempio 
+\emph on
+SHARE-lock 
+\emph default
+o 
+\emph on
+EXCLUSIVE MODE-lock
+\emph default
+) sull'intera relazione utilizzando la seguente semantica
+\begin_inset Newline newline
+\end_inset
+
+
+\family typewriter
+LOCK TABLE Studenti in SHARE MODE;
+\begin_inset Newline newline
+\end_inset
+
+SELECT *
+\begin_inset Newline newline
+\end_inset
+
+FROM Studenti
+\begin_inset Newline newline
+\end_inset
+
+WHERE DataNascita < '11/07/1982';
+\end_layout
+
+\begin_layout Subsection
+Livelli di isolamento
+\end_layout
+
+\begin_layout Standard
+Per alcune applicazioni non è necessario garantire l'assenza di tutti i
+ problemi prima descritti, infatti potrebbe essere preferibile una maggior
+ performance piuttosto che avere dati esattamente precisi.
+ Si prenda per esempio un'applicazione che chiede la somma di tutte le vendite
+ nazionali di un determinato supermercato, non è importante che venga garantito
+ il risultato esatto (quindi che si eviti una dirty read o un lost update)
+ quanto piuttosto è preferibile che l'esecuzione di questa applicazione
+ non infici la performance sul database.
+ Il livello di isolamento di un'applicazione determina il grado di protezione
+ dei dati utilizzati da tale applicazione rispetto alle altre applicazioni
+ eseguite concorrentemente.
+ Scegliere di operare a un livello di isolamento in cui si sa essere possibile
+ la presenza di problemi ha il vantaggio di aumentare il grado di concorrenza
+ raggiungibile e quindi di migliorare le prestazioni.
+\end_layout
+
+\begin_layout Standard
+Lo standard SQL definisce 4 livelli di isolamento, mostrati nella tabella
+ sottostante (vengono riportati anche i nomi usati da DB2 che differiscono
+ dallo standard).
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float table
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "tab:isolamento"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+noindent
+\backslash
+resizebox{
+\backslash
+textwidth}{!}{
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Tabular
+<lyxtabular version="3" rows="5" columns="6">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0">
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Isolation Level
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+DB2 term
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Phantom Row
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Unrepeatable Read
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Dirty Read
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Lost Update
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Serializable
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Repeatable Read (
+\series bold
+RR
+\series default
+)
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+NO
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+NO
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+NO
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+NO
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Repeatable Read
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Read Stability (
+\series bold
+RS
+\series default
+)
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+YES
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+NO
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+NO
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+NO
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Read Commited
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Cursor Stability (
+\series bold
+CS
+\series default
+)
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+YES
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+YES
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+NO
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+NO
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Uncommited Read
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Uncommited Read (
+\series bold
+UR
+\series default
+)
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+YES
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+YES
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+YES
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+NO
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+In DB2 il livello di deafult è il Cursors Stability (CS), per cambiarlo
+ (prima di connettersi al database) si usa l'istruzione SQL
+\begin_inset Newline newline
+\end_inset
+
+
+\family typewriter
+CHANGE ISOLATION TO [RR|RS|CS|UR]
+\end_layout
+
+\begin_layout Paragraph
+Isolamento in DB2
+\end_layout
+
+\begin_layout Standard
+Controlliamo ora i vari livelli di isolamento permessi da DB2.
+\end_layout
+
+\begin_layout Description
+Repeatable
+\begin_inset space ~
+\end_inset
+
+Read In questo livello viene posto un lock su tutti i dati usati dall'applicazio
+ne.
+ Se si esegue una SELECT su una tabella il lock è posto su tutta la tabella
+ non solo sul risultato
+\end_layout
+
+\begin_layout Description
+Read
+\begin_inset space ~
+\end_inset
+
+Stability In questo livello viene posto un lock su tutti i dati recuperati
+ dall'applicazione.
+ Se si esegue una SELECT su una tabella il lock è posto solo sul risultato
+\end_layout
+
+\begin_layout Description
+Cursor
+\begin_inset space ~
+\end_inset
+
+Stability In questo livello viene posto un lock solo sul dato attualmente
+ utilizzato dall'applicazione.
+ Se si esegue una SELECT su una tabella il lock è posto solo sul record
+ attualmente utilizzato (si ricordi l'inconsistenza tra i dati di SQL, cioè
+ insiemi, e linguaggi ad alto livello che gli insiemi non sanno gestire
+ e quindi si appoggiano al cursor).
+\end_layout
+
+\begin_layout Description
+Uncommited
+\begin_inset space ~
+\end_inset
+
+Read In questo livello l'applicazione è in grado di accedere ai dati 
+\emph on
+uncommited 
+\emph default
+(non importa se hanno il lock esclusivo, io ci accedo ugualmente in lettura
+ con il rischio di avere dati 
+\begin_inset Quotes eld
+\end_inset
+
+errati
+\begin_inset Quotes erd
+\end_inset
+
+) di altre applicazioni.
+ Risulta utile se si usano solo tabelle 
+\emph on
+read-only
+\emph default
+ o istruzioni SELECT
+\end_layout
+
+\begin_layout Paragraph
+Argomenti avanzati
+\end_layout
+
+\begin_layout Standard
+Tutto ciò che finora abbiamo discusso è solo uno dei modi per gestire la
+ concorrenza e risolvere il problema, tipicamente è il modo utilizzato dai
+ dbms relazioni: non è detto però che sia l'unico modo possibile di operare,
+ si veda infatti i sistemi 
+\emph on
+nosql
+\emph default
+ che utilizzano l'eventually consistency (prima o poi arriverò in uno stato
+ consistente) con implicazioni sulla consistenza di transazione e il permesso
+ di usare protocolli per gestire la concorrenza più semplici e/o con performance
+ migliori.
+ Bisogna inoltre aggiungere che tutto il 
+\begin_inset Quotes eld
+\end_inset
+
+castello
+\begin_inset Quotes erd
+\end_inset
+
+ costruito finora ha un costo e in determinati sistemi a bassa concorrenza
+ in cui ci sono poche transazioni che eseguono contemporaneamente, il gioco
+ potrebbe non valere la candela.
+\end_layout
+
+\begin_layout Standard
+Un 
+\emph on
+dbms
+\emph default
+ deve essere in grado di gestire la concorrenza a diversi livelli di granularità.
+ Il controllo della concorrenza deve essere effettuato anche sulle strutture
+ di indicizzazione.
+ Nei sistemi a bassa concorrenza 
+\emph on
+l'overhead
+\emph default
+ per la gestione dei lock può essere troppo costosa, di conseguenza è possibile
+ affidarsi ad un 
+\emph on
+controllo ottimistico
+\emph default
+, nel quale il controllo viene effettuato alla fine all'atto del commit
+ eventualmente abortendo la transazione (in caso di errori), o ad un 
+\emph on
+controllo con timestamp
+\emph default
+, in cui si crea un ordine tra le transazioni.
+\end_layout
+
+\begin_layout Subsection
+Persistenza
+\end_layout
+
+\begin_layout Standard
+Fino ad ora ci siamo occupati dell'isolamento di una transazione.
+ Come già detto in precedenza spetta invece al 
+\emph on
+Logging & Recovery Manager
+\emph default
+ l'incarico di garantire l'
+\emph on
+atomicità 
+\emph default
+e la 
+\emph on
+persistenza
+\emph default
+: sostanzialmente occorre garantire che le azioni effettuate da transazioni
+ terminate correttamente (
+\emph on
+committed
+\emph default
+) sopravvivano a malfuzionamenti del sistema (come crash) o dei dischi.
+\end_layout
+
+\begin_layout Standard
+Per risolvere questo problema ci viene in aiuto 
+\series bold
+ARIES
+\emph on
+ 
+\series default
+\emph default
+(
+\emph on
+Algorithms for Recovery and Isolation Expliting Semantics
+\emph default
+).
+ ARIES è una 
+\emph on
+famiglia di algoritmi
+\emph default
+ di 
+\emph on
+locking
+\emph default
+, 
+\emph on
+logging
+\emph default
+ e 
+\emph on
+recovery
+\emph default
+ per la gestione di dati persistenti.
+ Presentato originariamente per 
+\emph on
+System R
+\emph default
+, il 
+\emph on
+dbms
+\emph default
+ studiato da IBM, attualmente viene utilizzato da diversi 
+\emph on
+dbms
+\emph default
+ tra cui DB2, SQL Server, NT File System, etc
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+ldots
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Esistono essenzialmente 3 tipi di malfunzionamenti che bisogna analizzare:
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+Transaction failure:
+\series default
+ è il caso in cui una transazione abortisce e dunque il Recovery Manager
+ deve riuscire ad annullare sul database gli effetti della transazione che
+ è stata abortita, cioè se una transazione che viene abortita ha effettuato
+ delle modifiche al database che sono state scritte su disco è necessario
+ riuscire a ripristinare i valori del database ad uno stato precedente l'esecuzi
+one della transazione stessa.
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+System failure: 
+\series default
+accade quando il sistema (o anche il dbms) ha un guasto hardware o software
+ (un crash) che provoca l'interruzione di tutte le transazioni in esecuzione
+ senza però danneggiare la memoria permanente (i dischi).
+ Quando il sistema riparte i dati salvati sul disco sono ancora tutti presenti,
+ ma bisogna gestire le transazioni che risultavano attive al momento del
+ crash, infatti se una transazione attiva ma non ancora terminata aveva
+ modificato i dati su disco bisogna riuscire a riportare i valori a prima
+ del suo avvio, allo stesso modo se una transazione risultava terminata
+ correttamente (commited) ma i suoi dati non erano ancora stati salvati
+ su disco deve essere possibile riuscire a recuperare le modifiche apportate
+ e renderle persistenti su disco
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+Media/Device failure:
+\series default
+ questo tipo di malfunzionamento porta a danneggiare il contenuto (persistente)
+ del databse presente su disco
+\end_layout
+
+\begin_layout Standard
+Come può capitare che una transazione non ancora terminata possa scrivere
+ dati sul disco e che una transazione terminata correttamente invece non
+ abbia ancora reso i dati persistenti? Questo è dovuto ad alcune possibili
+ politiche che il Buffer Manager può applicare.
+ Vediamo dunque come gestire i malfunzionamenti assumendo che la scrittura
+ di una pagina su disco sia un'operazione atomica.
+\end_layout
+
+\begin_layout Paragraph
+Gestione dei buffer
+\end_layout
+
+\begin_layout Standard
+Quando una transazione T modifica una pagina P, il 
+\emph on
+Buffer Manager
+\emph default
+ ha due possibilità:
+\end_layout
+
+\begin_layout Enumerate
+
+\emph on
+Politica no-steal
+\emph default
+: Il buffer manager mantiene la pagina P nel buffer e attende che T abbia
+ eseguito COMMIT prima di scriverla su disco (questo mi garantisce che P
+ sia sempre in memoria).
+\end_layout
+
+\begin_layout Enumerate
+
+\emph on
+Politca steal
+\emph default
+: Il buffer manager scrive la pagina P quando 
+\begin_inset Quotes eld
+\end_inset
+
+più conviene
+\begin_inset Quotes erd
+\end_inset
+
+ (ad esempio per liberare il buffer o per ottimizzare le prestazioni di
+ I/O poichè la testina si trova vicino alla pagina in questione), eventualmente
+ anche prima della terminazione della transazione T.
+ Per motivi di efficienza, DB2 adotta questa politica
+\end_layout
+
+\begin_layout Paragraph
+Esecuzione del Commit
+\end_layout
+
+\begin_layout Standard
+Quando una transazione T esegue COMMIT si hanno due possibilità:
+\end_layout
+
+\begin_layout Enumerate
+
+\emph on
+Politica force
+\emph default
+: quando la transazione T esegue il comando COMMIT, prima di scrivere il
+ record di COMMIT sul Log (che ricordiamo tiene traccia di tutte le modifiche
+ avvenute nel database), che 
+\begin_inset Quotes eld
+\end_inset
+
+ufficializza
+\begin_inset Quotes erd
+\end_inset
+
+ la conclusione della transazione T, si forza la scrittura su disco di tutte
+ le pagine P modificate da T.
+ In pratica prima di dichiarere terminata la transazione forzo la scrittura
+ delle pagine modificate sul disco (alcune potrebbero anche essere già state
+ scritte poichè utilizzo politica steal).
+\end_layout
+
+\begin_layout Enumerate
+
+\emph on
+Politica no-force
+\emph default
+: quando la transazione T esegue il comando COMMIT, si scrive subito il
+ record di COMMIT sul LOG; quando T termina alcune delle sue modifiche potrebber
+o non essere ancora state rese persistenti su disco, dunque la transazione
+ T viene considerata terminata ma le pagine che essa ha modificato non sono
+ ancora state modificate su disco e rese quindi persistenti.
+ Per motivi di efficienza DB2 adotta questa politica.
+\end_layout
+
+\begin_layout Paragraph
+Atomicità e Persistenza
+\end_layout
+
+\begin_layout Standard
+Per far fronte ai malfunzionamenti un 
+\emph on
+dbms
+\emph default
+ fa uso di diversi strumenti, in particolare del 
+\series bold
+Database Dump
+\emph on
+ 
+\series default
+\emph default
+che crea una copia di archivio (backup) del 
+\emph on
+database
+\emph default
+ (o parte di esso)
+\emph on
+ 
+\emph default
+per far fronte al Media Failure e il 
+\series bold
+Log File
+\series default
+ (
+\begin_inset Quotes eld
+\end_inset
+
+giornale di bordo
+\begin_inset Quotes erd
+\end_inset
+
+), un file sequenziale in cui vengono registrate le operazioni di modifica
+ eseguite dalle transazioni che sarà il punto chiave per garantire persistenza
+ a fronte di Transaction Failure e System Failure.
+\end_layout
+
+\begin_layout Subsubsection
+Log File
+\end_layout
+
+\begin_layout Standard
+Sul 
+\series bold
+Log File
+\series default
+, gestito attraverso una tabella e quindi contente record, viene scritto
+ un record in seguito a una delle seguenti azioni:
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+Begin: 
+\series default
+quando una transazione inizia
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+Update: 
+\series default
+aggiornamento di una pagina.
+ Avviene quando una transazione rende 
+\begin_inset Quotes eld
+\end_inset
+
+sporca
+\begin_inset Quotes erd
+\end_inset
+
+ una pagina (ricordiamo il metodo 
+\emph on
+setDirty 
+\emph default
+del buffer manager)
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+Commit:
+\series default
+ completamente corretto di una transazione
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+Abort:
+\series default
+ completamente errato (Abort) di una transazione
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+End:
+\series default
+ terminazione di una transazione (successiva al commit/abort) cioè quando
+ i dati effettivamente vengono resi permamenti su disco
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+Compensation:
+\series default
+ registra l'annullamento degli aggiornamenti di una transazione, ad esempio
+ quando una transazione abortisce (per auto-aborto attraverso rollback o
+ abortita dal sistema) bisogna disfarsi delle modifiche effettuate dalla
+ transazione stessa, quindi si effettuano delle modifiche 
+\begin_inset Quotes eld
+\end_inset
+
+all'indietro
+\begin_inset Quotes erd
+\end_inset
+
+ per riuscire a recuperare i valori iniziali.
+\end_layout
+
+\begin_layout Standard
+Il 
+\series bold
+Log File
+\series default
+ è composto da Record, i quali hanno strutture particolari a seconda dell'azione
+ eseguita: vediamo un esempio di 
+\series bold
+Record di Update
+\series default
+ e di 
+\series bold
+Record di compensazione
+\series default
+.
+\begin_inset Newline newline
+\end_inset
+
+Il formato di un 
+\emph on
+record di update 
+\emph default
+per una transazione T che modifichi una pagina P del database è il seguente:
+\begin_inset Newline newline
+\end_inset
+
+
+\family typewriter
+(LSN, prevLSN, T, type, PID, before(P), after(P))
+\end_layout
+
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+LSN 
+\emph on
+L
+\emph default
+og 
+\emph on
+S
+\emph default
+equence 
+\emph on
+N
+\emph default
+umber, è un numero progressivo del record (identifica quindi il record)
+\end_layout
+
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+prevLSN identifica LSN del precedente record del LOG relativo alla transazione
+ T in modo da avere i record di una stessa transazione collegati a lista
+\end_layout
+
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+T identificatore della transazione
+\end_layout
+
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+type è il tipo del record, 
+\emph on
+update
+\emph default
+ in questo caso
+\end_layout
+
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+PID identificatore della pagina modificata
+\end_layout
+
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+before(P) 
+\begin_inset Quotes eld
+\end_inset
+
+
+\emph on
+before image
+\emph default
+
+\begin_inset Quotes erd
+\end_inset
+
+ di P, ovvero il contenuto della pagina P prima della modifica (utile per
+ annllare le modifiche di una transazione abolita)
+\end_layout
+
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+after(P) 
+\begin_inset Quotes eld
+\end_inset
+
+
+\emph on
+after image
+\emph default
+
+\begin_inset Quotes erd
+\end_inset
+
+ di P, ovvero il contenuto della pagina P dopo la modifica (utile per ripristina
+re le modifiche di una transazione terminata con successo ma i cui dati
+ non sono stati resi persistenti)
+\end_layout
+
+\begin_layout Standard
+Il 
+\emph on
+record di compensazione
+\emph default
+ è usato quando il risultato di un'azione di modifica viene annullato, ad
+ esempio se la transazione abortisce.
+ Il formato di un record di compensazione per una transazione T è il seguente:
+\begin_inset Newline newline
+\end_inset
+
+
+\family typewriter
+(LSN, prevLSN, T, type, undoNextLSN, PID, before(P))
+\end_layout
+
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+LSN Log Sequence Number
+\end_layout
+
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+prevLSN identifica LSN del precedente record del LOG relativo alla transazione
+ T
+\end_layout
+
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+T identificatore della transazione
+\end_layout
+
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+type è il tipo del record, 
+\emph on
+compensation 
+\emph default
+in questo caso
+\end_layout
+
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+undoNextLSN rappresenta il prossimo record da annullare: se stiamo annullando
+ il record U corrisponde al prevLSN di U (poichè stiamo operando all'indietro)
+\end_layout
+
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+PID identificatore della pagina modificata
+\end_layout
+
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+before(P) 
+\begin_inset Quotes eld
+\end_inset
+
+
+\emph on
+before image
+\emph default
+
+\begin_inset Quotes erd
+\end_inset
+
+ di P, ovvero il contenuto della pagina P prima della modifica
+\end_layout
+
+\begin_layout Standard
+Mostriamo infine un esempio di LOG (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:esempiolog"
+
+\end_inset
+
+) che potrà meglio chiarire le idee.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:esempiolog"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename esempiolog.png
+	scale 50
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Come si vede ad esempio i record 235, 237, 239 e 240 forniscono una lista
+ (attraverso i prevLSN) di tutte le modifiche effettuate dalla transazione
+ T1.
+\end_layout
+
+\begin_layout Paragraph
+Protocollo WAL
+\end_layout
+
+\begin_layout Standard
+Affinchè il LOG possa essere utilizzato per ripristinare lo stato del database
+ a fronte di malfuzionamenti è importante che venga applicato il cosiddetto
+ protocollo 
+\series bold
+WAL 
+\series default
+(Write-Ahead Logging):
+\emph on
+ prima di scrivere su disco una pagina P modificata il corrispondete LOG
+ record deve essere già stato scritto nel LOG
+\emph default
+\SpecialChar \@.
+ Intuitivamente se il protocollo WAL non venisse rispettato potrebbe accadere
+ quanto di seguito:
+\end_layout
+
+\begin_layout Enumerate
+Una transazione T modifica il database aggiornando una pagina P
+\end_layout
+
+\begin_layout Enumerate
+Prima di scrivere il LOG record sul LOG relativo alla modifica di P avviene
+ un system failure
+\end_layout
+
+\begin_layout Standard
+In questa situazione è evidente che non sarebbe in alcun modo possibile
+ riportare il database allo stato iniziale poichè non si hanno informazioni
+ sufficienti (poichè sul LOG non sono presenti) per riuscire a effettuare
+ un 
+\begin_inset Quotes eld
+\end_inset
+
+rollback
+\begin_inset Quotes erd
+\end_inset
+
+ allo stato iniziale.
+\end_layout
+
+\begin_layout Standard
+La responsabilità di garantire il rispetto del protocollo WAL è del Buffer
+ Manager che gestisce, oltre ai buffer del database, anche i buffer del
+ LOG (che risultano diversi dai buffer del database).
+ In figura (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:bufflogmanager"
+
+\end_inset
+
+) viene riportato l'ordine in cui si succedono le varie operazioni relative
+ alla modifica di una pagina P.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:bufflogmanager"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename bufflogmanager.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+L'esecuzione dunque si suddivide in:
+\end_layout
+
+\begin_layout Enumerate
+Una transazione avvisa il Buffer Manager che la pagina P è sporca (attraverso
+ il 
+\emph on
+setDirty
+\emph default
+) poichè è stata modificata
+\end_layout
+
+\begin_layout Enumerate
+Il Buffer Manager accede ai buffer del Log e scrive il record di LOG relativo
+ alla modifica sul LOG stesso
+\end_layout
+
+\begin_layout Enumerate
+Il LOG precedentemente caricato in memoria può essere scritto su memoria
+ stabile (anche in un momento successivo), che come si nota è un disco diverso
+ da quello su cui è presente il database
+\end_layout
+
+\begin_layout Enumerate
+Infine, a seconda delle politiche attuate dal Buffer Manager, la modifica
+ della pagina P viene resa persistente e scritta su disco.
+\end_layout
+
+\begin_layout Standard
+Come detto il LOG deve essere scritto su 
+\emph on
+memoria stabile
+\emph default
+ poichè è evidente che il log deve sopravvivere sia al system che al media
+ failure.
+ La memoria stabile può essere realizzata mantendendo copie delle informazioni
+ (eventualmente in luoghi diversi) su dispostivi permanenti (eventualmenti
+ diversi), adottando tecniche di RAID, mirroring, bit di parità, 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+ldots
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Notiamo che il disco del LOG è inoltre diverso dal disco del database: oltre
+ ad essere una memoria stabile, essendo il LOG un file sequenziale (quindi
+ i record vengono sempre aggiunti in fondo), il tempo di latenza è molto
+ basso poichè la testina non ha bisogno di muoversi, rimane fissa nella
+ posizione in cui è pronta a scrivere nel blocco successivo all'ultimo che
+ ha già scritto, dunque è preferibile avere un disco 
+\begin_inset Quotes eld
+\end_inset
+
+sicuro
+\begin_inset Quotes erd
+\end_inset
+
+ piuttosto che 
+\begin_inset Quotes eld
+\end_inset
+
+performante
+\begin_inset Quotes erd
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+Il LOG permette al Recovery Manager di annullare (azione di 
+\emph on
+undo
+\emph default
+) le azioni di transazioni abortite e incomplete, e di ri-effettuare (azione
+ di 
+\emph on
+redo
+\emph default
+) le azioni di transazioni terminate correttamente (commited) ma le cui
+ modifiche non sono ancora state rese consistenti.
+ 
+\series bold
+NB 
+\series default
+Una transazione può essere definita 
+\emph on
+commited
+\emph default
+ solo quando i suoi log record sono stati scritti su memoria stabile (poichè
+ bastano i LOG record per recuperare al più le informazioni necessarie).
+\end_layout
+
+\begin_layout Standard
+Vediamo dunque come il LOG può risolvere il transaction failure e il system
+ failure.
+\end_layout
+
+\begin_layout Paragraph
+Transaction Failure
+\end_layout
+
+\begin_layout Standard
+Adottando la politica 
+\emph on
+steal
+\emph default
+ (cioè la pagina P viene scritta quando 
+\begin_inset Quotes eld
+\end_inset
+
+conviene
+\begin_inset Quotes erd
+\end_inset
+
+), se una transazione T abortisce è possibile che alcune delle pagine da
+ essa modificate siano state già scritte su disco.
+ Bisogna dunque disfarsi delle modifiche della transazione abortita: per
+ annullare (
+\emph on
+undo
+\emph default
+) queste modifiche si scandisce il log a ritroso (usando i 
+\emph on
+prevLSN
+\emph default
+) e si ripristinano nel database le 
+\emph on
+before image
+\emph default
+ delle pagine modificate da T.
+\end_layout
+
+\begin_layout Standard
+Nell'esempio (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:transactionfailure"
+
+\end_inset
+
+) viene mostrato 
+\emph on
+undo
+\emph default
+ della transazione T2 che abortisce.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:transactionfailure"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename transactiofailure.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Paragraph
+System Failure
+\end_layout
+
+\begin_layout Standard
+In caso di un System Failure vengono disfatte (applicando lo stesso algoritmo
+ del transaction failure) tutte le transazioni per il quale non si trova
+ il record COMMIT sul LOG, questo perchè erano transazioni attive di cui
+ non si sanno gli esiti.
+\end_layout
+
+\begin_layout Standard
+Adottando la politica 
+\emph on
+no-force
+\emph default
+ (all'atto del commit si scrive solo sul LOG, non è garantita la scrittura
+ immediata su disco delle modifiche), una transazione T terminata correttamente
+ (ha cioè eseguito COMMIT) non ha certezza di aver reso permanenti le modifiche
+ sul disco, pertanto bisogna 
+\begin_inset Quotes eld
+\end_inset
+
+rifare
+\begin_inset Quotes erd
+\end_inset
+
+ (
+\emph on
+redo
+\emph default
+) T, cioè bisogna eseguire gli stessi passi che T aveva fatto durante la
+ sua esecuzione, riscrivendo le 
+\emph on
+after image 
+\emph default
+che si trovano sul LOG.
+\end_layout
+
+\begin_layout Standard
+Nell'esempio (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:systemfailure"
+
+\end_inset
+
+) viene mostrato il 
+\emph on
+redo 
+\emph default
+della transazione T1.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:systemfailure"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename systemfailure.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace defskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+In entrambi i casi precedenti, non era certo che le pagine (tutte o solo
+ alcune) erano state modificate o meno, cioè in caso di una transazione
+ abortita non è detto che effetivamente delle pagine siano state scritte
+ su disco, come non è detto che in caso di transazione commited alcune pagine
+ debbano ancora essere rese permanti, di conseguenza avvengono riscritture
+ inutili (che causano inefficienza).
+ E' possibile dunque evitarle?
+\end_layout
+
+\begin_layout Standard
+Per evitare di riscrivere tutte le 
+\emph on
+after image 
+\emph default
+delle pagine modificate da tutte le transazioni che hanno eseguito COMMIT,
+ il Buffer Manager adotta il seguente accorgimento: quando una pagina P
+ è modificata da una transazione T viene generato il log record al quale
+ viene assegnato il propro LSN (identificativo); viene quindi scritto l'LSN
+ nel page header della pagina P (insieme al PID), si veda la figura (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:scrittureinutili"
+
+\end_inset
+
+).
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:scrittureinutili"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename scrittureinutili.png
+	scale 50
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Indichiamo con LSN(P) l'identificativo salvato sul page header della pagina
+ P e con 
+\emph on
+k
+\emph default
+ l'LSN di un log record relativo alla pagina P: quando la transazione T
+ viene rifatta, se 
+\begin_inset Formula $LSN(P)\geq k$
+\end_inset
+
+ allora non è necessario riscrivere la pagina P (cioè non è necessario aggiornar
+e con 
+\emph on
+after image
+\emph default
+ del log record) poichè siamo certi che le modifiche di questo record erano
+ già state rese permanenti su disco.
+ Quindi si leggono sì tutte le pagine modificate dalla transazione T, ma
+ vengono riscritte solo quelle necessarie.
+ Un discorso analogo, ma applicato all'inverso, può essere fatto in caso
+ di transazione abortita.
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace defskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Paragraph
+Checkpoint
+\end_layout
+
+\begin_layout Standard
+Come vedremo, la procedura di restart si occupa di riportare il database
+ in uno stato consistente a fronte di un system failure.
+ Per ridurre i tempi di restart è possibile eseguire periodicamente un 
+\begin_inset Quotes eld
+\end_inset
+
+
+\emph on
+checkpoint
+\emph default
+
+\begin_inset Quotes erd
+\end_inset
+
+, ovvero una scrittura forzata su disco di tutte le pagine modificate.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:checkpoint"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename checkpoint.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+L'esecuzione del 
+\emph on
+checkpoint
+\emph default
+ viene registrata sul LOG grazie al record 
+\emph on
+CKP
+\emph default
+ (si veda figura 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:checkpoint"
+
+\end_inset
+
+) che comprende la tabella delle transazioni attive e la tabella delle pagine
+ 
+\begin_inset Quotes eld
+\end_inset
+
+sporche
+\begin_inset Quotes erd
+\end_inset
+
+: cioè il record di checkpoint contiene informazioni diverse dai record
+ prima visti, d'altronde è inevitabile, poichè per riuscire a capire quali
+ informazioni sono state salvate e quali no, il record checkpoint necessita
+ di informazioni aggiuntive, come appunto, le transazioni attive e le pagine
+ sporche (così in caso di system failure sa esattamente quali pagine e quali
+ transazioni deve controllare).
+ In questo modo se la transazione T ha eseguito COMMIT prima del checkpoint
+ si è sicuri che T (dopo il checkpoint stesso) non debba essere rifatta,
+ poichè siamo certi che le pagine della transazione T sono state scritte
+ su disco.
+\end_layout
+
+\begin_layout Subsubsection
+ARIES
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+ARIES
+\series default
+ permette di lavorare con politiche 
+\emph on
+steal 
+\emph default
+e 
+\emph on
+no-force
+\emph default
+ (cioè, in caso di crash, dovremo disfare azioni compiute da transazioni
+ non terminate correttamente, che risultavano dunque attive durante il crash,
+ e ri-effettuare le azioni delle transazioni concluse correttamente ma di
+ cui non troviamo il log di END associato, che quindi potrebbero aver sporcato
+ pagine, ma cui modifiche potrebbero non essere state rese persistenti sul
+ disco).
+ Il restart del 
+\emph on
+dbms
+\emph default
+ in seguito ad un crash viene effetuato in 3 passi:
+\end_layout
+
+\begin_layout Enumerate
+
+\series bold
+Analisi:
+\series default
+ attraverso l'analisi del LOG si identificano le pagine dirty e le transazioni
+ attive all'istante del crash
+\end_layout
+
+\begin_layout Enumerate
+
+\series bold
+Redo: 
+\series default
+ripete tutte le azioni a partire da un certo punto del LOG
+\end_layout
+
+\begin_layout Enumerate
+
+\series bold
+Undo:
+\series default
+ annulla tutte le azioni di tutte le transazioni abortite
+\end_layout
+
+\begin_layout Standard
+ARIES segue il protocollo WAL (che come detto ci permette di avere effettivament
+e un LOG completo che permette di ricostruire la storia delle azioni), inoltre
+ come principi base utilizza il 
+\emph on
+redo
+\emph default
+ per ripetere la 
+\begin_inset Quotes eld
+\end_inset
+
+storia
+\begin_inset Quotes erd
+\end_inset
+
+ attraverso il LOG e inoltre tiene traccia delle modifiche nel LOG durante
+ l'
+\emph on
+undo
+\emph default
+ così da permettere che non venga ripetetuto (l'undo) in caso di ulteriori
+ failure/restart.
+\end_layout
+
+\begin_layout Standard
+Vediamo ora come ARIES gestisce il 
+\series bold
+system failure
+\series default
+.
+\begin_inset Newline newline
+\end_inset
+
+Per prima cosa effettua la fase di 
+\emph on
+analisi
+\emph default
+ identificando le pagine dirty e le transazioni attive, per far ciò si serve
+ del LOG analizzandolo dalla fine e procedendo all'indietro fino a trovare
+ il primo 
+\emph on
+Checkpoint
+\emph default
+ (o fino all'inizio se non esiste alcun checkpoint).
+ Successivamente durante la fase di 
+\emph on
+redo
+\emph default
+ si ri-effettuano tutte le modifiche alle pagine dirty che ho trovato nella
+ fase di 
+\emph on
+analisi
+\emph default
+: la fase di 
+\emph on
+redo
+\emph default
+ è una fase in avanti, cioè si legge il log procedendo in avanti.
+ Durante la fase di 
+\emph on
+undo
+\emph default
+ invece si annullano tute le modifiche delle transazioni attive all'istante
+ del crash trovate nella fase di 
+\emph on
+analisi
+\emph default
+: la fase di 
+\emph on
+undo
+\emph default
+ è una fase all'indietro, cioè legge il LOG procedendo a ritroso.
+ Detta in breve: utilizziamo le pagine sporche nella fase di 
+\emph on
+redo 
+\emph default
+e utilizziamo le transazioni attive nella fase di 
+\emph on
+undo
+\emph default
+.
+ Vediamo dunque nel dettaglio le varie fasi.
+ 
+\end_layout
+
+\begin_layout Standard
+La 
+\series bold
+fase di analisi
+\series default
+ consiste nella ricerca del 
+\emph on
+checkpoint più recente
+\emph default
+: una volta trovato ripristina la 
+\emph on
+tabella delle transazioni
+\emph default
+ e la 
+\emph on
+tabella delle pagine dirty
+\emph default
+ corrispondenti (ricorda che nel record CHK del LOG corrispondente al checkpoint
+ sono salvate queste informazioni).
+ A questo punto si analizza il LOG in avanti per aggiungere alle tabelle
+ ulteriori transazioni attive e/o ulteriori pagine sporche: 
+\end_layout
+
+\begin_layout Enumerate
+Se una transazione termina (quindi ha registrato il record ABORT/COMMIT)
+ allora viene rimossa dalla tabella delle transazioni
+\end_layout
+
+\begin_layout Enumerate
+Se trova una nuova transazione (quindi ha registrato il record BEGIN) allora
+ viene aggiunta alla tabella delle transazioni
+\end_layout
+
+\begin_layout Enumerate
+Infine si aggiungono alla tabella delle pagine dirty le pagine 
+\begin_inset Quotes eld
+\end_inset
+
+sporcate
+\begin_inset Quotes erd
+\end_inset
+
+ dai record di update e di compensazione (cioè per ogni UPDATE e COMP viene
+ aggiunta, se non già presente, la pagina associata all'insieme delle pagine
+ sporche)
+\end_layout
+
+\begin_layout Standard
+La tabella delle transazioni conterrà dunque solo le transazioni effettivamente
+ attive al crash (quelle che dopo il checkpoint sono terminate correttamente
+ vengono eliminate dall'insieme delle transazioni attive).
+\end_layout
+
+\begin_layout Standard
+La 
+\series bold
+fase di redo
+\series default
+ comincia utilizzando il record con il LSN minore fra tutti quelli presenti
+ nella tabella delle pagine dirty costruita nella fase di analisi (è possibile
+ che tale record preceda l'ultimo CKP, poichè essendo presente nel checkpoint
+ già una lista di pagine sporche, l'LSN minore potrebbe precede il checkpoint
+ stesso).
+ Si percorre il LOG in avanti ri-effettuando tutti i record di 
+\emph on
+update
+\emph default
+ e di 
+\emph on
+compensazione
+\emph default
+ a meno che la pagina corrispondente non sia tra quelle 
+\begin_inset Quotes eld
+\end_inset
+
+sporche
+\begin_inset Quotes erd
+\end_inset
+
+ (cioè se la pagina associata al record non risulta sporca la possiamo saltare,
+ e questo può accadere solo per le pagine che sono presenti solo nell'intervallo
+ precedente al checkpoint e il checkpoint stesso) o il valore di LSN della
+ pagina risulti 
+\begin_inset Formula $\geq$
+\end_inset
+
+ del LSN del record con cui abbiamo iniziato (poichè siamo sicuri che sia
+ stata apportata una modifica alla pagina, resa persistente, successiva
+ al record che stiamo leggendo) .
+ Infine il valore di LSN della pagina viene aggiornato con il LSN del record
+ attuale.
+\end_layout
+
+\begin_layout Standard
+La 
+\series bold
+fase di undo
+\series default
+ comincia identificando le transazioni attive all'istante del crash utilizzando
+ la tabella delle transazioni costruita in fase di analisi.
+ Tutte le azioni di tale transazioni vanno annullate all'indietro.
+ Si inizia dalla transazione avente il LSN più recente e:
+\end_layout
+
+\begin_layout Itemize
+Se il 
+\emph on
+record è di compensazione 
+\emph default
+si passa al record precedente (campo undoNextLSN) a meno che questo sia
+ 0 nel qual caso l'undo della transazione è completo (se il undoNextLSN
+ è uguale a 0 vuol dire che il precedente LSN è un'azione di BEGIN della
+ transazione).
+\end_layout
+
+\begin_layout Itemize
+Se il 
+\emph on
+record è di update
+\emph default
+ si effettua l'annullamento (quindi si utilizza il 
+\emph on
+before image
+\emph default
+), si scrive un record di compensazione (in fondo al LOG) e si passa al
+ record precedente (seguendo la catena utilizzando il campo prevLSN).
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace defskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Finora abbiamo supposto che durante la procedura di 
+\emph on
+restart
+\emph default
+ non fosse possibile un system failure: ovviamente un problema di questo
+ tipo potrebbe benissimo verificarsi, ecco dunque che ARIES deve riuscire
+ a gestire i crash anche durante il restart.
+ La scrittura dei record di compensazione permette di gestire il verificarsi
+ di crash durante la procedura di restart nella fase di 
+\emph on
+undo
+\emph default
+: infatti i record di compensazione indicano che le meodifiche sono già
+ state annullate durante la fase di 
+\emph on
+redo
+\emph default
+.
+ Se il crash si verifica durante l'analisi, questa va ripresa dall'inizio,
+ allo stesso modo se il crash si verifica durante la fase di 
+\emph on
+redo
+\emph default
+ esso va ripreso dall'inizio ed eventualmente alcune pagine non verrano
+ riscritte al nuovo redo (poichè magari già scritte nel redo precedente).
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace defskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Trattiamo ora il caso in cui ARIES debba gestire il 
+\emph on
+media failure.
+\begin_inset Newline newline
+\end_inset
+
+
+\emph default
+Nel caso di media failure si ha bisogno di utilizzare la copia di backup
+ del database (il 
+\emph on
+database dump
+\emph default
+) per effetuare un ripristino.
+ Facendo uso del LOG, si rieffettuano tutte le transazioni che hanno eseguito
+ il COMMIT e si disfano tutte quelle per cui il record di COMMIT non si
+ trova nel LOG.
+\end_layout
+
+\begin_layout Standard
+Notiamo che se il Buffer Manager usa la politica 
+\emph on
+no-steal
+\emph default
+ allora non è necessario l'
+\emph on
+undo
+\emph default
+ (poichè non troveremmo mai sul disco aggiornamenti di una transazione non
+ ancora completata), allo stesso modo se il Buffer Manager utilizza la politica
+ 
+\emph on
+force
+\emph default
+ allora non è necessario il 
+\emph on
+redo
+\emph default
+ (poichè prima di scrivere nel LOG forziamo la scrittura della pagina).
+ Allora perchè ARIES è così usato (ricordiamo che ARIES utilizza la politica
+ 
+\emph on
+steal 
+\emph default
+e 
+\emph on
+no-force
+\emph default
+)? ARIES ha trovato una vasta applicazione perchè favorisce il funzionamento
+ 
+\begin_inset Quotes eld
+\end_inset
+
+normale
+\begin_inset Quotes erd
+\end_inset
+
+ del database, supponendo dunque che i guasti siano rari (cosa d'altronde
+ vera).
+ 
+\end_layout
+
+\begin_layout Standard
+Esistono ovviamente algoritmi diversi da ARIES, che vedremo in breve, che
+ utilizzano le politiche 
+\emph on
+no-steal
+\emph default
+ e 
+\emph on
+force
+\emph default
+, ma essi complicano notevolmente la gestione delle transazioni.
+\end_layout
+
+\begin_layout Description
+Algoritmo
+\begin_inset space ~
+\end_inset
+
+UNDO/no-REDO prevede che le modifiche di una transazione T siano scritte
+ in memoria stabile prima della fine della transazione stessa.
+ La complicazione è dovuta all'uso della memoria stabile.
+\end_layout
+
+\begin_layout Description
+Algoritmo
+\begin_inset space ~
+\end_inset
+
+no-UNDO/REDO prevede che le modifiche di una transazione T siano scritte
+ in memoria stabile solo dopo la fine della transazione stessa.
+ La complicazione è dovuta all'uso della memoria stabile.
+\end_layout
+
+\begin_layout Description
+Algoritmo
+\begin_inset space ~
+\end_inset
+
+no-UNDO/no-REDO prevede che le modifiche di una transazione T siano scritte
+ in memoria stabile al momento della fine della transazione stessa come
+ un'azione atomica.
+ La complicazione è dovuta all'uso della memoria stabile e ad eseguire la
+ scrittura sulla memoria come azione atomica
+\end_layout
+
+\begin_layout Subsubsection
+Esempi
+\end_layout
+
+\begin_layout Standard
+Mostriamo di seguito alcuni esempi che potranno chiarire le idee.
+\end_layout
+
+\begin_layout Paragraph
+Esempio 1
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:esempio1fase1"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename esempio1fase1.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Supponiamo di avere il LOG mostrato in figura (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:esempio1fase1"
+
+\end_inset
+
+) e che ora la transazione T1 modifichi la pagina PD, ma si verifichi un
+ crash del sistema prima della scrittura del corrispondente log record (poichè
+ usiamo il protocollo WAL, è come se questa ultima modifica apportata a
+ PD da T1 non esistesse).
+ In questa situazione abbiamo la certezza che la pagina PB sia stata scritta
+ (T2 ha eseguito COMMIT) ma che PA, PC e PD no.
+\end_layout
+
+\begin_layout Standard
+Essendo insorto un crash ARIES agisce e inizia con la fase di 
+\emph on
+analisi
+\emph default
+.
+ Facendo riferimento sempre alla figura 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:esempio1fase1"
+
+\end_inset
+
+, vediamo di seguito il risultato dell'analisi (notiamo che non c'è alcun
+ 
+\emph on
+checkpoint
+\emph default
+ quindi si parte dall'inizio):
+\end_layout
+
+\begin_layout Itemize
+T1 viene aggiunta alla tabella delle transazioni attive, poichè si legge
+ LSN 1 e si trova un BEGIN
+\end_layout
+
+\begin_layout Itemize
+T2 viene aggiunta alla tabella delle transazioni attive, poichè si legge
+ LSN 2 e si trova un BEGIN
+\end_layout
+
+\begin_layout Itemize
+La pagina PA viene aggiunta alla tabella delle pagine sporche, poichè si
+ legge LSN 3 e si trova un UPDATE (e si indica che la pagina è sporca a
+ causa del LSN=3)
+\end_layout
+
+\begin_layout Itemize
+La pagina PB viene aggiunta alla tabella delle pagine sporche, poichè si
+ legge LSN 4 e si trova un UPDATE (e si indica che la pagina è sporca a
+ causa del LSN=4)
+\end_layout
+
+\begin_layout Itemize
+La pagina PC viene aggiunta alla tabella delle pagine sporche, poichè si
+ legge LSN 6 e si trova un UPDATE (e si indica che la pagina è sporca a
+ causa LSN=6)
+\end_layout
+
+\begin_layout Itemize
+La transazione T2 viene rimossa dalla tabella delle transazione attive,
+ poichè si legge LSN 7 e si trova il COMMIT di T2
+\end_layout
+
+\begin_layout Standard
+La pagina PD non viene aggiunta alle pagine dirty poichè non è presente
+ il record sul LOG (ricordiamoci il protocollo WAL).
+\end_layout
+
+\begin_layout Standard
+Finita la fase di analisi, si procede alla fase di 
+\emph on
+redo.
+ 
+\emph default
+La fase di redo inizia cercando il record con LSN minore fra tutte le pagine
+ dirty presenti nella tabella delle pagine sporche.
+ L'insieme delle pagine sporche è {PA, PB, PC}, fra tutti i record di update
+ associati a questa pagina quello con LSN minore è LSN 3, dunque la fase
+ di 
+\emph on
+redo
+\emph default
+ parte da questo record del LOG e procede in avanti esaminando il LOG stesso
+ producendo il seguente risultato:
+\end_layout
+
+\begin_layout Itemize
+PA viene letta da disco.
+ Nel Page Header di PA è presente come LSN (che da ora in poi chiameremo
+ pageLSN) uno zero, poichè nessuno ha effettivamente aggiornato la pagina.
+ 
+\begin_inset Formula $pageLSN=0<LSN=3$
+\end_inset
+
+ allora si ri-effettua l'azione e il pageLSN viene modificato a 
+\begin_inset Formula $pageLSN=3$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+PB viene letta da disco.
+ Il pageLSN di PB è uguale a 4 (poichè effettivamente l'aggiornamento su
+ PB è stato completato grazie al COMMIT di T2).
+ 
+\begin_inset Formula $pageLSN=4\geq LSN=4$
+\end_inset
+
+ allora 
+\bar under
+non
+\bar default
+ si ri-effettua l'azione
+\end_layout
+
+\begin_layout Itemize
+PA viene letta da disco.
+ 
+\begin_inset Formula $pageLSN=3<LSN=5$
+\end_inset
+
+ allora si ri-effettua l'azione e il pageLSN viene modificato a 
+\begin_inset Formula $pageLSN=5$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+PC viene letta da disco.
+ Il pageLSN di PC è uguale a 0 (nessuno ha effettivamente aggiornato la
+ pagina).
+ 
+\begin_inset Formula $pageLSN=0<LSN=6$
+\end_inset
+
+ allora si ri-effettua l'azione e il pageLSN viene modificato a 
+\begin_inset Formula $pageLSN=6$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Viene aggiunto un nuovo record di END per T2
+\end_layout
+
+\begin_layout Standard
+Vediamo dunque l'ultima fase, la fase di 
+\emph on
+undo
+\emph default
+.
+ La fase di 
+\emph on
+undo
+\emph default
+ inizia cercando fra tutte la transazione più recente fra tutte le transazioni
+ attive durante il crash.
+ L'insieme delle transazoni attive è {T1} dunque l'algoritmo partendo da
+ questa transazione inizia ad esaminare il LOG all'indietro annullando tutte
+ le modifiche della transazione, producendo il seguente risultato:
+\end_layout
+
+\begin_layout Itemize
+La pagina PC viene ripristinata a 
+\emph on
+valC
+\emph default
+ (si ricordi che deve essere utilizzato il 
+\emph on
+before image
+\emph default
+).
+ Si aggiunge in fondo un 
+\emph on
+record di compensazione
+\emph default
+ con 
+\begin_inset Formula $undoNextLSN=3$
+\end_inset
+
+ (che è proprio il prevLSN del record 6).
+\end_layout
+
+\begin_layout Itemize
+La pagina PA viene ripristina a 
+\emph on
+valA
+\emph default
+.
+ Si aggiunge in fondo un 
+\emph on
+record di compensazione 
+\emph default
+con 
+\begin_inset Formula $undoNextLSN=0$
+\end_inset
+
+.
+ (Si noti bene che il record LSN=5 non viene annullato poichè appartiene
+ alla transazione T2 che non risulta essere fra le transazioni attive)
+\end_layout
+
+\begin_layout Itemize
+Viene aggiunto un nuovo record di END per T1
+\end_layout
+
+\begin_layout Standard
+Notiamo che abbiamo riportato il valore di PA a 
+\emph on
+ValA 
+\emph default
+(valore modificato da T1) e non a 
+\emph on
+ValA' 
+\emph default
+modificato da T2 e dunque la modifica effettuata da T2 viene 'persa' (con
+ Strict 2PL non sarebbe successo perchè T2 non avrebbe potuto accedere alla
+ risorsa PA poichè T1 avrebbe avuto un lock esclusivo sulla pagina).
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace defskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Paragraph
+Esempio 2
+\end_layout
+
+\begin_layout Standard
+Il seguente esempio mostra come gestire un crash durante il restart.
+\end_layout
+
+\begin_layout Standard
+Supponiamo che il LOG contenga i seguenti record (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:esempio2fase1"
+
+\end_inset
+
+)
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:esempio2fase1"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename esempio2fase1.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Si verifica ora un crash del sistema che viene gestito come descritto in
+ Esempio 1.
+ Notiamo inoltre come l'ABORT di T1 (LSN 5) sia gestito come un normale
+ 
+\emph on
+undo
+\emph default
+.
+\begin_inset Newline newline
+\end_inset
+
+Inizia la fase di 
+\emph on
+analisi 
+\emph default
+che dà come risultato:
+\end_layout
+
+\begin_layout Itemize
+Pagine PA (LSN=3), PB (LSN=4) e PC (LSN=8) aggiunte alla tabella delle pagine
+ sporche
+\end_layout
+
+\begin_layout Itemize
+Transazioni T2 e T3 aggiunte alla tabella delle transazione attive.
+ T1 viene cancellata poichè ha abortito (dunque terminata).
+\end_layout
+
+\begin_layout Standard
+Fase di 
+\emph on
+redo 
+\emph default
+procede allo stesso modo dell'Esempio 1 utilizzando come primo record LSN=3.
+\end_layout
+
+\begin_layout Standard
+Fase di 
+\emph on
+undo
+\emph default
+: i record da disfare sono LSN=9 e LSN=4 per la transazione T2, e LSN=8
+ per la transazione T3.
+ Si parte con la transazione più recente (T2) e si procede a ritroso sul
+ LOG, producendo il seguente risultato:
+\end_layout
+
+\begin_layout Itemize
+La pagina PA viene ripristina a 
+\emph on
+ValA.
+ 
+\emph default
+Si aggiunge in fondo un 
+\emph on
+record di compensazione 
+\emph default
+con 
+\begin_inset Formula $undoNextLSN=4$
+\end_inset
+
+ 
+\end_layout
+
+\begin_layout Itemize
+La pagina PC viene ripristina a 
+\emph on
+ValC
+\emph default
+.
+ Si aggiunge in fondo un 
+\emph on
+record di compensazione 
+\emph default
+con 
+\begin_inset Formula $undoNextLSN=0$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Avviene ora un nuovo crash.
+ Si noti che la procedura di 
+\emph on
+undo
+\emph default
+ non è terminata (manca da esaminare e da disfare ancora LSN=4 per la transazion
+e 2), ritrovandoci ad una tabella di LOG così di seguito aggiornata (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:esempio2fase2"
+
+\end_inset
+
+)
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:esempio2fase2"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename esempio2fase2.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Bisogna dunque ora ripartire con la procedura di 
+\emph on
+restart.
+\end_layout
+
+\begin_layout Standard
+La fase di analisi produce il seguente risultato
+\end_layout
+
+\begin_layout Itemize
+Pagina PA (LSN=3), PB (LSN=4) e PC (LSN=8) aggiunte alla tabella delle pagine
+ dirty
+\end_layout
+
+\begin_layout Itemize
+Transazione T2 aggiunta alla tabella delle transazioni attive.
+ T1 e T3 vengono cancellate poichè T1 ha abortito, e T3 con la procedura
+ di restart precedente era stata già gestita e fatta terminare.
+\end_layout
+
+\begin_layout Standard
+La fase di 
+\emph on
+redo
+\emph default
+, che ancora una volta parte da LSN=3, dovrà ri-effettuare tutte le azioni
+ fino a LSN=12, potendo evitare di scrivere le pagine su disco il cui LSN
+ risulta essere già aggiornato.
+\end_layout
+
+\begin_layout Standard
+La fase di 
+\emph on
+undo
+\emph default
+, che parte dall'unica transazione T2 presente nell'insieme delle transazioni
+ attive al momento del crash, dovrà disfarsi dell'unico record LSN=10 per
+ T2.
+ Il risultato produce:
+\end_layout
+
+\begin_layout Itemize
+LSN=4 viene inserito nei record da disfare.
+ Infatti è stato letto LSN=10, record di compensazione, il quale indicava
+ come prossimo record da disfare 
+\begin_inset Formula $undoNextLSN=4$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Viene effettivamente disfatto il record LSN 4, dunque la pagina PB viene
+ ripristinata a 
+\emph on
+ValB
+\emph default
+ e si aggiunge in fondo un 
+\emph on
+record di compensazione 
+\emph default
+con 
+\begin_inset Formula $undoNextLSN=0$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+La situazione finale del LOG è mostrata in figura (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:esempio2fase3"
+
+\end_inset
+
+)
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:esempio2fase3"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename esempio2fase3.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_body
+\end_document

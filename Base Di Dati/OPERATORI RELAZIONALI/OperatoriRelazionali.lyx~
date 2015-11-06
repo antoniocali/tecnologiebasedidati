@@ -1,0 +1,6681 @@
+#LyX 2.0 created this file. For more info see http://www.lyx.org/
+\lyxformat 413
+\begin_document
+\begin_header
+\textclass article
+\use_default_options true
+\maintain_unincluded_children false
+\language italian
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\float_placement H
+\paperfontsize default
+\spacing single
+\use_hyperref false
+\papersize default
+\use_geometry false
+\use_amsmath 1
+\use_esint 1
+\use_mhchem 1
+\use_mathdots 1
+\cite_engine basic
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\use_refstyle 1
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Title
+Tecnologie delle Basi Di Dati M
+\end_layout
+
+\begin_layout Author
+Antonio Davide Calì
+\end_layout
+
+\begin_layout Standard
+\align center
+WWW.ANTONIOCALI.COM
+\begin_inset Newline newline
+\end_inset
+
+Anno Accademico 2013/2014
+\begin_inset Newline newline
+\end_inset
+
+Docenti: Marco Patella, Paolo Ciaccia
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset toc
+LatexCommand tableofcontents
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Part
+Operatori relazionali
+\end_layout
+
+\begin_layout Section
+Introduzione al query processing
+\end_layout
+
+\begin_layout Standard
+Un sistema 
+\emph on
+dbms
+\emph default
+ commerciale deve saper gestire le query in maniera efficente ed efficace,
+ quindi deve prima saper implementare la gestione delle query e successivamente
+ effettuare un tuning, ovvero migliorarne le presetazioni.
+\end_layout
+
+\begin_layout Standard
+Uno dei vantaggi dei 
+\emph on
+dbms
+\emph default
+ relazionali è che le interrogazioni sono composte da pochi operatori: un'implem
+entazione efficiente di tali operatori permette quindi la risoluzione rapida
+ delle query.
+\end_layout
+
+\begin_layout Standard
+Esistono diverse alternative per la realizzazione dei vari operatori (cioè
+ un operatore logico può essere implementato attraverso diversi operatori
+ fisici) e raramente esiste un algortimo che è 
+\begin_inset Quotes eld
+\end_inset
+
+sempre
+\begin_inset Quotes erd
+\end_inset
+
+ migliore degli altri, infatti l'efficienza dipende da diversi fattori quali
+ il numero di tuple, il numero di pagine, il buffer, la presenza di indici,
+ ecc
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+ldots
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Gli 
+\emph on
+operatori relazionali
+\emph default
+ sono operatori che danno come risultato relazioni: si basano sull'algebra
+ relazionale e si noti che non concidono perfettamente con gli operatori
+ SQL, poichè, allo stesso modo in cui le relazioni non coincidono esattamente
+ con le tabelle implementate, le tabelle relazionali non hanno ordinamento
+ e possono presentare duplicati, cosa non possibile nelle relazioni poichè
+ insiemi.
+\end_layout
+
+\begin_layout Standard
+Notiamo che esiste una distinzione tra gli 
+\series bold
+operatori logici
+\series default
+ dagli 
+\series bold
+operatori fisici
+\series default
+ nei 
+\emph on
+dbms
+\emph default
+:
+\end_layout
+
+\begin_layout Itemize
+
+\emph on
+Operatori Logici
+\emph default
+: (es.
+ JOIN) sono un'estensione di quelli dell'algebra relazionale, svogono una
+ determinata funzione e producono un insieme di tuple con certe proprietà
+\end_layout
+
+\begin_layout Itemize
+
+\emph on
+Operatori Fisici
+\emph default
+: (es.
+ JOIN NESTED-LOOPS) sono implementazioni specifiche di un operatore logico;
+ in funzione di vari fattori è possibile associare ad ogni operatore fisico
+ un costo di esecuzione in modo da poter confrontare ogni volta le implementazio
+ni per ottenere la miglior performance.
+ Quando una query viene eseguita utilizzerà effettivamente un operatore
+ fisico
+\end_layout
+
+\begin_layout Standard
+I modi alternativi per recuperare i record da una relazione si dicono 
+\emph on
+vie di accesso
+\emph default
+ (detti anche 
+\emph on
+metodi
+\emph default
+ o 
+\emph on
+cammini
+\emph default
+).
+ Si noti che sul disco abbiamo la presenza sia dei dati (i dati veri del
+ database) sia degli indici e dunque in generale le vie di accesso possibili
+ sono a 
+\emph on
+scansione sequenziale
+\emph default
+ o ad 
+\emph on
+accesso ad un indice con un predicato di selezione 
+\emph default
+gestibile dall'indice stesso.
+ Il costo di una via di accesso dipende da alcuni fatori, come ad esempio
+ il tempo o in base al numero di operazioni di I/O (di nuovo considereremo
+ trascurabile il costo di elaborazione in RAM, ma notiamo che non tutti
+ i 
+\emph on
+dbms
+\emph default
+ effettivamente trascurano questo dato, si veda DB2 e il parametro TIMERON).
+\end_layout
+
+\begin_layout Standard
+I modi alternativi per risolvere un'interrogazione si dicono 
+\emph on
+piani di accesso
+\emph default
+: sono simigli agli alberi dell'algebra relazionale.
+ Ogni piano di accesso fa uso di metodi di accesso ai dati e operatori fisici.
+ Si veda la figura (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:pianidiaccesso"
+
+\end_inset
+
+) che risolve la query del codice sotto riportato che andremo in breve a
+ commentare:
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+SELECT *
+\end_layout
+
+\begin_layout Plain Layout
+
+FROM Department, Employee
+\end_layout
+
+\begin_layout Plain Layout
+
+WHERE WorkDept = DeptNo
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:pianidiaccesso"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename pianidiaccesso.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Si noti che ogni nodo ha una sua rappresentazioni, ad esempio nelle foglie
+ sono presenti i dati, al livello subito superiore invece sono presenti
+ i 
+\emph on
+metodi di accesso
+\emph default
+, salendo ancora di un livello troviamo un
+\emph on
+ operatore fisico
+\emph default
+ e infine la risoluzione della query (il numero presente nei nodi rappresenta
+ il tempo di esecuzione in RAM cioè il parametro TIMERON di DB2).
+\end_layout
+
+\begin_layout Section
+Operatori relazionali
+\end_layout
+
+\begin_layout Standard
+Di seguito una lista degli 
+\emph on
+operatori relazionali
+\emph default
+ di cui andremo a vedere il funzionamento:
+\end_layout
+
+\begin_layout Enumerate
+Ordinamento
+\end_layout
+
+\begin_layout Enumerate
+Selezione
+\end_layout
+
+\begin_layout Enumerate
+Proiezione
+\end_layout
+
+\begin_layout Enumerate
+Join
+\end_layout
+
+\begin_layout Enumerate
+Operatori insiemistici (unione, differenza)
+\end_layout
+
+\begin_layout Enumerate
+Group by
+\end_layout
+
+\begin_layout Enumerate
+Operatori aggregati (avg, sum, count)
+\end_layout
+
+\begin_layout Enumerate
+Operatori di modifica (update, delete, insert)
+\end_layout
+
+\begin_layout Standard
+Assumiamo che il costo di produzione del risultato equivalga a zero, quindi
+ lo ignoreremo: questo poichè in qualsiasi modo valutiamo la query, il risultato
+ che essa produce è sempre lo stesso, quindi anche se cambiamo il piano
+ di accesso (e quindi cambiamo il costo poichè ogni piano di accesso ha
+ un costo diverso) il costo di produzione del risultato rimane invariato,
+ dunque possiamo tranquillamente ignorarlo.
+\end_layout
+
+\begin_layout Standard
+La 
+\series bold
+simbologia 
+\series default
+che utilizzeremo è la seguente:
+\end_layout
+
+\begin_layout Description
+N(R) numero di record della relazione R
+\end_layout
+
+\begin_layout Description
+P(R) numero di pagine della relazione R
+\end_layout
+
+\begin_layout Description
+Len(R) lunghezza (in byte) di un record della relazione R
+\end_layout
+
+\begin_layout Description
+NK(R.A) numero di valori distinti dell'attributo A della relazione R
+\end_layout
+
+\begin_layout Description
+TP(R) numero di tuple per pagina: vale la seguente relazione 
+\begin_inset Formula $P(R)=\left\lceil \frac{N(R)}{TP(R)}\right\rceil $
+\end_inset
+
+
+\end_layout
+
+\begin_layout Description
+B numero di pagine buffer
+\end_layout
+
+\begin_layout Description
+L(IX) numero di pagine foglia dell'indice IX
+\end_layout
+
+\begin_layout Standard
+Ometteremo R e IX se chiari dal contesto.
+\end_layout
+
+\begin_layout Standard
+Lo 
+\emph on
+schema di riferimento
+\emph default
+ su cui ci baseremo è il seguente.
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+Sommelier (
+\bar under
+sid: integer
+\bar default
+, snome: string, val: integer, età: integer)
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+Vini (
+\bar under
+vid: integer
+\bar default
+, vnome: string, cantina: string)
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+Recensioni (
+\bar under
+sid: integer, vid: integer, anno: integer
+\bar default
+, rivista string)
+\end_layout
+
+\begin_layout Standard
+Gli attributi sottolineati sono gli attributi chiave della relazione associata.
+ Indicheremo per semplicità con S la relazione Sommelier, V la relazione
+ Vini e R la relazione Recensioni.
+ I dati in nostro possesso sono
+\end_layout
+
+\begin_layout Itemize
+Len(S)=50B - N(S)=40K - TP(S)=80 - P(S) = 
+\begin_inset Formula $\left\lceil \frac{N}{TP}\right\rceil =500$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Len(V)=40B - N(V)=10K - TP(V)=100 - P(V)=100
+\end_layout
+
+\begin_layout Itemize
+Len(R)=40B - N(R)=100K - TP(R)=100 - P(R)=1K
+\end_layout
+
+\begin_layout Standard
+Dove Len indica la lunghezza di un record in byte, N indica il numero di
+ tuple nella relazione, TP il numero di tuple per pagina e infine P il numero
+ di pagine per memorizzare tutti i record della relazione.
+\end_layout
+
+\begin_layout Subsubsection
+Algebra Relazione
+\end_layout
+
+\begin_layout Standard
+Rivediamo, in sintesi, i tre operatori più importanti dell'algebra relazionale:
+ 
+\emph on
+selezione
+\emph default
+, 
+\emph on
+proiezione
+\emph default
+ e 
+\emph on
+join
+\emph default
+ (e alter join).
+\end_layout
+
+\begin_layout Paragraph
+SELEZIONE
+\end_layout
+
+\begin_layout Standard
+Indicata con il simbolo 
+\begin_inset Formula $\sigma$
+\end_inset
+
+, è un operatore 
+\emph on
+unario
+\emph default
+ che ha come dati di ingresso una 
+\emph on
+relazione R
+\emph default
+ e una 
+\emph on
+condizione booleana 
+\emph default
+(ricorda che una condizione booleana in SQL è un predicato che ha come possibili
+ risultati 
+\emph on
+True False 
+\emph default
+o 
+\emph on
+Null
+\emph default
+) e che restituisce come risultato tutte e sole le tuple della relazione
+ che soddisfano la condizione booleana.
+ Esempio 
+\begin_inset Formula $\sigma_{STUDENTI}(nome="pippo")$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Paragraph
+PROIEZIONE
+\end_layout
+
+\begin_layout Standard
+Indicata con il simbolo 
+\begin_inset Formula $\pi$
+\end_inset
+
+, è un operatore 
+\emph on
+unario
+\emph default
+ che ha come dati di ingresso una 
+\emph on
+relazione R 
+\emph default
+e un'
+\emph on
+insieme di attributi
+\emph default
+ della relazione stessa e che restituisce una nuova relazione, sottoinsieme
+ della relazione di input R, in cui sono presenti solo le colonne degli
+ attributi indicati.
+ Si noti che se nell'algebra lineare questo potrebbe portare ad eliminare
+ alcune tuple che nella nuova relazione potrebbero risultare duplicate,
+ in SQL questo non è vero (si usa la cluasola DISTINCT per l'eliminazione
+ dei duplicati).
+ Esempio 
+\begin_inset Formula 
+\[
+\pi_{\sigma_{STUDENTI}(nome="pippo")}(matr,email)
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+In alcuni casi questi operatori possono commutare fra loro, in altri no.
+ L'esempio appena mostrato non è commutativo, infatti risulta diverso da
+\begin_inset Formula 
+\[
+\sigma_{\pi_{STUDENTI}(matr,email)}(nome="pippo")
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+tanto che questo esempio non è neanche più valido (faccio una ricerca su
+ un attributo non più esistente).
+\end_layout
+
+\begin_layout Paragraph
+JOIN
+\end_layout
+
+\begin_layout Standard
+Indicato con il simbolo ><, l'operatore di 
+\emph on
+join 
+\emph default
+esiste in molte varianti, il più semplice è il 
+\emph on
+join naturale
+\emph default
+, cioè il join senza alcuna specifica, che applica un uguaglianza sugli
+ attributi di ugual nome (è dunque un operatore binario).
+ In caso tutti gli attributi abbiano nomi differenti, è possibile specificare
+ esplicatamente gli attributi su cui fare join 
+\begin_inset Formula $><_{matr=matrs}$
+\end_inset
+
+ e in questo caso si parla di 
+\emph on
+Theta-join
+\emph default
+.
+\end_layout
+
+\begin_layout Standard
+L'
+\series bold
+alter-join
+\series default
+, il cui simbolo è 
+\begin_inset Formula $=><$
+\end_inset
+
+ è diverso dal semplice join naturale, in quanto aggiunge anche tutte le
+ tuple (chiamate 
+\emph on
+tuple dandling) 
+\emph default
+su cui non riesce a far 
+\emph on
+matching
+\emph default
+.
+ Le tuple dandling vengono completate, per gli attributi che non fanno parte
+ dello schema ovvero per attributi non presenti in una relazione ma presenti
+ nell'altra, con valori NULL.
+\end_layout
+
+\begin_layout Paragraph
+Estensioni
+\end_layout
+
+\begin_layout Standard
+Si prenda come esempio la seguente query
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+SELECT CODC, COUNT(*)
+\end_layout
+
+\begin_layout Plain Layout
+
+FROM ESAMI
+\end_layout
+
+\begin_layout Plain Layout
+
+GROUP BY CODC
+\end_layout
+
+\begin_layout Plain Layout
+
+HAVING COUNT(*)>50
+\end_layout
+
+\begin_layout Plain Layout
+
+ORDER BY CONT(*) DESC
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Essa raggruppa (GROUP BY) tutti gli esami per codice corso (CODC), e per
+ ogni gruppo ne valuta l'
+\emph on
+Having
+\emph default
+ (l'equivalente della clausola WHERE ma applicata ai gruppi): viene valutato
+ per ogni codice corso quante tuple sono presenti, e se sono superiori a
+ 50 allora viene selezionato: di tutti i gruppi presi restituisco solo il
+ codice corso e il numero di tuple ordinandolo (ORDER BY) in modo decrescente
+ sul numero di tuple.
+\end_layout
+
+\begin_layout Standard
+Di fatto abbiamo introdotto un gran numero di estensioni dell'algebra relazional
+e.
+ Andiamo in velocità ad elencare le estensioni che più vengono usate:
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+Estensioni dell'algebra:
+\series default
+ 
+\emph on
+GROUP BY, ORDER BY, HAVING
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+Operatori insiemistici: 
+\series default
+\emph on
+UNION, INTERSECT, EXEPT
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+Funzioni Aggregate:
+\series default
+ 
+\emph on
+AVG, SUM, COUNT, MAX, MIN
+\end_layout
+
+\begin_layout Subsection
+Ordinamento (sort)
+\end_layout
+
+\begin_layout Standard
+Nonostante non sia un operatore vero e proprio (poichè l'algebra relazionale
+ tratta insiemi e gli insiemi non sono ordinati), lo trattiamo poichè è
+ un'operazione molto importante.
+ Viene definito attraverso la 
+\emph on
+clausola 
+\family typewriter
+\emph default
+ORDER BY.
+ 
+\family default
+Viene utilizzato nel 
+\emph on
+bulk-load
+\emph default
+ di un undice.
+ Vedremo come elimina le copie di record (attraverso la clausola 
+\family typewriter
+DISTINCT
+\family default
+).
+ Viene usato in diversi algoritmi di join e di group by.
+\end_layout
+
+\begin_layout Standard
+Oltre al caso base che considereremo, esistono delle 
+\emph on
+varianti 
+\emph default
+all'operazione di ordinamento degne di nota: se richiesto, infatti, si possono
+ eliminare i 
+\emph on
+duplicati
+\emph default
+ durante l'esecuzione del sort (codice di seguito) per una maggiore efficenza,
+ oppure, se alcuni attributi in input non servono nell'output è possibile
+ eliminarli durante l'esecuzione del sort stesso.
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+SELECT DISTINCT LastName
+\end_layout
+
+\begin_layout Plain Layout
+
+FROM Employee
+\end_layout
+
+\begin_layout Plain Layout
+
+ORDER BY LastName
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Vediamo subito un esempio (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:esempiordinamento"
+
+\end_inset
+
+) di ordinamento che risolve la seguente query
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+SELECT Cognome, Nome, Matricola
+\end_layout
+
+\begin_layout Plain Layout
+
+FROM Studenti
+\end_layout
+
+\begin_layout Plain Layout
+
+ORDER BY Cognome, Nome
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:esempiordinamento"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename esempioordinamento.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Bisogna innanzitutto distinguere tra gli algoritmi di ordinamento possibili
+ in 
+\emph on
+RAM
+\emph default
+ e quelli invece in 
+\emph on
+memoria secondaria.
+\end_layout
+
+\begin_layout Standard
+Gli algoritmi di sort in RAM (Bubblie sort, Insertion sort, Shell sort,
+ Merge sor, Heapsort, Quicksort, 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+ldots
+\end_layout
+
+\end_inset
+
+) hanno prestazioni generalmente molte buone, tipicamente 
+\begin_inset Formula $O(nlogn),\, O(n^{2})$
+\end_inset
+
+ (ad esempio il 
+\emph on
+mergesort 
+\emph default
+ha sempre prestanzione 
+\begin_inset Formula $n\cdot logn$
+\end_inset
+
+ mentre il 
+\emph on
+quicksort
+\emph default
+, in media 
+\begin_inset Formula $n\cdot logn$
+\end_inset
+
+, in alcune istanze ha complessità n
+\begin_inset Formula $^{2}$
+\end_inset
+
+).
+ In genere richiedono che il dataset sia interamente contenuto in memoria
+ (non è opportuno caricare tutto il data set in memoria virtuale poichè
+ poi le pagine verrebbero allocate in modo casuale) eccetto per il 
+\emph on
+merge sort
+\emph default
+ che richiede la presenza di solo 2 elementi in memoria principale.
+ Ecco dunque che ci viene possibile utilizzare l'algoritmo di 
+\emph on
+merge sort
+\emph default
+ in memoria secondaria: l'idea di base è che, siccome i dati non riescono
+ a stare tutti in memoria, possiamo dividerli in sequenza, chiamate 
+\emph on
+run
+\emph default
+, più piccole, ordinare le sequenze una ad una e infine fondere le sequenze
+ un elemento per volta.
+ Di fatto ogni sequenza ha le dimensioni massime di una pagina (e ad ogni
+ passo la grandezza della sequenza avrà dimensioni massime di 2 pagine,
+ poi di 4 pagine, etc
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+ldots
+\end_layout
+
+\end_inset
+
+).
+ Il primo passo di ordinamento utilizza un algoritmo di sort in RAM (ad
+ esempio il quicksort).
+\end_layout
+
+\begin_layout Standard
+In figura (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:schemautilizzomergesort"
+
+\end_inset
+
+) viene mostrato lo schema di principio
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:schemautilizzomergesort"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename schemautilizzomergesort.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Facciamo un rapido esempio per ricordare il funzionamento del merge sort
+ e applichiamolo ad un caso studio:
+\begin_inset Newline newline
+\end_inset
+
+Ho 2 record per pagina.
+ 
+\begin_inset Newline newline
+\end_inset
+
+L'input assegnato è: 3, 4, 6, 2, 9, 4, 8, 7, 5, 6, 3, 1, 2
+\end_layout
+
+\begin_layout Enumerate
+passo: [3,4], [6,2], [9,4], [8,7], [5,6], [3,1], [2]
+\end_layout
+
+\begin_layout Enumerate
+passo: [3,4], [2,6], [4,9], [7,8], [5,6], [1,3], [2]
+\end_layout
+
+\begin_layout Enumerate
+passo: [2,3,4,6], [4,7,8,9], [1,3,5,6], [2]
+\end_layout
+
+\begin_layout Enumerate
+passo: [2,3,4,4,6,7,8,9], [1,2,3,5,6]
+\end_layout
+
+\begin_layout Enumerate
+passo: [1,2,2,3,3,4,4,5,6,6,7,8,9]
+\end_layout
+
+\begin_layout Standard
+Analizziamo il costo del 
+\emph on
+Mergesort
+\emph default
+: sono usate solo 3 buffer, 2 per l'input e una per l'output: quando il
+ buffer di output è pieno lo devo scrivere su disco.
+ Si legge la prima pagina da ciascuna 
+\emph on
+run
+\emph default
+ e si può quindi determinare la prima pagina dell'
+\emph on
+output
+\emph default
+: quando tutti i record di una pagina di run sono stati consumati si legge
+ un'altra pagina della run.
+ Si veda in figura (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:mergesortgestionebuffer"
+
+\end_inset
+
+) come il Merge-sort gestisce il buffer.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:mergesortgestionebuffer"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename mergesortgestionebuffer.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Se il numero di pagine del file di input è 2
+\begin_inset Formula $^{k}$
+\end_inset
+
+ allora:
+\end_layout
+
+\begin_layout Itemize
+il primo passo produce 2
+\begin_inset Formula $^{k}$
+\end_inset
+
+ 
+\emph on
+run
+\emph default
+ di una pagina
+\end_layout
+
+\begin_layout Itemize
+il secondo passo produce 2
+\begin_inset Formula $^{k-1}$
+\end_inset
+
+ 
+\emph on
+run
+\emph default
+ di 2 pagine
+\end_layout
+
+\begin_layout Itemize
+il terzo passo produce 2
+\begin_inset Formula $^{k-2}$
+\end_inset
+
+ 
+\emph on
+run
+\emph default
+ di 4 pagine
+\end_layout
+
+\begin_layout Itemize
+il k-esimo passo (l'ultimo) produce 1 
+\emph on
+run
+\emph default
+ di 2
+\begin_inset Formula $^{k}$
+\end_inset
+
+ pagine
+\end_layout
+
+\begin_layout Standard
+Il numero totale di passi è 
+\begin_inset Formula $\left\lceil \log_{2}P\right\rceil +1$
+\end_inset
+
+ (dove il +1 è dovuto al primo passo di 
+\emph on
+sort 
+\emph default
+prima evidenziato) e dunque il costo è pari a 
+\begin_inset Formula $P\cdot(\left\lceil \log_{2}P\right\rceil +1)$
+\end_inset
+
+ letture e 
+\begin_inset Formula $P\cdot(\left\lceil \log_{2}P\right\rceil +1)$
+\end_inset
+
+ scritture (dove il +1 in entrambi i casi è dovuto per leggere e scrivere
+ i primi run per il primo passo di sort).
+ Notiamo che l'ultimo passo di scrittura è non necessario, infatti l'ultimo
+ passo implica avere il risultato e non è necessario scriverlo su disco,
+ ma semplicemente restituirlo a chi aveva demandato l'operazione di ordinamento.
+\end_layout
+
+\begin_layout Standard
+Facciamo un esempio.
+ Dato il numero di pagine P uguale a 
+\begin_inset Formula $P=8192$
+\end_inset
+
+, applicando semplicemente le formule avrei un costo di 
+\begin_inset Formula $8192\cdot(\log_{2}8192+1)\, letture+8192\cdot(\log_{2}8192+1)\, scritture=229376$
+\end_inset
+
+ operazioni di I/O: se ogni operazione I/O richiede 10ms l'ordinamento con
+ merge-sort richiederebbe circa 38 minuti (impensabile).
+ Un primo miglioramento si potrebbe ottenere ordinando 
+\emph on
+B pagine
+\emph default
+ alla volta invece che una, diminuendo il costo a 
+\begin_inset Formula $2\cdot P\cdot(\left\lceil \log_{2}\frac{P}{B}\right\rceil +1)$
+\end_inset
+
+ operazioni.
+ Applicando la nuova formula all'esempio precedente e imponendo 
+\begin_inset Formula $B=11$
+\end_inset
+
+, l'operazione di ordinamento richiederebbe 30 minuti invece che 38 (ma
+ è ancora troppo!).
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace defskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Guardiamo ora un altro algoritmo di ordinamento, il 
+\emph on
+sort-merge a Z vie
+\emph default
+.
+ Notiamo che se anche il costo del 
+\emph on
+mergesort 
+\emph default
+è 
+\begin_inset Formula $O(P\cdot\log P)$
+\end_inset
+
+ il buffer non viene utilizzato al meglio durante l'operazione di fusione:
+ infatti l'operazione di fusione effettuata solo su due run alla volta è
+ il fattore che più incide sul peggioramento delle prestazioni.
+ Ecco allora l'idea base del sort-merge: supponenedo di avere B=Z+1 pagine
+ nel buffer a disposizione, invece che fondere 2 pagine alla volta se ne
+ possono fondere Z alla volta (serve sempre una pagina in più per l'output).
+ Aumentando il 
+\emph on
+fan-in
+\emph default
+ del passo di 
+\emph on
+merge
+\emph default
+ si aumenta la base del logaritmo.
+ Si veda la figura (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:mergesortzvieschema"
+
+\end_inset
+
+) per capire meglio l'idea di base.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:mergesortzvieschema"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename mergesortzvieschema.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Vediamo come funziona l'algoritmo sort-merge a Z vie in pseudo codice.
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+leggi il file B pagine alla volta
+\end_layout
+
+\begin_layout Plain Layout
+
+ordina le pagine
+\end_layout
+
+\begin_layout Plain Layout
+
+scrivi le pagine in un file ausiliario (run)
+\end_layout
+
+\begin_layout Plain Layout
+
+while(numero di run>1)
+\end_layout
+
+\begin_layout Plain Layout
+
+	while(ci sono ancora run da fondere)
+\end_layout
+
+\begin_layout Plain Layout
+
+		seleziona Z run dal passo precedente
+\end_layout
+
+\begin_layout Plain Layout
+
+		leggi le run in memoria una pagina per volta
+\end_layout
+
+\begin_layout Plain Layout
+
+		fondi le run
+\end_layout
+
+\begin_layout Plain Layout
+
+		scrivi sul buffer di output una pagina alla volta
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+e vediamolo dunque applicato ad un esempio.
+\begin_inset Newline newline
+\end_inset
+
+B=Z+1=11 - P=8192
+\end_layout
+
+\begin_layout Enumerate
+passo: produce 
+\begin_inset Formula $\left\lceil \frac{8192}{11}\right\rceil =745$
+\end_inset
+
+ 
+\emph on
+run
+\emph default
+ di 11 pagine ciascuna (i primi 744 run hanno 11 pagine
+\begin_inset Formula $\rightarrow744\cdot11=8184$
+\end_inset
+
+), tranne l'ultimo di 8 pagine (per arrivare a 8192)
+\end_layout
+
+\begin_layout Enumerate
+passo: 
+\emph on
+merge
+\emph default
+ a Z=10 vie che produce 
+\begin_inset Formula $\left\lceil \frac{745}{10}\right\rceil =75$
+\end_inset
+
+ run di 110 pagine (i primi 74 run hanno 110 pagine
+\begin_inset Formula $\rightarrow74\cdot110=8140$
+\end_inset
+
+), tranne l'ultimo di 52 pagine (per arrivare a 8192)
+\end_layout
+
+\begin_layout Enumerate
+passo: 
+\emph on
+merge a 
+\emph default
+10 vie che produce 
+\begin_inset Formula $\left\lceil \frac{75}{10}\right\rceil =8$
+\end_inset
+
+ run di cui di 1100 pagine (i primi 7 run hanno 1100 pagine
+\begin_inset Formula $\rightarrow1100\cdot7=7700$
+\end_inset
+
+) tranne l'ultimo di 492 pagine (per arrivare a 8192)
+\end_layout
+
+\begin_layout Enumerate
+passo: 
+\emph on
+merge a 
+\emph default
+8 vie (essendo Z=10 ma avendo solo 8 run so che è l'ultimo passo) che produce
+ le 8192 pagine ordinate
+\end_layout
+
+\begin_layout Standard
+Analizziamo il costo del 
+\emph on
+sortmerge a Z vie
+\emph default
+: nell'esempio appena descritto il costo è dato dalla 
+\emph on
+lettura
+\emph default
+ delle 8192 pagine in 4 passi 
+\begin_inset Formula $\rightarrow8192\cdot4=32768$
+\end_inset
+
+ operazioni I/O più il costo dovuto alla 
+\emph on
+scrittura 
+\emph default
+delle 8192 pagine in 4 passi 
+\begin_inset Formula $\rightarrow8192\cdot4=32768$
+\end_inset
+
+ operazioni I/O per un totale di 
+\begin_inset Formula $32768+32768=65536$
+\end_inset
+
+ operazioni di I/O (circa 11 minuti).
+ Più in generale il
+\emph on
+ numero di passi
+\emph default
+ è dato da 
+\begin_inset Formula $\left\lceil \log_{Z}\left\lceil \frac{P}{Z+1}\right\rceil \right\rceil +1\thickapprox\left\lceil \log_{Z}P\right\rceil $
+\end_inset
+
+ e il costo è dato da P 
+\emph on
+letture
+\emph default
+ più P 
+\emph on
+scritture
+\emph default
+ per ogni singolo passo (quindi il costo è dato da 
+\begin_inset Formula $2\cdot P\cdot numero\, di\, passi$
+\end_inset
+
+).
+ Si veda la figura (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:mergesortzvie"
+
+\end_inset
+
+) che descrive il numero di passi da fare in funzione del numero di pagine
+ P e del numero di vie Z.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:mergesortzvie"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename mergesortzvie.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Alcune considerazioni: se Z risulta essere troppo grande, il 
+\emph on
+merge a Z vie
+\emph default
+ può essere costoso dal punto di vista della CPU e quindi, ad esempio, siccome
+ il numero di passi tra Z=128 e Z=256 non varia è preferibile usare Z=128
+ per diminuire il costo computazionale dato alla CPU.
+ Altre ottimizzazioni sono possibili per evitare i tempi morti della CPU
+ in attesa di una lettura, ad esempio il 
+\emph on
+double buffering 
+\emph default
+in cui si leggono 2 pagine per ogni 
+\emph on
+run 
+\emph default
+cioè terminata di leggere la prima si legge immediatamente la successiva.
+\end_layout
+
+\begin_layout Standard
+Anche avendo molto spazio a disposizione in RAM (quindi un B grande) la
+ soluzione migliore di merge potrebbe non essere scegliere Z=B-1: distinguendo
+ tra le letture random e le letture sequenziali si perviene a scelte più
+ accurate infatti finora abbiamo supposto che tutte le letture effettuate
+ da disco siano letture 
+\begin_inset Quotes eld
+\end_inset
+
+random
+\begin_inset Quotes erd
+\end_inset
+
+ quindi con costo 1, ma di fatto se considero letture sequenziali il costo
+ diminuisce.
+ Denominato con Ts il tempo di seek, Tr il tempo di latenza e Tt il tempo
+ di trasferimento di una pagina, il modello considera che il costo di X
+ letture di pagine sequenziali (quindi ho X pagine) sia
+\begin_inset Formula 
+\[
+Ts+Tr+X\cdot Tt=\left(\frac{Ts+Tr}{Tt}+X\right)\cdot Tt=(C+X)\cdot Tt
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+dove 
+\begin_inset Formula $C=\frac{Ts+Tr}{Tt}\thickapprox10\div50$
+\end_inset
+
+ e si nota che la lettura sequenziale di pagine è data da 
+\begin_inset Formula $C+X$
+\end_inset
+
+.
+ Nel caso di lettura Random il costo di X pagine è invece dato da
+\begin_inset Formula 
+\[
+X\cdot(Ts+Tr+Tt)=X\cdot(\frac{Ts+Tr+Tt}{Tt})\cdot Tt=X\cdot(C+1)\cdot Tt=(X\cdot C+X)\cdot Tt
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+quindi pago X volte il costo di seek.
+\end_layout
+
+\begin_layout Standard
+Durante il 
+\emph on
+sort interno
+\emph default
+ si leggono e si scrivono B pagine alla volta (quindi sostituisco B a X).
+ Il costo, usando Tt come unità di misura, si può stimare a circa 
+\begin_inset Formula $2\cdot\frac{P}{B}\cdot(C+B)$
+\end_inset
+
+ in cui 
+\begin_inset Formula $2\cdot\frac{P}{B}$
+\end_inset
+
+ rappresenta il numero di seek (si noti che la formula è approssimata se
+ P non è multiplo di B).
+ Si vede che ho ridotto il numero di seek di un fattore pari a B.
+\end_layout
+
+\begin_layout Standard
+Se voglio sfruttare le letture sequenziali, anziche utilizzare Z buffer
+ per ogni run, utilizzo Z frame per ciascun buffer e dunque per la fuzione
+ si organizzano i B-1 buffer dedicati alla lettura in Z 
+\begin_inset Quotes eld
+\end_inset
+
+frame
+\begin_inset Quotes erd
+\end_inset
+
+ di FS pagine ciascuno (il che vuol dire che si leggeranno FS pagine alla
+ volta).
+\end_layout
+
+\begin_layout Standard
+Tentiamo di capire meglio: prendo un run e carico FS pagine alla volta (invece
+ che una pagina alla volta) mettendole nel frame, ed essendo letture sequenziali
+ non ho impatto nel costo.
+ La run non la leggo una una pagina alla volta ma FS alla volta, riducendo
+ di FS il tempo di seek.
+\end_layout
+
+\begin_layout Standard
+Per ogni passo di fusioni si hanno i seguenti costi (le operazioni di scrittura
+ rimangono tutte random): Lettura ha costo 
+\begin_inset Formula $\frac{P}{FS}\cdot(C+FS)$
+\end_inset
+
+ e la scrittura ha ancora costo 
+\begin_inset Formula $P\cdot(C+1)$
+\end_inset
+
+, complessivamente il costo, utilizzando Tt come unità di misura, diventa
+\begin_inset Formula 
+\[
+2\cdot\frac{P}{B}\cdot(C+B)+\left(\frac{P}{FS}\cdot(C+FS)+P\cdot(C+1)\right)\cdot\left\lceil \log_{Z}\frac{P}{B}\right\rceil 
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Considerando solo la parte che varia con Z (cioè le letture in fase di fusione)
+ e ricordando che 
+\begin_inset Formula $FS=\frac{B-1}{Z}$
+\end_inset
+
+ si deve minimizzare 
+\begin_inset Formula 
+\[
+\left(P\cdot C\cdot\frac{Z}{B-1}+P\cdot(C+2)\right)\left\lceil \log_{Z}\frac{P}{B}\right\rceil 
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Esempio.
+ 
+\begin_inset Formula $C=10$
+\end_inset
+
+ e 
+\begin_inset Formula $P=50000$
+\end_inset
+
+ al variare di B si ottengono i seguenti risultati (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:mergesortzvieesempiotabellare"
+
+\end_inset
+
+)
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:mergesortzvieesempiotabellare"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename mergesortzvieesempiotabella.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Morale, anche avendo un modello più preciso ci si accorge che non ha senso
+ per i 
+\emph on
+dbms
+\emph default
+ aumentare troppo Z, poichè, si veda la tabella, aumentando anche Z non
+ si migliora il costo.
+\end_layout
+
+\begin_layout Standard
+Quanto visto può ovviamente estendersi a considerare il caso in cui anche
+ per le scritture si operi in maniera sequenziale.
+ Si possono anche considerare gli effetti della cache.
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace defskip
+\end_inset
+
+L'ultimo ordinamento che controlliamo è il 
+\emph on
+sorting con B
+\begin_inset Formula $^{+}$
+\end_inset
+
+-tree.
+ 
+\emph default
+Se l'indice è 
+\emph on
+clustered
+\emph default
+ (ordinato come il file/relazione) allora le pagine del file sono ordinate
+ (almeno logicamente), dunque il costo è dato da 
+\begin_inset Formula $Costo=L+P$
+\end_inset
+
+ dove L corrisponde al numero delle foglie dell'albero, mentre P al numero
+ di pagine del file, se l'indice oltre ad essere clustered è una struttura
+ di memorizzazione primaria (cioè memorizza i record e non i PID/RID) allora
+ il costo è dato solo da 
+\begin_inset Formula $Costo=L$
+\end_inset
+
+.
+ A differenza se l'indice è 
+\emph on
+unclustered 
+\emph default
+ogni record causa la lettura di una pagina e dunque il costo diventa 
+\begin_inset Formula $Costo=L+N\thickapprox N$
+\end_inset
+
+ dove N equivale al numero dei record; se però tutti i campi che ci interessano
+ sono all'interno dell'indice allora il costo si abbatte e diventa 
+\begin_inset Formula $Costo=L$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+Si noti un ulteriore osservazione.
+ Prendiamo come esempio un indice costruito sull'attributo COGNOME della
+ relazione STUDENTI, che però risulta essere 
+\emph on
+unclustered.
+ 
+\emph default
+La query che vogliamo risolvere è
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+SELECT cognome 
+\end_layout
+
+\begin_layout Plain Layout
+
+FROM studenti
+\end_layout
+
+\begin_layout Plain Layout
+
+ORDER by cognome
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Nonostante l'indice risulta 
+\emph on
+unclestered
+\emph default
+ il fatto che come output io voglia solo l'ordinamento sull'attributo COGNOME,
+ il costo è semplicemente 
+\begin_inset Formula $Costo=L$
+\end_inset
+
+ poichè l'indice risulterà ordinato per conto suo (anche se unclustered
+ con la relazione) e non dovendo fornire dati ulteriori se non il cognome
+ stesso il costo si abbatte, nel risultato non dovrà neppure restituire
+ i RID, perchè tanto non ha senso accedere ai dati poichè le informazioni
+ su come ordinare l'attributo cognome sono reperibili dall'indice stesso
+ (creato appunto sull'attributo cognome).
+ Se volessi anche mantenere i 
+\emph on
+duplicati 
+\emph default
+nella richiesta, allora posso sempre utilizzare esclusivamente l'indice,
+ in quanto nell'indice ricordiamo sono salvate informazioni <chiave,RID>
+ ma in caso di duplicati il RID è una lista di RID: di conseguenza nel risultato
+ di ordinamento genererà tante 
+\begin_inset Quotes eld
+\end_inset
+
+chiavi
+\begin_inset Quotes erd
+\end_inset
+
+ dello stesso tipo quanto è lunga la lista di RID.
+\end_layout
+
+\begin_layout Standard
+Se ora volessi risolvere questa query
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+SELECT cognome, matr 
+\end_layout
+
+\begin_layout Plain Layout
+
+FROM studenti
+\end_layout
+
+\begin_layout Plain Layout
+
+ORDER BY cognome
+\end_layout
+
+\end_inset
+
+ l'indice prima descritto non basterebbe (poichè non ho l'informazione su
+ matr che devo reperire sui dati), e si ricadrebbe nuovamente nel caso di
+ costo pari a 
+\begin_inset Formula $Costo=L+N$
+\end_inset
+
+.
+ Ecco che, in molti casi, i sistemi 
+\emph on
+dbms 
+\emph default
+includono negli indici non solo la chiave per la ricerca, ma aggiungono
+ valori di uno o più attributi reputati significativi evitando così di accedere
+ ai dati aumentando dunque la performance.
+\end_layout
+
+\begin_layout Standard
+Notiamo infine che non è possibile fare un sort con un indice hash, dato
+ che l'indice hash sparpaglia i valori di chiave senza rispettare alcun
+ ordine.
+ L'utilizzo dell'indice B+tree per il sorting è un metodo alternativo all'utiliz
+zo del merge sort a Z vie: quest'ultimo infatti (merge sort) richiede un
+ passo importante nel 
+\begin_inset Quotes eld
+\end_inset
+
+design
+\begin_inset Quotes erd
+\end_inset
+
+ della struttura, in quanto bisogna sapere come allocare i buffer, se massimizza
+re il numero Z o tentare di raggiungere una buona soluzione introducendo
+ le letture sequenziali (che richiedono di diminuire Z) ed ecco perchè l'alterna
+tiva col B+tree potrebbe riternersi parecchio valida.
+\end_layout
+
+\begin_layout Subsection
+Selezione
+\end_layout
+
+\begin_layout Standard
+Si supponga di avere una query del tipo
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+SELECT *
+\end_layout
+
+\begin_layout Plain Layout
+
+FROM Recensioni as R
+\end_layout
+
+\begin_layout Plain Layout
+
+WHERE R.rivista="Sapore DiVino"
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Quale risulta il 
+\emph on
+percorso d'accesso 
+\emph default
+migliore per la sua risoluzione? La scelta dipende da molti fattori come
+ ad esempio quanti record compongono il risultato o se esiste un indice
+ in grado di gestire la query.
+\end_layout
+
+\begin_layout Standard
+Poichè non è possibile sapere il numero di tuple che comporranno il risultato
+ della nostra query, non possiamo far altro che effettuare una stima su
+ questo numero.
+ Da ora in poi chiameremo questa stima con E e risulterà equivalente a 
+\begin_inset Formula $E=f\cdot N$
+\end_inset
+
+ dove 
+\emph on
+f
+\emph default
+ è detto 
+\emph on
+fattore di selettività 
+\emph default
+della query (si noti che più 
+\emph on
+f
+\emph default
+ risulta piccolo più la query è selettiva) mentre N è il numero di record
+ della relazione sulla quale stiamo svolgendo la selezione.
+ Si ricordi che N è un numero noto grazie alle statistiche presenti sui
+ catologhi.
+ Bisogna dunque valutare il 
+\emph on
+fattore di selettività f
+\emph default
+.
+ Se si suppongono i valori dell'attributo coinvolto uniformemente distribuiti
+ nel predicato di selezione (che risulta essere un approccio semplicistico,
+ che infatti, come vedremo più avanti potrà essere migliorato) allora 
+\emph on
+f
+\emph default
+ risulta essere 
+\begin_inset Formula $f=\frac{E_{k}}{N_{k}}$
+\end_inset
+
+ dove E
+\begin_inset Formula $_{k}$
+\end_inset
+
+ è il numero di valori attesi nel risultato (e nuovamente N
+\begin_inset Formula $_{k}$
+\end_inset
+
+ è il numero di valori distinti presenti nell'attributo coinvolto nella
+ selezione).
+ Il valore E
+\begin_inset Formula $_{k}$
+\end_inset
+
+ è un valore atteso, e varia a seconda del predicato che si sta applicando,
+ ad esempio, se il predicato è di uguaglianza, cioè sto facendo una selezione
+ per uguaglianza, posso immaginare che il valore atteso sia uno, cioè che
+ solo una tupla abbia effettivamente il valore che sto cercando.
+ Il valore di selettività 
+\emph on
+f
+\emph default
+ deriva da la supposizione di distribuzione uniforme, quindi posso immaginare
+ che ogni valore dell'attributo comparirà con frequenza 
+\begin_inset Formula $\frac{N}{N_{k}}$
+\end_inset
+
+, moltiplicando questo valore per il valore atteso E
+\begin_inset Formula $_{k}$
+\end_inset
+
+ otterremo la stima E
+\begin_inset Formula $\rightarrow E=E_{k}\cdot\frac{N}{N_{k}}=f\cdot N$
+\end_inset
+
+ in cui appunto 
+\begin_inset Formula $f=\frac{E_{k}}{N_{k}}$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+Notiamo che il fattore di selettività cambia a seconda del 
+\emph on
+predicato 
+\emph default
+utilizzato come si vede nella seguente tabella (Tabella 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "tab:fattoreselettivita"
+
+\end_inset
+
+)
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float table
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "tab:fattoreselettivita"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+noindent
+\backslash
+resizebox{
+\backslash
+textwidth}{!}{
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Tabular
+<lyxtabular version="3" rows="10" columns="2">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0">
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\series bold
+Predicato
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\series bold
+Fattore di selettività f
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+=
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $f=\frac{1}{N_{k}}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+IN set
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $f=\frac{|set|}{N_{k}}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $<v$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $f=\frac{(v-min)}{(max-min)}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\emph on
+between
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $f=\frac{(high-low)}{(max-min)}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+attributo non numerico e 
+\begin_inset Formula $<v$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $f=\frac{1}{2}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+attributo non numerico e 
+\emph on
+between
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $f=\frac{1}{3}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+P AND Q
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $f=f_{P}\cdot f_{Q}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+not P
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $f=1-f_{P}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+P or Q
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $f=f_{P}+f_{Q}-f_{P}\cdot f_{Q}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Notiamo che per gli attributi non numerici, si utilizzano i loro valori
+ e il fattore di selettività non è dipendente da parametri.
+ In caso della congiunzione 
+\emph on
+P AND Q 
+\emph default
+o della disgiunzione 
+\emph on
+P OR Q 
+\emph default
+stiamo effettuando un ulteriore semplificazione, infatti stiamo supponendo
+ che i due predicati siano indipendenti l'un dall'altro (non siano dunque
+ correllati), cosa che effettivamente non è vera, ma se lasciassimo cadere
+ questa ipotesi, il modello risulterebbe eccessivamente complicato da analizzare
+ poichè dovrebbe controllare le correlazioni di tutte le possibile coppie
+ di attributi.
+\end_layout
+
+\begin_layout Standard
+Analizziamo dunque i 
+\emph on
+costi
+\emph default
+ della Selezione: 
+\end_layout
+
+\begin_layout Itemize
+Se 
+\bar under
+non
+\bar default
+ è presente alcun 
+\emph on
+indice
+\emph default
+ e il 
+\emph on
+file 
+\emph default
+è 
+\emph on
+disordinato
+\emph default
+ allora il costo è uguale al numero delle pagine 
+\begin_inset Formula $Costo=P$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Se 
+\bar under
+non
+\bar default
+ è presente alcun 
+\emph on
+indice
+\emph default
+ e il 
+\emph on
+file 
+\emph default
+è 
+\emph on
+ordinato 
+\emph default
+allora il costo è dovuto a una ricerca binaria 
+\begin_inset Formula $Costo=\log_{2}P+f\cdot P$
+\end_inset
+
+ in cui log
+\begin_inset Formula $_{2}P$
+\end_inset
+
+ è dovuto a una ricerca binaria all'interno del file, più effettivamente
+ la percentuale di pagine (
+\begin_inset Formula $f\cdot P$
+\end_inset
+
+) che immaginiamo risolvino la selezione
+\end_layout
+
+\begin_layout Itemize
+Indice attraverso B+tree allora il costo è dato da 
+\begin_inset Formula $Costo=h+f\ldotp L+costo\, file\, dati$
+\end_inset
+
+ dove 
+\emph on
+h
+\emph default
+ è l'altezza del B+tree e
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Se indice 
+\emph on
+clustered
+\emph default
+ allora 
+\begin_inset Formula $costo\, file\, dati=f\cdot P$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Se indice 
+\emph on
+unclustered
+\emph default
+ allora 
+\begin_inset Formula $costo\, file\, dati=E_{K}\cdot\phi(\frac{N}{N_{k}},P)$
+\end_inset
+
+ dove E
+\begin_inset Formula $_{K}$
+\end_inset
+
+ è il numero dei valori attesi mentre la funzione 
+\begin_inset Formula $\phi$
+\end_inset
+
+ è la stima di Cardennas o Yao di quante pagine bisogna accedere per la
+ lettura di un record.
+ Si noti che stiamo supponendo di non ordinare le RID e di conseguenza bisogna
+ effettuare per E
+\begin_inset Formula $_{K}$
+\end_inset
+
+ volte l'accesso alle pagine, poichè è possibile che in momenti successivi
+ si acceda alla stessa pagina.
+ Se invece, una volta reperiti i RID li ordinassimo, l'accesso ai dati risultere
+bbe essere 
+\begin_inset Formula $costo\, file\, dati\,=\Phi(f\cdot N,P)$
+\end_inset
+
+ questo perchè saremmo sicuri di accedere solo una volta ad ogni pagina,
+ di contro però mi richiede l'ordinamento dei RID e il gioco potrebbe non
+ valere la candela
+\end_layout
+
+\begin_layout Itemize
+Se l'interrogazione della selezione avviene attraverso il predicato IN occorre
+ sempre ripartire dalla radice per ogni valore, dunque è come se l'indice
+ risultasse essere 
+\emph on
+unclustered
+\end_layout
+
+\begin_layout Itemize
+Se l'interrogazione fosse di disugaglianza (quindi non di intervallo e non
+ di uguaglianza ma un semplice 
+\begin_inset Formula $>\, o\,<$
+\end_inset
+
+) potremmo evitare anche il costo dell'altezza dell'albero, poichè semplicemente
+ potremmo accedere al livello delle foglie e scandire (a seconda dei casi
+ dall'inizio verso la fine o viceversa) queste ultime per reperire il risultato
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+Indice attraverso struttura 
+\emph on
+hash 
+\emph default
+e con 
+\emph on
+predicato di uguaglianza
+\emph default
+ ('=') allora il costo è dato da 
+\begin_inset Formula $Costo=1+costo\, file\, dati$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Notiamo che il costo di selezione finora descritto riguardava una condizione
+ semplice, cioè se la condizione WHERE fa riferimento ad un solo attributo.
+ Cosa succede in caso contrario? 
+\end_layout
+
+\begin_layout Standard
+Supponiamo che il mio predicato sia sì fatto 
+\begin_inset Formula $[P1\, OR\,(P2\, AND\, P3)]\, AND\, P4$
+\end_inset
+
+: una tupla deve essere scelta se soddisfa il predicato P4 e o P1 oppure
+ P2 e P3.
+ Tentiamo di capire come un indice potrebbe essere di aiuto o meno.
+ Se avessi un solo indice che riesce a risolvere P2 sarebbe utile? Sfortunatamen
+te no, perchè anche se di tutte le tuple che soddisfano P2 possiamo poi
+ selezionare solo quelle che soddisfano anche P3, questo non ci assicura
+ che non stiamo dimenticando tuple che soddisfino P1, il che richiede quindi
+ l'accesso ai dati in modo sequenziale.
+ Il problema, come si vede, è dovuto alla presenza della disgiunzione OR.
+\end_layout
+
+\begin_layout Standard
+Bisogna attuare alcune tecniche: in primo luogo bisogna riscrivere la condizione
+ in 
+\emph on
+forma normale congiuntiva
+\emph default
+ (CNF o nota come prodotto di somme, in cui ogni AND è una somma e ogni
+ OR è un prodotto) che trasforma, nell'esempio precedente, il predicato
+ in 
+\begin_inset Formula $[(P1\, OR\, P2)\, AND\,(P1\, OR\, P3)]\, AND\, P4$
+\end_inset
+
+, quindi occorre valutare se esiste un indice in grado di gestire la condizione
+ siffata (cioè in CNF).
+ Nuovamente bisogna distinguere il caso di indici 
+\emph on
+hash
+\emph default
+ o indici B+tree.
+\end_layout
+
+\begin_layout Standard
+Introduciamo prima degli esempi per poi spiegare in maniera più generale
+ ciò che stiamo descrivendo.
+\end_layout
+
+\begin_layout Standard
+Supponiamo di avere un indice sulla relazione R (Recensioni) applicato agli
+ attributi 
+\series bold
+(R.sid, R.vid, R.rivista)
+\series default
+.
+ 
+\begin_inset Newline newline
+\end_inset
+
+In caso di 
+\emph on
+indice hash
+\emph default
+ possiamo utilizzare l'indice stesso per condizioni come
+\begin_inset Newline newline
+\end_inset
+
+
+\family typewriter
+rivista='Sapore DiVino' AND sid=3 AND vid=5
+\family default
+
+\begin_inset Newline newline
+\end_inset
+
+ma non per
+\begin_inset Newline newline
+\end_inset
+
+
+\family typewriter
+rivista='Sapore DiVino' AND sid=3 OR anno=2005
+\family default
+
+\begin_inset Newline newline
+\end_inset
+
+poichè per utilizzare l'indice hash ho bisogno di avere effettivamente tutti
+ i dati necessari che sono stati usati per la costruzione dell'indice, quindi
+ R.sid R.vid e R.rivista, e in questo ultimo caso, mancando l'attributo R.vid
+ non risulta possibile accedere ai dati tramite indice.
+\begin_inset Newline newline
+\end_inset
+
+In caso di 
+\emph on
+indice b+tree
+\emph default
+ applicato agli stessi attributi, esso risolvere query con condizioni del
+ tipo
+\begin_inset Newline newline
+\end_inset
+
+
+\family typewriter
+rivista='Sapore DiVino' AND sid=3 AND vid=5 OR sid=7 AND vid=12
+\family default
+
+\begin_inset Newline newline
+\end_inset
+
+ma non riesce con condizioni del tipo
+\begin_inset Newline newline
+\end_inset
+
+
+\family typewriter
+rivista='Sapore DiVino' AND sid=3 o anno=2005
+\family default
+
+\begin_inset Newline newline
+\end_inset
+
+poichè non risulta possibile utilizzare l'indice B+tree in mancanza del
+ 
+\begin_inset Quotes eld
+\end_inset
+
+primo
+\begin_inset Quotes erd
+\end_inset
+
+ attributo (R.sid) su cui l'indice è stato costruito.
+\end_layout
+
+\begin_layout Standard
+Proviamo ora a cambiare l'indice e ad applicarlo sempre alla relazione R
+ (Riviste) ma sugli attributi 
+\series bold
+(R.sid, R.vid)
+\series default
+, in questo caso sia che l'indice sia hash sia che sia costrutito con un
+ B+tree esso risolve query con condizioni del tipo
+\begin_inset Newline newline
+\end_inset
+
+
+\family typewriter
+rivista='Sapore DiVino' AND sid=3 AND vid=5
+\family default
+
+\begin_inset Newline newline
+\end_inset
+
+con però un ulteriore passo necessario per eliminare dei risultati (poichè
+ attraverso l'indice il risultato ha un insieme più grande di tuple, infatti
+ non è possibile eliminare attraverso l'indice quelle che hanno sid diverso
+ da 3, dunque è necessario in un passo successivo ignorarle).
+\end_layout
+
+\begin_layout Standard
+In generale un 
+\emph on
+indice hash
+\emph default
+ può risolvere una condizione congiuntiva solo se essa contiene 
+\emph on
+un termine di uguaglianza per ogni attributo chiave dell'indice
+\emph default
+ (cioè se il predicato è formato da almeno gli stessi attributi con cui
+ ho costruito l'indice e su questi attributi venga richiesta l'uguaglianza),
+ mentre un 
+\emph on
+indice B+tree
+\emph default
+ è più flessibile poichè può risolvere una condizione congiuntiva solo se
+ essa contiene 
+\emph on
+un termine per ogni attributo nel prefisso della chiave dell'indice 
+\emph default
+(ad esempio se l'indice è costruito su R.sid,R.vid,R.rivista lo posso utilizzare
+ per risolvere predicati solo su R.sid o anche solo su R.sid,R.vid) ed in questo
+ caso non è necessario che il predicato risulti essere d'uguaglianza.
+ I termini non risolubili di una condizione sono detti 
+\series bold
+termini residui
+\series default
+.
+\end_layout
+
+\begin_layout Standard
+Se la selezione risulta essere priva di 
+\emph on
+disgiunzioni
+\emph default
+ (non sono presenti OR) è possibile operare per più vie: si può utilizzare
+ il percorso di accesso più efficiente sui predicati risolubili (cioè fra
+ gli indici disponibili tali che risolvano uno dei predicati presenti fra
+ gli AND, prendo quello che ha fattore di selettività 
+\emph on
+f 
+\emph default
+più piccolo, così da riuscire a 
+\begin_inset Quotes eld
+\end_inset
+
+tagliare
+\begin_inset Quotes erd
+\end_inset
+
+ di più) e si valutano a posteriori i predicati residui: dunque il costo
+ equivale a 
+\begin_inset Formula $Costo=costo\, del\, percorso\, più\, efficiente$
+\end_inset
+
+; oppure, se esistono più predicati risolubili, si può pensare di usare
+ più indici portando il costo a 
+\begin_inset Formula $Costo=somma\, dei\, costi\, degli\, indici+costo\, dati$
+\end_inset
+
+ in cui il costo dati equivale a 
+\begin_inset Formula $Costo\, dati=\phi(f_{1}\cdot f_{2}\cdot\ldots\cdot f_{Q}\cdot N,\, P)$
+\end_inset
+
+ in cui 
+\begin_inset Formula $\phi$
+\end_inset
+
+ rappresenta la solita stima di Cardennas o Yao di quante pagine bisogna
+ accedere per la lettura di un record e in cui il numero di risultati (NR)
+ della query è dato da 
+\begin_inset Formula $NR=f_{1}\cdot f_{2}\cdot\ldots\cdot f_{Q}\cdot N$
+\end_inset
+
+ dove ogni f
+\begin_inset Formula $_{i}$
+\end_inset
+
+ equivale al fattore di selettività del predicato i-esimo ed N è il numero
+ dei record della relazione.
+ Si noti che il costo dati diminuisce all'aumentare del numero di indici.
+\end_layout
+
+\begin_layout Standard
+Vediamo ora cosa succede se la selezione contiene delle 
+\emph on
+disgiunzioni
+\emph default
+.
+ Se la condizione è una disgiunzione ed esiste anche una sola condizione
+ non risolubile con l'indice (cioè ad esempio una condizione in OR non ha
+ un indice associato) occorre necessariamente scandire il file (poichè essendo
+ in OR con altre condizioni, non ho la certezza di star 
+\begin_inset Quotes eld
+\end_inset
+
+ignorando
+\begin_inset Quotes erd
+\end_inset
+
+ tuple che sono in realtà necessarie e dunque la scansione del file diventa
+ necessaria).
+ Se invece esiste almeno una condizione in AND (cioè fa parte di un gruppo
+ in cui è presente un AND) risolubile con indice si usa il percorso d'accesso
+ più efficiente.
+ Infine se tutte le condizioni in OR sono risolubili con indice, si risolvono
+ tutte attraverso l'indice e se ne prende l'unione (eventualmente facendo
+ l'unione delle RID così da migliorare la performance, poichè così facendo
+ prima si conoscono tutti i RID e solo successivamente si accede ai dati).
+\end_layout
+
+\begin_layout Standard
+Facciamo ora alcuni esemepi di query di selezione e vediamone le caratteristiche
+\end_layout
+
+\begin_layout Paragraph
+Esempio 1
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+SELECT *
+\end_layout
+
+\begin_layout Plain Layout
+
+FROM Recensioni as R
+\end_layout
+
+\begin_layout Plain Layout
+
+WHERE R.sid=7
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+\begin_inset Formula $N(R)=100K,$
+\end_inset
+
+ 
+\begin_inset Formula $P(R)=\left\lceil \frac{N}{TP}\right\rceil =1K,$
+\end_inset
+
+ 
+\begin_inset Formula $NK(sid)=40K$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Fattore di selettività f 
+\begin_inset Formula $f=\frac{1}{40k}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Indice su attributo 
+\emph on
+sid
+\emph default
+: 
+\begin_inset Formula $h=2$
+\end_inset
+
+, 
+\begin_inset Formula $L=\left\lceil \frac{(40k\cdot2+100k\cdot4)}{4096\cdot0.69}\right\rceil =170$
+\end_inset
+
+ dove il prodotto per due è dovuto alla grandezza in byte dei record e invece
+ il prodotto per quattro è dovuto alla grandezza del puntatore
+\end_layout
+
+\begin_layout Itemize
+Numero di record nel risultato: 
+\begin_inset Formula $\left\lceil \frac{100k}{40k}\right\rceil =3$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Costo sequenziale
+\begin_inset Formula $=1000$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Costo su file ordinato
+\begin_inset Formula $=\log_{2}1000=11$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Numero di pagine lette del file: 
+\begin_inset Formula $\Phi(3,\,1k)=3$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Costo con indice B+tree clustere
+\begin_inset Formula $=2+1+1$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Costo con indice B+tree unclustered
+\begin_inset Formula $=2+1+3$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Costo con indice hash clustered
+\begin_inset Formula $=1+1$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Costo con indice hash unclustered
+\begin_inset Formula $=1+3$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Paragraph
+Esempio 2
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+SELECT *
+\end_layout
+
+\begin_layout Plain Layout
+
+FROM Recensioni as R
+\end_layout
+
+\begin_layout Plain Layout
+
+WHERE R.anno>2000 AND R.rivista="Sapori DiVino"
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+\begin_inset Formula $N(R)=100k,$
+\end_inset
+
+ 
+\begin_inset Formula $P(R)=\left\lceil \frac{N}{TP}\right\rceil =1k$
+\end_inset
+
+, 
+\begin_inset Formula $N(S)=40k$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Fattore di selettività f: 
+\begin_inset Formula $f=\frac{1}{2}\cdot\frac{1}{50}=\frac{1}{100}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Indice su attributo 
+\emph on
+anno
+\emph default
+: 
+\begin_inset Formula $h=2$
+\end_inset
+
+, 
+\begin_inset Formula $L=\left\lceil \frac{(20\cdot2+100k\cdot4}{4096\cdot0.69}\right\rceil =142$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Indice su attributo 
+\emph on
+rivista
+\emph default
+: 
+\begin_inset Formula $h=2,$
+\end_inset
+
+ 
+\begin_inset Formula $L=\left\lceil \frac{(1k\cdot22+100k\cdot4}{4096\cdot0.69}\right\rceil =143$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Numero di record nel risultato
+\begin_inset Formula $=\left\lceil \frac{100k}{100}\right\rceil =1k$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Costo sequenziale
+\begin_inset Formula $=1000$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Costo indice B+tree clustered su anno
+\begin_inset Formula $=2+\frac{142}{2}+\frac{1000}{2}=573$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Costo indice B+tree unclustered su rivista
+\begin_inset Formula $=2+\frac{142}{50}+\Phi(2k,\,1k)=870$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Costo indice B+tree clustered su rivista
+\begin_inset Formula $=2+\frac{142}{50}+\frac{1000}{50}=25$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Costo indice B+tree unclustered su anno
+\begin_inset Formula $=2+\frac{142}{2}+\Phi(50k,\,1k)=1073$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Costo indice B+tree clustered su (anno,rivista)
+\begin_inset Formula $=2+\frac{143}{2}+\frac{1000}{100}=84$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Costo indice B+tree clustere su (rivista,anno)
+\begin_inset Formula $=2+\frac{143}{50}+\frac{1000}{100}=15$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Proiezione
+\end_layout
+
+\begin_layout Standard
+Supponiamo di avere la seguente query
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+SELECT DISTINCT R.sid, R.vid
+\end_layout
+
+\begin_layout Plain Layout
+
+FROM Recensioni as R
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Quali sono le operazioni da compiere? In primo luogo bisogno eliminare gli
+ attributi della relazione che non sono richiesti (questa operazione risulta
+ facile), successivamente bisogna eliminare i record duplicati che possono
+ apparire (operazione meno facile).
+ Abbiamo 3 possibilità per operare: 
+\emph on
+sorting
+\emph default
+, 
+\emph on
+hashing
+\emph default
+, o utilizzo di un 
+\emph on
+indice
+\emph default
+.
+ Dobbiamo ora stimare la dimensione delle tuple su cui bisognerà a lavorare:
+ si nota subito che se la proiezione è su un solo attributo allora la stima
+ E è data da 
+\begin_inset Formula $E=NK$
+\end_inset
+
+ (NK è il numero di valori distinti per l'attributo), mentre se almeno uno
+ degli attributi della proiezione è un attributo 
+\emph on
+chiave
+\emph default
+ allora la stima diventa 
+\begin_inset Formula $E=N$
+\end_inset
+
+ (con N numero di tuple della relazione, poichè grazie all'attributo chiave
+ non potranno esserci duplicati).
+ In tutti gli altri i casi la stima equivale a 
+\begin_inset Formula $E=min\{N,\,\prod_{i}NK_{i}\}$
+\end_inset
+
+, cioè si prende il numero dei valori distinti di ogni attributo della proiezion
+e e se ne fa il prodotto e si prende come stima il valore minimo tra il
+ numero totale delle tuple della relazione o il prodotto appena effettuato.
+\end_layout
+
+\begin_layout Paragraph
+Proiezione con Sorting
+\end_layout
+
+\begin_layout Standard
+La proiezione attraverso 
+\emph on
+sorting
+\emph default
+ richiede di scandire tutta la relazione R producendo nuovi record contenti
+ solo gli attributi richiesti nella proiezione, scrivendoli su un nuovo
+ file T.
+ Il costo di questa operazione è 
+\begin_inset Formula $Costo=P(R)+P(T)=O(P(R))$
+\end_inset
+
+, cioè devo leggere P(R) pagine (numero di pagine della relazione R) e scriverne
+ P(T) (numero di pagine necessarie per contenere T), e ovviamente essendo
+ 
+\begin_inset Formula $P(T)\leq P(R)$
+\end_inset
+
+ il costo è O(P(R)).
+ A questo punto si ordina il file T appena scritto usando una combinazione
+ lessicografica di tutti gli attributi, il costo dell'ordinamento è 
+\begin_inset Formula $Costo=O(P(T)\cdot\log P(T))=O(P(R)\cdot\log P(R))$
+\end_inset
+
+.
+ Effettuato l'ordinamento si scandisce il file T ordinato eliminando dunque
+ i duplicati
+\begin_inset Formula $\rightarrow Costo=P(T)=O(P(R))$
+\end_inset
+
+ e l'algoritmo di proiezione termina restituendo il file T ordinato e privo
+ di duplicati.
+ È possibile diminuire il costo incorporando il primo passo (l'eliminazione
+ degli attributi) all'atto dell'ordinamento di T (dell'ordinamento della
+ prima run di T per essere precisi) oppure incorporando il terzo passo (l'elimin
+azione dei duplicati) durante l'esecuzione del 
+\emph on
+merge
+\emph default
+ del file T.
+ Facciamo un esempio: se supponiamo che ogni record proiettato (cioè il
+ record dopo aver effettuato la proiezione) abbia dimensione 
+\begin_inset Formula $Len=10B$
+\end_inset
+
+ e il file T abbia 
+\begin_inset Formula $P(T)=250$
+\end_inset
+
+ pagine, allora il costo della creazione del file T è dato da 
+\begin_inset Formula $T=1000+250=1250$
+\end_inset
+
+.
+ Se supponiamo di avere 20 pagine nel buffer, T può essere ordinato in 2
+ passi di 
+\emph on
+sort-merge 
+\emph default
+e dunque i costi diventano: 
+\begin_inset Formula $costo\, ordinamento\, T=2\cdot2\cdot250=1000$
+\end_inset
+
+, 
+\begin_inset Formula $costo\, eliminazione\, duplicati=250$
+\end_inset
+
+ (dovuta alla letture di tutte le pagine di T), 
+\begin_inset Formula $costo\, totale=1250+1000+250=2500$
+\end_inset
+
+.
+ Con le ottimizzazioni prima descritte il costo arriva a 1750.
+\end_layout
+
+\begin_layout Paragraph
+Proiezione con Hashing
+\end_layout
+
+\begin_layout Standard
+È possibile utilizzare una tecnica completamente diversa per la proiezione
+ basata sull'hashing.
+ Essa, però, richiede un numero elevato B di pagine nel buffer a disposizione.
+ È strutturata in due fasi: la prima è la fase di 
+\emph on
+partizionamento
+\emph default
+, la seconda (successiva) è la fase di 
+\emph on
+eliminazione dei duplicati
+\emph default
+.
+\end_layout
+
+\begin_layout Standard
+Nella 
+\emph on
+fase di partizionamento
+\emph default
+ vengono lette tutte le pagine della relazione R a cui stiamo applicando
+ la proiezione: per ogni pagina letta si eliminano gli attributi che non
+ si vogliono e si applica una funzione hash 
+\emph on
+H
+\begin_inset Formula $_{1}$
+\end_inset
+
+ 
+\emph default
+(a valori in [1, B-1] poichè il valore 0 si suppone essere il buffer da
+ cui si prende in input la relazione) agli attributi rimasti (cioè quelli
+ della proiezione) distribuendo i record nelle B-1 pagine.
+ Quando una pagina risulta piena viene scritta su disco.
+ Si noti che quando si distribuisce un record in un determinato buffer,
+ si legge se quel record è già presente o meno nel buffer, in caso risulti
+ essere duplicato lo si ignora.
+ Il problema è proprio dovuto al fatto che se una pagina è piena viene scritta
+ su disco perdendo dunque la possibilità di controllare se un record, che
+ andrà a finire nel buffer appena svuotato poichè scritto nel disco, era
+ già presente o meno: ecco allora che si rende necessaria la fase di 
+\emph on
+eliminazione dei duplicati
+\emph default
+.
+ In questa fase si leggono i B-1 file generati (possono essere anche di
+ meno se ad esempio un buffer non è mai andato in 
+\emph on
+overflow
+\emph default
+) durante la fase di partizionamento.
+ Partendo dal primo file (che corrisponderà al primo buffer andato in overflow)
+ si legge ogni pagina di cui è composto: si applica dunque una nuova funzione
+ hash 
+\emph on
+H
+\begin_inset Formula $_{2}$
+\end_inset
+
+ 
+\emph default
+(sempre a valori in [1, B-1]) diversa da H
+\begin_inset Formula $_{1}$
+\end_inset
+
+ e si ridistribuiscono nuovamente i record nei vari buffer eliminando come
+ prima spiegato i record duplicati: se di nuovo un buffer risulta pieno,
+ esso verrà scritto nel disco e al passo successivo bisognerà nuovamente
+ leggere i file generati con una nuova funzione H
+\begin_inset Formula $_{3}$
+\end_inset
+
+ diversa dalle precedenti.
+ Il procedimento continua iterativamente finchè non si leggono tutti i file
+ e finchè, attraverso una funzione H
+\begin_inset Formula $_{i}$
+\end_inset
+
+ la ridistribuzione dei record non causa alcuna scrittura su disco (cioè
+ nessun buffer in overflow).
+ I record rimasti alla fine del procedimento costituiscono il risultato.
+\end_layout
+
+\begin_layout Standard
+I costi della proiezione basata su hash risultano i seguenti:
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+newline
+\end_layout
+
+\end_inset
+
+ 
+\begin_inset Formula $costo\, fase\, di\, partizionamento=P(R)+P(T)$
+\end_inset
+
+, 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+nolinebreak
+\end_layout
+
+\end_inset
+
+
+\begin_inset Formula $costo\, fase\, di\, eliminazione=P(T)$
+\end_inset
+
+, 
+\begin_inset Formula $costo\, totale=P(R)+2\cdot P(T)$
+\end_inset
+
+.
+ Applicando all'esempio precedente, viene fuori 
+\begin_inset Formula $costo\, partizionamento=1000+250=1250$
+\end_inset
+
+, 
+\begin_inset Formula $costo\, eliminazione=250$
+\end_inset
+
+, 
+\begin_inset Formula $costo\, totale=1250+250=1000$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace defskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+La proiezione basata su 
+\emph on
+sorting
+\emph default
+ risulta preferibile quando vi sono molti valori duplicati o se la distribuzione
+ dei valori è molto sbilanciata (il che causerebbe una pessima performance
+ della proiezione su hashing poichè i valori andrebbero a sbilanciarsi tutti
+ sullo stesso buffer).
+ Inoltre con la proiezione attraverso il sorting i dati risultano anche
+ ordinati.
+ Si guardi la tabella (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:proiezionedbms"
+
+\end_inset
+
+) per vedere come alcuni 
+\emph on
+dbms
+\emph default
+ implementano la proiezione.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:proiezionedbms"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename proiezionedbms.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Si nota come alcuni 
+\emph on
+dbms
+\emph default
+ di punta, quali DB2 e ORACLE, utilizzino solo il sorting per effettuare
+ la proiezione.
+\end_layout
+
+\begin_layout Paragraph
+Proiezione con Indice
+\end_layout
+
+\begin_layout Standard
+Un'ultima possibiltà è data dalla proiezione con indice: per usare un indice
+ occorre che gli attributi che si vogliono mantenere (gli attributi di proiezion
+e) siano tutti contenuti nella chiave su cui è fatto l'indice: in questo
+ caso si applicano le tecniche precedenti (hashing e sorting) ai record
+ dell'indice senza dover accedere al file dati eliminando i record duplicati
+ (semplicemente ignorando la lista di RID associati ad ogni fhicave).
+ Il costo è dunque dato a seconda della tecnica che viene implementata (hashing
+ o sorting) moltiplicata per un numero di volte parti al numero di pagine
+ usate dall'indice, quindi o pari a L, numero delle foglie, nel caso di
+ B+tree o pari a P(H) in caso di hash (cioè al numero delle pagine dell'indice
+ hash).
+ Si noti che se l'indice è un B+tree e gli attributi di proiezione sono
+ un prefisso della chiave dell'indice, i dati sono già ordinati (cioè le
+ informazio che ci servono sono già comunque tutte presenti nell'indice
+ e non è richiesto accedere ai dati), dunque basta scandire le foglie ed
+ eliminare i duplicati al loro interno abbattendo il costo che risulta essere
+ 
+\begin_inset Formula $Costo=L$
+\end_inset
+
+ (numero delle foglie).
+\end_layout
+
+\begin_layout Subsection
+Join
+\end_layout
+
+\begin_layout Standard
+Supponiamo di avere la seguente query
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+SELECT *
+\end_layout
+
+\begin_layout Plain Layout
+
+FROM Recensioni as R, Sommelier as S
+\end_layout
+
+\begin_layout Plain Layout
+
+WHERE R.sid=S.sid
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Quale è un modo efficiente per risolverla? Evidentemente calcolare il prodotto
+ cartesiano e successivamente applicare la selezione è il metodo meno furbo
+ possibile.
+ La scelta dipende, più o meno, dagli stessi fattori visti per la selezione.
+\end_layout
+
+\begin_layout Standard
+Esistono molti algoritmi di join, cioè modi diversi in cui viene implementanto
+ l'operatore logico di join, ma, essenzialmente, appartengono tutti a 3
+ grandi famiglie: il confronto 
+\emph on
+nested loop
+\emph default
+ in cui si confronta 
+\begin_inset Quotes eld
+\end_inset
+
+tutto su tutto
+\begin_inset Quotes erd
+\end_inset
+
+, il confronto grazie all'ordinamento (sorting), e il confronto che si basa
+ su tecniche di hash (possibile solo in caso di equi-join).
+\end_layout
+
+\begin_layout Standard
+L'algoritmo più semplice per risolvere un join prevede il confronto di ogni
+ record r di R con ogni record s di S, ma il costo ad esso associato risulterebb
+e 
+\begin_inset Formula $Costo=O(N(R)\cdot N(S))$
+\end_inset
+
+, costo decisamente proibitivo.
+ Ci poniamo dunque alcune domande: come viene influenzata l'esecuzione del
+ join dai percorsi di accesso esistenti (cioè in presenza di indici, possiamo
+ utilizzarli, e sotto che condizioni)? L'ordinamento dei dati influisce
+ sulle prestazioni? C'è un modo migliore per allocare le pagine del buffer?
+ Come si determinano gli indici utili all'esecuzione di un join? Esiste
+ un ordinamento 
+\begin_inset Quotes eld
+\end_inset
+
+furbo
+\begin_inset Quotes erd
+\end_inset
+
+ per eseguire il join fra n relazioni?
+\begin_inset Newline newline
+\end_inset
+
+Precisiamo da subito che non esiste un algoritmo 
+\begin_inset Quotes eld
+\end_inset
+
+ottimo
+\begin_inset Quotes erd
+\end_inset
+
+ (così come non esisteva per le precedenti operazioni).
+ Di seguito descriveremo alcuni algoritmi che vengono utilizzati per implementar
+e il join.
+ (Si noti che in tutti i prossimi algoritmi utilizzeremo il segno di 
+\begin_inset Formula $==$
+\end_inset
+
+ per indicare il soddisfacimento del predicato di join)
+\end_layout
+
+\begin_layout Subsubsection
+Nested Loops Join
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+for each r in R
+\end_layout
+
+\begin_layout Plain Layout
+
+  for each s in S
+\end_layout
+
+\begin_layout Plain Layout
+
+    if (r==s) add <r,s> to the result
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Per ogni tupla della relazione R, chiamata relazione 
+\emph on
+esterna
+\emph default
+, si scandisce la relazione S, chiamata relazione 
+\emph on
+interna
+\emph default
+, e per ogni tupla di S si confronta se il predicato di join viene verificato,
+ in caso affermativo viene aggiunta la tupla al risultato.
+ È evidente che sto confrontando ogni tupla di R con ogni tupla di S.
+ Il costo è dato da 
+\begin_inset Formula $Costo=P(R)+N(R)\cdot P(S)$
+\end_inset
+
+ e applicato al nostro esempio su Riviste e Sommelier abbiamo 
+\begin_inset Formula $costo=1000+100000\cdot500\thickapprox5\cdot10^{7}$
+\end_inset
+
+, supponendo ogni lettura costi 
+\begin_inset Formula $10ms$
+\end_inset
+
+ il join chiederebbe 140 ore (TROPPO!).
+ Il termine P(R) nel costo è dovuto all'accesso alla relazione esterna,
+ cioè, ovviamente, il numero delle pagine della relazione (poichè se ho
+ più record in una pagina non occorre ricaricare la pagina), mentre il termine
+ 
+\begin_inset Formula $N(R)\cdot P(S)$
+\end_inset
+
+ indica che per ogni tupla di R (dunque N(R)) devo scandire tutta la relazione
+ S (dunque P(S) per lo stesso motivo indicato su P(R)).
+ Si noti come la relazione esterna R viene scandita una sola volta.
+ Invertendo il ruolo di R e S otterremmo un costo inferiore 
+\begin_inset Formula $costo=500+40000\cdot1000\thickapprox4\cdot10^{7}$
+\end_inset
+
+.
+ Siccome il fattore dominante è il secondo (
+\begin_inset Formula $N(R)\cdot P(S)$
+\end_inset
+
+) conviene avere come relazione 
+\emph on
+esterna
+\emph default
+ la relazione con record 
+\begin_inset Quotes eld
+\end_inset
+
+più grandi
+\begin_inset Quotes erd
+\end_inset
+
+.
+ Questa ultima affermazione è derivabile dai seguenti passaggi.
+ 
+\begin_inset Formula $N(S)=TP(S)\cdot P(S)$
+\end_inset
+
+ (numero di tuple di S è dato dal numero di tuple per pagina per il numero
+ di pagine), analogamente 
+\begin_inset Formula $N(R)=TP(R)\cdot P(R)$
+\end_inset
+
+.
+ Se confrontiamo il fattore dominante nel costo 
+\begin_inset Formula $N(R)\cdot P(S)$
+\end_inset
+
+ con 
+\begin_inset Formula $N(S)\cdot P(R)$
+\end_inset
+
+ che sono i casi in cui le due relazioni si scambiano i ruoli fra relazione
+ interna ed esterna, e sostituendo, otteniamo 
+\begin_inset Formula $TP(R)\cdot P(R)\cdot P(S)$
+\end_inset
+
+ nel primo caso e 
+\begin_inset Formula $TP(S)\cdot P(S)\cdot P(R)$
+\end_inset
+
+: da cui si nota che maggiore è il valore TP maggiore risulterà il costo,
+ di conseguenza per avere un TP più piccolo occorre avere tuple 
+\begin_inset Quotes eld
+\end_inset
+
+più grandi
+\begin_inset Quotes erd
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Subsubsection
+Page Nested Loops Join
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+for each page pr in R
+\end_layout
+
+\begin_layout Plain Layout
+
+  for each page ps in S
+\end_layout
+
+\begin_layout Plain Layout
+
+    for each r in pr
+\end_layout
+
+\begin_layout Plain Layout
+
+      for each s in ps
+\end_layout
+
+\begin_layout Plain Layout
+
+        if (r==s) add <r,s> to the result
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+In questo caso si scandiscono i record attraverso le pagine, cioè se nella
+ prima pagina della relazione esterna ho 4 tuple, non devo per ogni tupla
+ scandire sempre da capo la relazione interna, ma bensì per tutte le 4 tuple
+ della prima pagina esterna confronto ogni pagina della relazione interna,
+ una volta fatto, proseguo con la seconda pagina della relazione esterna
+ e così via.
+ Il costo di esecuzione si abbatte diventando 
+\begin_inset Formula $costo=P(R)+P(R)\cdot P(S)$
+\end_inset
+
+ evitando dunque N(R) che era il fattore più incisivo del prodotto nel 
+\emph on
+nested loops join
+\emph default
+.
+ Applicato all'esempio si ottiene 
+\begin_inset Formula $costo=1000+1000\cdot500\thickapprox5\cdot10^{5}$
+\end_inset
+
+, supponendo ancora una volta che una lettura costi 
+\begin_inset Formula $10ms$
+\end_inset
+
+, l'esecuzione del join richiede 1.4 ore (ancora troppo!).
+ Invertendo il ruolo di R e S si ottiene 
+\begin_inset Formula $costo=500+500\cdot1000\thickapprox5\cdot10^{5}$
+\end_inset
+
+ dove si nota che il prodotto è rimasto invariato, di conseguenza conviene
+ avere come relazione 
+\emph on
+esterna
+\emph default
+ la relazione conil minor numero di pagine.
+\end_layout
+
+\begin_layout Subsubsection
+Block Nested Loops Join
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+for each blocco in B-2 pagine in R
+\end_layout
+
+\begin_layout Plain Layout
+
+   for each page ps in S
+\end_layout
+
+\begin_layout Plain Layout
+
+      for each coppia di tuple <r,s> nel buffer
+\end_layout
+
+\begin_layout Plain Layout
+
+          if (r==s) add <r,s> to the result
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Entrambi gli algoritmi visti in precedenza non sfruttano la presenza di
+ più pagine nel buffer (ne usano solo due).
+ Se invece abbiamo B pagine buffer le possiamo suddividere in questa maniera:
+\end_layout
+
+\begin_layout Itemize
+B-2 pagine per la relazione esterna
+\end_layout
+
+\begin_layout Itemize
+1 pagina per la relazione interna
+\end_layout
+
+\begin_layout Itemize
+1 pagina per il risultato
+\end_layout
+
+\begin_layout Standard
+In realtà altro non è che una generalizzazione del 
+\emph on
+Page Nested Loops Join
+\emph default
+, in quanto ora prima di passare alla 
+\begin_inset Quotes eld
+\end_inset
+
+seconda pagina
+\begin_inset Quotes erd
+\end_inset
+
+ della relazione interna, ogni pagina della relazione esterna presente nei
+ B-2 buffer analizza la prima pagina: di conseguenza la relazione 
+\emph on
+interna
+\emph default
+ S viene dunque scandita 
+\begin_inset Formula $\frac{P(R)}{B-2}$
+\end_inset
+
+ volte.
+ Il costo risultato è dunque dato da 
+\begin_inset Formula $costo=P(R)+\frac{P(R)}{B-2}\cdot P(S)$
+\end_inset
+
+.
+ Applichiamo ancora una volta all'esempio, supponendo 
+\begin_inset Formula $B=102$
+\end_inset
+
+: otteniamo 
+\begin_inset Formula $costo=1000+\frac{1000}{100}\cdot500=6000\rightarrow$
+\end_inset
+
+costo di lettura 
+\begin_inset Formula $10ms$
+\end_inset
+
+ allora l'operazione di join richiede 1 minuto.
+ Invertendo R e S otteniamo 
+\begin_inset Formula $costo=500+\frac{5000}{100}\cdot1000=5500$
+\end_inset
+
+ (55 secondi).
+ Un modo efficiente per trovare le coppie in join è di costruire una tabella
+ hash nel buffer, si riduce però la capacità del buffer per leggere R.
+ Si potrebbe decidere in realtà di allocare più pagine alla relazione interna
+ S e non solo una: controllando i tempi di accesso attraverso le letture
+ sequenziali e letture random, si ottiene che il miglior costo lo si ha
+ quando il numero di buffer allocati alla relazione interna R è uguale al
+ numero di buffer allocati alla relazione esterna S (si noti che se per
+ il calcolo del costo utilizziamo solo le operazioni di I/O qualsiasi distribuzi
+one dei B buffer tra le due relazioni, il costo stesso non varia).
+\end_layout
+
+\begin_layout Subsubsection
+Index Nested Loops Join
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+for each r in R
+\end_layout
+
+\begin_layout Plain Layout
+
+   for each s in S where (r==s)
+\end_layout
+
+\begin_layout Plain Layout
+
+      add <r,s> to the result
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Se la relazione 
+\emph on
+interna
+\emph default
+ S possiede un indice sull'attributo di join è possibile sfruttarlo, mentre
+ è di minore utilità se l'indice è presente sulla relazione esterna (infatti,
+ come vedremo, in questo caso miglioreremo l'accesso, finora costato P(R),
+ alla relazione esterna)
+\emph on
+.
+ 
+\emph default
+Il costo in questo caso diventa 
+\begin_inset Formula $costo=P(R)+N(R)\cdot(costo\, indice+costo\, dati)$
+\end_inset
+
+.
+ Il costo per ogni record di R dipende dal tipo di indice usato (B+tree/hash)
+ e se l'indice risulta essere 
+\emph on
+clustered
+\emph default
+ o meno.
+ Si veda la figura (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:esempioindexnestedloop"
+
+\end_inset
+
+) per una maggiore chiarezza sul funzionamento
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:esempioindexnestedloop"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename esempioindexnestedloop.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Vediamo un esempio.
+ Supponiamo di avere un indice hash su S.sid.
+ Siccome 
+\emph on
+sid
+\emph default
+ è attributo chiave di S c'è un solo record di S per ogni record di R
+\begin_inset Formula $\rightarrow costo=1000+100000\cdot(1+1)=200000\backsim33min$
+\end_inset
+
+ (si veda che nonostante l'accesso ai dati sia veloce, il fatto di doverlo
+ ripetere per un numero di volte pari al numero di record della relazione
+ esterna non garantisce comunque buone performance).
+\end_layout
+
+\begin_layout Standard
+Supponiamo invee di avere un indice hash su R.sid.
+ Per ogni record di R esistono in media 
+\begin_inset Formula $\frac{100k}{40k}=2.5$
+\end_inset
+
+ record di S.
+ Se l'indice è 
+\emph on
+clustered
+\emph default
+ il costo per ogni record è 1 e dunque 
+\begin_inset Formula $costo=500+40000\cdot(1+1)=80000\backsim(13min)$
+\end_inset
+
+, altrimenti se l'indice è 
+\emph on
+unclustered
+\emph default
+ il costo per ogni record è 2.5
+\begin_inset Formula $\rightarrow costo=500+40000\cdot(1+2.5)=140000\backsim(23min)$
+\end_inset
+
+ (si noti che se anche l'indice risulta unclustered il costo è minore rispetto
+ al caso prima discusso).
+ A conseguenza di ciò conviene dunque avere come relazione 
+\emph on
+esterna
+\emph default
+ la relazione avente meno record (ricorda che il fattore dominante è causato
+ dal numero di volte che bisogna ripetere l'accesso all'indice dovuto al
+ numero di record).
+\end_layout
+
+\begin_layout Standard
+Un'importante proprietà del 
+\emph on
+nested join loops
+\emph default
+ è che preserva l'ordine della relazione esterna: si veda la figura (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:proprietàindexnest"
+
+\end_inset
+
+) per una miglior comprensione 
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:proprietàindexnest"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename proprietàindexnested.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Pertanto la scelta della relazione esterna può dipende anche da altri fattori,
+ come poichè ad esempio: la proprietà, effettivamente, non incide in alcun
+ modo sui costi della risoluzione del join, ma potrebbe essere di notevole
+ utilità alla risoluzione 
+\begin_inset Quotes eld
+\end_inset
+
+completa
+\begin_inset Quotes erd
+\end_inset
+
+ della query (ad esempio se dopo il join viene richiesto un ordinamento,
+ potrebbe convenire risolvere il join utilizzando come relazione esterna
+ quella che causa un costo maggiore, ma ritrovandoci i valori già ordinati
+ e dunque pronti per essere restituiti).
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace defskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Si voglia notare che la logica generale dei 
+\emph on
+nested loops
+\emph default
+ (almeno per ciò che riguarda i confronti fra tuple e non fra pagine) ricade
+ nella seguente formulazione: Costo Accesso alla relazione Esterna + Tuple
+ Residue della relazione Esterna*Costo accesso alla relazione Interna.
+ A seconda delle situazioni, ognuno di questi singoli valori può modificarsi.
+ 
+\series bold
+NB
+\series default
+ per tuple residue si intendono le tuple che hanno il diritto a partecipare
+ all'operatore di join.
+\end_layout
+
+\begin_layout Standard
+Immaginiamo di avere la seguente query
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+SELECT *
+\end_layout
+
+\begin_layout Plain Layout
+
+FROM R, S
+\end_layout
+
+\begin_layout Plain Layout
+
+WHERE R.J=S.J AND R.A=5
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+a seconda di alcuni fattori, come la presenza di indici, possiamo imbatterci
+ in diversi scenari:
+\end_layout
+
+\begin_layout Enumerate
+
+\series bold
+Nessun indice
+\series default
+: nel caso non vi sia alcun indice, il costo di accesso alla relazione esterna
+ (R) è l'accesso sequenziale, dunque risulta essere P(R).
+ Poichè non vi è alcun indice neanche sulla relazione interna (S) allora
+ l'accesso alla relazione interna risulterà ancora sequenziale e dunque
+ ancora P(S).
+ La presenza però del secondo predicato 
+\emph on
+R.A=5 locale 
+\emph default
+(cioè applicato a una sola relazione) in AND con il predicato di join, mi
+ diminuisce il numero di tuple residue, esso infatti risulterà non più essere
+ N(R), ma bensì 
+\begin_inset Formula $f\cdot N(R)$
+\end_inset
+
+ dove 
+\emph on
+f 
+\emph default
+è il fattore di selettività del predicato.
+ 
+\begin_inset Formula $Costo=P(R)+f\cdot N(R)\cdot P(S)$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+
+\series bold
+Indice su S.J
+\series default
+: nuovamente il costo di accesso alla relazione esterna risulta essere P(R)
+ poichè non vi è alcun indice, allo stesso modo il numero di tuple residue
+ è dato da 
+\begin_inset Formula $f\cdot N(R)$
+\end_inset
+
+.
+ La presenza però dell'indice su S.J mi diminuisce il costo di accesso alla
+ relazione interna portandolo ad essere (Costo di Indice + Costo ai Dati).
+ 
+\begin_inset Formula $Costo=P(R)+f\cdot N(R)\cdot(Costo\, indice+Costo\, dati)$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Enumerate
+
+\series bold
+Indice su R.A
+\series default
+: in questo caso a modificarsi è il costo di accesso alla relazione esterna,
+ in quanto è presente un indice su R.A (che si noti essere il predicato locale):
+ esso si modifica in 
+\begin_inset Formula $\Phi(\frac{N(R)}{NK(R)},P(R))$
+\end_inset
+
+ cioè il numero di pagine da accedere (in probabilità) per risolvere il
+ mio predicato su R.A (è il modello di 
+\emph on
+cardennas
+\emph default
+).
+ Il costo alla relazione interna tornerà ad essere P(S) non essendoci più
+ un indice, mentre il numero di tuple residue rimane invariato.
+ Si noti che il numero di tuple residue 
+\begin_inset Formula $f\cdot N(R)$
+\end_inset
+
+ può differire da 
+\begin_inset Formula $\Phi$
+\end_inset
+
+: si prenda ad esempio la stessa query con però in aggiunta un nuovo predicato
+ in AND R.Q>7, il modello di cardennas 
+\begin_inset Formula $\phi$
+\end_inset
+
+ rimarrà invariato, ma il numero di tuple residue risulterà minore poichè
+ 
+\begin_inset Formula $f_{1}\cdot f_{2}\cdot N(R)$
+\end_inset
+
+ dove 
+\begin_inset Formula $f_{1}$
+\end_inset
+
+ e 
+\begin_inset Formula $f_{2}$
+\end_inset
+
+ sono i due fattori di selettività dei predicati locali.
+ 
+\begin_inset Formula $Costo=\Phi(\frac{N(R)}{NK(R)},P(R))+f\cdot N(R)\cdot P(S)$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Enumerate
+
+\series bold
+Indice su R.A e S.J
+\series default
+: è semplicemente la combinazione dei casi 2 e 3.
+ 
+\begin_inset Formula $Costo=\Phi(\frac{N(R)}{NK(R)},P(R))+f\cdot N(R)\cdot(Costo\, indice+Costo\, dati)$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Subsubsection
+Merge-scan Join
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+Se non già ordinate: sort(R), sort(S)
+\end_layout
+
+\begin_layout Plain Layout
+
+r = next(R)
+\end_layout
+
+\begin_layout Plain Layout
+
+s = next(S)
+\end_layout
+
+\begin_layout Plain Layout
+
+while(!EOF(R) && !EOF(S))
+\end_layout
+
+\begin_layout Plain Layout
+
+   if (r==s)
+\end_layout
+
+\begin_layout Plain Layout
+
+      add <r,s> to the result
+\end_layout
+
+\begin_layout Plain Layout
+
+      s = next(S)
+\end_layout
+
+\begin_layout Plain Layout
+
+   if (r<s) r = next(R)
+\end_layout
+
+\begin_layout Plain Layout
+
+   else s = next(S)
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Richiede che entrambe le relazioni siano ordinate sugli attributi di join,
+ in caso contrario si ordinano (in questo caso l'algoritmo si chiama 
+\emph on
+sort-merge join
+\emph default
+).
+ Le relazioni dunque vengono esaminate un record per volta per costruire
+ il risultato.
+ Salvo casi particolari ogni relazione viene scansionata una sola volta
+ e dunque il costo diventa 
+\begin_inset Formula $costo=P(R)+P(S)$
+\end_inset
+
+.
+ L'algoritmo partendo dalla relazione esterna legge il primo record r
+\begin_inset Formula $_{1}$
+\end_inset
+
+ e lo confronta col primo record della relazione interna s
+\begin_inset Formula $_{1}$
+\end_inset
+
+: se essi 
+\begin_inset Quotes eld
+\end_inset
+
+matchano
+\begin_inset Quotes erd
+\end_inset
+
+ li aggiungo nel risultato, se invece s
+\begin_inset Formula $_{1}$
+\end_inset
+
+ risulta essere maggiore di r
+\begin_inset Formula $_{1}$
+\end_inset
+
+ sono sicuro che non vi sarà alcun record della relazione interna che potrà
+ 
+\begin_inset Quotes eld
+\end_inset
+
+matchare
+\begin_inset Quotes erd
+\end_inset
+
+ con r
+\begin_inset Formula $_{1}$
+\end_inset
+
+ (poichè sono ordinate), dunque vado avanti e faccio lo stesso controllo
+ con r
+\begin_inset Formula $_{2}$
+\end_inset
+
+ però partendo non più da s
+\begin_inset Formula $_{1}$
+\end_inset
+
+ ma bensì da s
+\begin_inset Formula $_{2}$
+\end_inset
+
+ (poichè sono certo che per s
+\begin_inset Formula $_{1}$
+\end_inset
+
+ non vi era alcun record di R che poteva soddisfare il join) e così via.
+\end_layout
+
+\begin_layout Standard
+Si veda la figura (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:mergejoinesempiopratico"
+
+\end_inset
+
+) in cui R e S identificano le relazioni, la colonna J identifica i valori
+ ordinati dell'attributo di join e i numeri sopra le frecce identificano
+ i passi compiuti dall'algoritmo.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:mergejoinesempiopratico"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename mergejointesempiopratico.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Nell'esempio 
+\begin_inset Formula $costo=500+1000=1500\,(15sec)$
+\end_inset
+
+.
+ In presenza di predicati locali, il costo può diminuire in quanto le relazioni
+ risultano essere 
+\begin_inset Quotes eld
+\end_inset
+
+più piccole
+\begin_inset Quotes erd
+\end_inset
+
+ poichè prima di effettuare il join vengono applicati i predicati locali
+ che, si spera, riescano a tagliare parte dei record sul quale poi effettuare
+ il join (cioè le tuple residue).
+\end_layout
+
+\begin_layout Standard
+In caso di valori duplicati su entrambe le relazioni, ovvero quando l'associazio
+ne è molti a molti M:N, l'algoritmo si complica.
+ Risulta essere necessario modificare l'algoritmo per fare 
+\emph on
+back-tracking 
+\emph default
+(eventualmente vanno rilette alcune pagine) poichè non è più vero che se
+ s
+\begin_inset Formula $_{1}$
+\end_inset
+
+ risulta maggiore di r
+\begin_inset Formula $_{1}$
+\end_inset
+
+ allora s
+\begin_inset Formula $_{1}$
+\end_inset
+
+ non potrà più matchare con alcun valore di R (potrebbe infatti soddisfare
+ il predicato di join con r
+\begin_inset Formula $_{2})$
+\end_inset
+
+ e dunque viene richiesta la presenza di un 
+\emph on
+place-holder
+\emph default
+ per sapere da che punto della relazione interna ripartire.
+ Il caso peggiore si ha quando tutti i record di entrambe le relazioni hanno
+ lo stesso valore degli attributi di join portando il costo a 
+\begin_inset Formula $costo=N(R)\cdot P(S)$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+In linea di principio non è necessario che i dati siano realmente ordinati,
+ basta infatti che siano ordinati 
+\begin_inset Quotes eld
+\end_inset
+
+logicamente
+\begin_inset Quotes erd
+\end_inset
+
+ come può accadere su indici (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:esempiomergejoinconindici"
+
+\end_inset
+
+): se sono presenti indici sugli attributi di join non è necessario effettuare
+ il sort, se però gli indici sono 
+\emph on
+unclustered 
+\emph default
+il costo può risultare nel caso peggiore comunque elevato 
+\begin_inset Formula $costo=N(R)+N(S)$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:esempiomergejoinconindici"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename esempiomergejoinconindici.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsubsection
+(Simple) Hash Join
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+for each r in R add r to buffer page using H(r)
+\end_layout
+
+\begin_layout Plain Layout
+
+for each s in S add s to buffer page using H(s)
+\end_layout
+
+\begin_layout Plain Layout
+
+for each partition H' of H
+\end_layout
+
+\begin_layout Plain Layout
+
+	read H'(R) and H'(S)
+\end_layout
+
+\begin_layout Plain Layout
+
+		for each matching record <r,s>
+\end_layout
+
+\begin_layout Plain Layout
+
+			add <r,s> to the result
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Il vantaggio del 
+\emph on
+merge-scan
+\emph default
+ è che viene sostanzialmente ridotto il numero di confronti tra i record
+ delle due relazioni, ma di contro richiede che le due relazioni siano ordinate
+ sugli attributi di join.
+ Una buona alternativa è utilizzare l'
+\emph on
+hash join: 
+\emph default
+essa richiede di avere B buffer disponibili e una funzione hash H a valori
+ in [1,B-1] (serve sempre un buffer per il risultato).
+ L'idea è dunque quella di partizionare i record di entrambe le relazioni
+ attraverso una stessa funzione hash, confrontando in seguito solo i record
+ appartenenti a partizioni omologhe.
+ L'hash-join si basa proprio sull'impossibilità che due tuple appartenenti
+ a partizioni diverse possono verificare il predicato di join, cioè se 
+\begin_inset Formula $H(C.j)\neq H(S.j)\Rightarrow C.j\neq S.j$
+\end_inset
+
+ dove C e S sono due relazioni e 
+\emph on
+j 
+\emph default
+è l'attributo sul quale si effettua il join.
+ Si noti come in una partizione vengano messe sia tuple di C sia tuple di
+ S e si noti infine che per partizione si intende il buffer i-esimo che
+ la funzione hash restituisce più eventuali pagine salvate su disco in caso
+ di buffer pieno.
+ Ovviamente dato che la funzione hash presenta collisioni, bisogna controllare
+ in ogni partizione se i record soddisfano il predicato di join (cioè non
+ è garantito che se due tuple sono nella stessa partizione allora sicuramente
+ faranno parte del risultato).
+\end_layout
+
+\begin_layout Standard
+La fase di matching (o chiamata anche 
+\emph on
+probing
+\emph default
+) dell'algortimo può essere realizzata utilizzando un'altra funzione hash
+ H
+\begin_inset Formula $_{1}$
+\end_inset
+
+.
+ Il costo dell'algortimo è dato da 
+\begin_inset Formula $costo=3\cdot P(R)+3\cdot P(S)$
+\end_inset
+
+.
+ Nell'esempio risulta 
+\begin_inset Formula $costo=3\cdot1000+3\cdot500=4500\,(45sec)$
+\end_inset
+
+.
+ Il fattore 3 è dovuto alle operazioni di lettura dei record delle relazioni,
+ alla scrittura nelle partizioni e al confront 
+\begin_inset Quotes eld
+\end_inset
+
+match
+\begin_inset Quotes erd
+\end_inset
+
+ delle tuple in ogni partizione.
+\end_layout
+
+\begin_layout Subsubsection
+Confronti
+\end_layout
+
+\begin_layout Standard
+Facciamo un breve riepilogo, confrontando alcuni degli algoritmi finora
+ visti.
+\end_layout
+
+\begin_layout Paragraph
+Hash Join vs Block Nested Loops Join
+\end_layout
+
+\begin_layout Standard
+Nel 
+\emph on
+block nested loops join 
+\emph default
+ogni pagina di R è confrontata con tutte le pagine di S.
+ Invece nell'
+\emph on
+hash join
+\emph default
+ ogni pagina di R è confrontata con un'unica pagina di S.
+\end_layout
+
+\begin_layout Paragraph
+Hash Join vs Merge-scan Join
+\end_layout
+
+\begin_layout Standard
+Le prestazioni di 
+\emph on
+hash join
+\emph default
+ peggiorano con distribuzioni non uniformi dei dati (diventano pessime se
+ le relazioni sono composte da uno stesso identico valore, poichè tutte
+ le tuple finiranno nello stesso partizionamento).
+ In genere, però, l'hash join richiede meno utilizzo di memoria.
+ Il vantaggio maggiore di usare il 
+\emph on
+merge-scan 
+\emph default
+è che i risultati risultano essere già ordinati.
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace defskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Paragraph
+Condizioni Generali
+\end_layout
+
+\begin_layout Standard
+In presenza di più predicati di join, l'
+\emph on
+index nested loops join
+\emph default
+ può sfruttare un indice su tali predicati nella relazione 
+\emph on
+interna
+\emph default
+.
+ Il 
+\emph on
+merge-scan join
+\emph default
+ invece considera un ordine lessicografico sulla combinazione di attributi
+ per decidere se 
+\begin_inset Formula $r<_{J}s$
+\end_inset
+
+.
+ Infine l'
+\emph on
+hash join
+\emph default
+ partiziona i record sulla stessa combinazione di attributi.
+\end_layout
+
+\begin_layout Standard
+Se il predicato di join non è di uguaglianza (non 
+\emph on
+equi-join
+\emph default
+) allora l'
+\emph on
+index nested loops join
+\emph default
+ può usare solo un B+tree.
+ L'
+\emph on
+hash join
+\emph default
+ e il 
+\emph on
+merge-join
+\emph default
+ non risultano applicabili, mentre tutti gli altri algoritmi non sono influenzat
+i.
+\end_layout
+
+\begin_layout Subsection
+Operatori Insiemistici
+\end_layout
+
+\begin_layout Standard
+Dal punto di vista dell'implementazione, l'
+\emph on
+intersezione 
+\emph default
+e il 
+\emph on
+prodotto cartesiano
+\emph default
+ sono casi particolari di join, infatti l'intersezione altro non è che un
+ un join su tutti gli attributi, il prodotto cartesiano invece è un join
+ senza alcuna condizione di join.
+\end_layout
+
+\begin_layout Standard
+Le tecinche per 
+\emph on
+unione
+\emph default
+ e 
+\emph on
+differenza
+\emph default
+ invece sono un attimo diverse, entrambe devono essere discusse perchè possono
+ prevedere la presenza o meno di duplicati, ma in generale entrambe utilizzano
+ tecniche di 
+\emph on
+partizionamento
+\emph default
+ (sorting o hashing).
+ In generale la stima dei risultati è pari a N(R)+N(S) per l'unione e N(R)
+ per la differenza (che è ciò che accade nel caso peggiore).
+\end_layout
+
+\begin_layout Standard
+L'unione con duplicati altro non è che un operazione di 
+\emph on
+append, 
+\emph default
+in cui semplicemente viene concatenata la relazione R alla relazione S (operazio
+ne SQL: 
+\bar under
+UNION ALL
+\bar default
+).
+\end_layout
+
+\begin_layout Standard
+Capiamo cosa si intende per 
+\emph on
+differenza 
+\emph default
+con duplicati: supponiamo di voler fare la differenza tra R e S (R-S) dove
+ R è formata dai seguenti valori (a,b,a,a,b,c) mentre S ha i valori (a,b,b,a,d).
+ La differenza senza duplicati semplicemente 
+\begin_inset Quotes eld
+\end_inset
+
+ignora
+\begin_inset Quotes erd
+\end_inset
+
+ i duplicati e dunque R-S produce solo (c), in caso invece si vogliano mantenere
+ i duplicati R-S produce (a,c) poichè ora oltre a controllare se l'elemento
+ nella relazione R è presente nella relazione S e in caso eliminarlo, bisogna
+ contarne anche le occorrenze e in questo caso l'elemento apparirà tante
+ volte quante occorrenze in più sono presenti su R rispetto a S (operatore
+ SQL: 
+\bar under
+EXCEPT
+\bar default
+ [no duplicati] - 
+\bar under
+EXCEPT ALL
+\bar default
+ [con duplicati]).
+\end_layout
+
+\begin_layout Standard
+Vediamo come utilizzare il 
+\emph on
+sorting
+\emph default
+ per l'unione e la differenza.
+\begin_inset Newline newline
+\end_inset
+
+Per implementare l'unione si ordinano R ed S usando tutti gli attributi
+ (ordinamento lessicografico) e successivamente si leggono ordinatamente
+ R e S in parallelo eliminando i duplicati.
+ Per implementare la differenza ancora una volta si ordinano R e S usando
+ tutti gli attributi, successivamente si leggono ordinatamente R e S in
+ parallelo eliminando da R i record presenti in S (in caso di presenza di
+ duplicati si elimina un record alla volta, in caso non si vogliano i duplicati
+ si elimina proprio il valore).
+ 
+\begin_inset Formula $Costo=costo\, sort+P(R)+P(S)$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+La tecnica alternativa è utilizzare l'
+\emph on
+hashing
+\emph default
+ per l'unione e la differenza.
+\begin_inset Newline newline
+\end_inset
+
+Per implementare l'unione si partizionano i record di R ed S usando una
+ funzione hash H su tutti gli attributi.
+ Successivamente si legge ogni partizione di R e S in parallelo, eliminando
+ i duplicati utilizzando una tabella hash con funzione H' su S (serve per
+ rendere veloce il matching).
+ Per implementare la differenza si partizionano i record di R ed S utilizzando
+ una funzione hash H su tutti gli attributi.
+ Successivamente si legge ogni partizione di R e S in parallelo eliminano
+ i record di S tramite uan funzione hash H' su S.
+ 
+\begin_inset Formula $Costo=3\cdot P(R)+3\cdot P(S)$
+\end_inset
+
+ dove il 3 è giustificato dalla lettura, la scrittura e il confronto della
+ funzione.
+\end_layout
+
+\begin_layout Subsection
+Funzioni Aggregate
+\end_layout
+
+\begin_layout Standard
+Supponiamo di avere la seguente query
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+SELECT AVG(età)
+\end_layout
+
+\begin_layout Plain Layout
+
+FROM Sommelier as S
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+L'algoritmo utilizzato dalle funzioni aggregate è relativamente semplice:
+ scandisce tutti i record mantenendo informazioni riassiuntive sui record
+ già elaborati e visti (e dunque ad ogni nuovo record letto l'informazione
+ viene aggiornata).
+ La tabella (Tabella 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "tab:funzioniaggregate"
+
+\end_inset
+
+) riassume le informazioni necessarie per ogni funzione.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float table
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "tab:funzioniaggregate"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+noindent
+\backslash
+resizebox{
+\backslash
+textwidth}{!}{
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Tabular
+<lyxtabular version="3" rows="6" columns="2">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0">
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\series bold
+Funzione
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\series bold
+Informazione riassuntiva
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+SUM
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+totale dei valori esaminati
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+AVG
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+totale dei valori esaminati e il numero dei valori
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+MIN
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+minimo tra i valori esaminati
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+MAX
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+massimo tra i valori esaminati
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+COUNT
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+numero dei valori esaminati
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Group By
+\end_layout
+
+\begin_layout Standard
+Le funzioni aggregate risultano più interessanti se applicate a dei raggruppamen
+ti.
+ Supponiamo di avere la seguente query
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+SELECT S.val, MIN(età)
+\end_layout
+
+\begin_layout Plain Layout
+
+FROM Sommelier as S
+\end_layout
+
+\begin_layout Plain Layout
+
+GROUP BY S.val
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+che raggruppa i sommelier per il valore 
+\emph on
+val
+\emph default
+ restituendo anche l'età minima di ogni gruppo creato.
+ Sostanzialmente l'algoritmo opera per partizione: occorre cioè partizionare
+ i record e applicare ad ogni partizione le funzioni di aggregazione.
+\end_layout
+
+\begin_layout Standard
+Esistono tre possibilità per il partizionamento: l'uso del 
+\emph on
+sorting
+\emph default
+, l'uso dell'
+\emph on
+indice
+\emph default
+ sugli attributi di grouping e l'uso dell'
+\emph on
+hashing
+\emph default
+.
+\end_layout
+
+\begin_layout Standard
+Si ricordi che esiste una forte relazione fra la 
+\emph on
+proiezione
+\emph default
+ e la funzione di raggruppamento GROUP BY, si esamini infatti la seguente
+ query
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+SELECT S.val
+\end_layout
+
+\begin_layout Plain Layout
+
+FROM Sommelier as S
+\end_layout
+
+\begin_layout Plain Layout
+
+GROUP BY S.val
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+essa equivale a un SELECT DISTINCT (cioè per eliminazione dei duplicati)
+ poichè viene richiesto di raggruppare per i valori che vogliono essere
+ proiettati: di conseguenza gli algortimi di partizionamento utilizzati
+ dal GROUP BY saranno molto simili a quelli utilizzati nella proiezione.
+ Si noti infine che il costo del GROUP BY con funzioni aggregate è dato
+ da 
+\begin_inset Formula $costo=costo\, partizionamento+costo\, funzione\, aggregata$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Subsubsection
+GROUP BY con sorting
+\end_layout
+
+\begin_layout Standard
+Gli algoritmi utilizzati sono analghi a quelli della proiezione (scansione
+ relazione scrivendo in un file solo gli attributi necessari, si ordina
+ il file e si eliminano i duplicati) più l'algortimo associato al costo
+ della funzione aggregata: dunque il costo risulta essere 
+\begin_inset Formula $costo=costo\, sort+P(S)$
+\end_inset
+
+.
+ Il costo può essere diminuito se si aggregano le tuple durante la fase
+ di 
+\emph on
+sort
+\emph default
+ mantenendo per ogni valore di raggruppamento (e dunque per ogni gruppo)
+ le informazioni necessarie riassuntive.
+ Lo stesso può accadere nei passi di 
+\emph on
+merge
+\emph default
+.
+\end_layout
+
+\begin_layout Subsubsection
+GROUP BY con indice
+\end_layout
+
+\begin_layout Standard
+Se l'indice contiene sia gli attributi di raggruppamento che quelli usati
+ nelle funzioni allora non è neppure necessario accedere al file (poichè
+ le informazioni si possono reperire tutte dall'indice) e dunque il costo
+ è dato 
+\begin_inset Formula $Costo=L$
+\end_inset
+
+ (con 
+\begin_inset Formula $L=numero\, foglie$
+\end_inset
+
+).
+ Se inoltre è presente una clausola HAVING formata da attributi che fanno
+ parte del prefisso della chiave dell'indice allora il costo può diminuire
+ ulteriormente poichè non è necessario accedere a tutte le foglie.
+\end_layout
+
+\begin_layout Standard
+Se l'indice invece è un B+tree e gli attributi di raggruppamento formano
+ un prefisso della chiave dell'indice, allora si può usare l'indice stesso
+ per accedere ordinatamente ai dati.
+\end_layout
+
+\begin_layout Standard
+In tutti gli altri casi l'indice non è utilizzabile.
+\end_layout
+
+\begin_layout Subsubsection
+GROUP BY con hashing
+\end_layout
+
+\begin_layout Standard
+Viene creata una tabella hash (in memoria) utilizzando gli attributi di
+ raggruppamento (appunto partizioniamo): la tabella dovrà contenere anche
+ le informazioni necessarie per il calcolo delle funzioni aggregate.
+ Al termine della scansione di S (e dunque del partizionamento) si usano
+ le informazioni salvate nella tabella per calcolare i valori delle funzioni.
+ È molto probabile che la tabella hash creata riesca a stare completamente
+ in memoria portando il costo a 
+\begin_inset Formula $costo=P(S)$
+\end_inset
+
+; in caso contrario occorre partizionare la tabella creata con una nuova
+ funzione hash e ripetere il procedimento.
+ Si noti che il calcolo della funzione aggreggata può essere ottenuto 
+\begin_inset Quotes eld
+\end_inset
+
+ricorsivamente
+\begin_inset Quotes erd
+\end_inset
+
+ utilizzando valori di sottogruppi, cioè se voglio sapere la somma fra tutti
+ i valori e i valori sono stati divisi in due sottogruppi (e in ogni gruppo
+ viene mantenuta l'informazione della somma dei valori appartenente al quel
+ gruppo) allora ottengo la somma totale come la somma dei valori dei due
+ sottogruppi.
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace defskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Buffer
+\end_layout
+
+\begin_layout Standard
+Dedichiamo una sezione all'utilizzo fatto dei 
+\emph on
+buffer
+\emph default
+.
+ Come abbiamo visto l'uso del buffer pool è importante per diversi algoritmi.
+ Notiamo dapprima che diversi operatori utilizzano il buffer pool, ma è
+ fallace pensare che sul 
+\emph on
+dbms
+\emph default
+ venga eseguita una sola query alla volta: in realtà di query in esecuzione
+ c'è ne sono molte, di conseguenza la memoria fisica a disposizione deve
+ essere condivisa fra esse il che porta a una rivalutazione delle prestazioni
+ (poichè in alcuni casi esse dipendono fortemente dal numer di buffer disponibil
+i).
+ In caso dunque di operazioni concorrenti la dimensione del buffer pool
+ diminuisce (si parla di 
+\emph on
+shared buffer pool
+\emph default
+).
+\end_layout
+
+\begin_layout Standard
+Come abbiamo visto nell'accesso ai dati tramite indice, la probabilità di
+ trovare una pagina dipende dalla dimensione del buffer pool e dalla politica
+ di rimpiazzo (si noti che se l'indice è 
+\emph on
+unclustered
+\emph default
+ il buffer pool si riempe molto velocemente poichè vengono richieste pagine
+ quasi ad ogni accesso all'indice).
+ Molte operazioni, in particolare il join, hanno 
+\emph on
+pattern
+\emph default
+ 
+\emph on
+d'accesso
+\emph default
+ predicibili: ad esempio il 
+\emph on
+nested loop
+\emph default
+ scandisce ripetutamente la relazione interna.
+ Potendo gestire la politica di rimpiazzo, esiste una tecnica che mi rende
+ il page fault minimo?
+\end_layout
+
+\begin_layout Standard
+Notiamo che normalmente i sistemi operativi utilizzano la tecnica 
+\emph on
+LRU 
+\emph default
+(Least Recently Used) in cui viene rimpiazzata la pagina che non viene utilizzat
+a da più tempo.
+ Provando ad applicare LRU ad uno schema di nested loop cosa accade? Immaginiamo
+ che la mia relazione interna sia composta da 4 valori (A,B,C,D) ma che
+ il buffer pool possa contenerne solo 3.
+ Al primo ciclo caricherò i primi tre valori (A,B,C) e alla richiesta di
+ poter leggere D (page fault) bisognerà rimpiazzare la pagina che non viene
+ utilizzata da più tempo, cioè A.
+ La nuova configurazione risulterà (D,B,C).
+ Essendo ora la scansione della relazione interna terminata, bisognerà ricominci
+are ricontrollarla da capo (poichè è il funzionamento dei nested loop) e
+ dunque la pagina necessaria da leggere sarà A (page fault), viene rimpiazzata
+ B trovandoci (D,A,C); viene ora richiesta B (page fault) e viene rimpiazzata
+ C (D,A,B)
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+ldots
+\end_layout
+
+\end_inset
+
+ Come si nota, in un caso del genere, ogni richiesta provoca un 
+\emph on
+page fault
+\emph default
+: è come se sia disponibile un solo buffer anziche 3 (poichè ogni pagina
+ deve essere ricaricata a causa del page fault).
+\end_layout
+
+\begin_layout Standard
+Proviamo ad applicare come politica di rimpiazzo la 
+\emph on
+MRU 
+\emph default
+(Most Recently Used), politica che rimpiazza la pagina utilizzata più recentemen
+te.
+ Abbiamo ancora la nostra relazione interna composta da 4 valori (A,B,C,D)
+ e il buffer pool di capacità massima 3.
+ Al primo ciclo carichiamo i primi tre valori (A,B,C) con richiesta successiva
+ di leggere D: la richiesta provoca un page fault ma questa volta ad essere
+ rimpiazzata sarà C (l'ultima pagina usata) portando alla nuova configurazione
+ (A,B,D).
+ A questo punto la relazione interna deve essere scandita di nuovo, dunque
+ bisogna rileggere A: la lettura va a segno poichè presente nel buffer pool.
+ Segue la lettura B (a segno), segue C (page fault): viene dunque rimpiazzata
+ B poichè è stata l'ultima pagina ad essere stata utilizzata (A,C,D); la
+ lettura prosegue con D (a segno), segua A (a segno), segue B (page fault)
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+ldots
+\end_layout
+
+\end_inset
+
+ Come si nota, con il rimpiazzo MRU la situazione è nettamente migliorata,
+ portando ad avere un solo 
+\emph on
+page fault
+\emph default
+ ogni ciclo (con LRU invece ogni lettura provocava un page fault).
+\end_layout
+
+\begin_layout Standard
+Facciamo delle ultime considerazioni: per il 
+\emph on
+simple nested loops
+\emph default
+ se abbiamo B-2 pagine per la relazione interna allora come abbiamo visto
+ MRU è la politica migliore.
+ Viceversa, per il 
+\emph on
+block neste loops
+\emph default
+ la politica di rimpiazzo è irrilevante (viene data solo 1 pagina per la
+ relazione interna S).
+ Infine per l'
+\emph on
+index nested loops
+\emph default
+ conviene ordinare i record della relazione esterna per i valori degli attributi
+ di join sfruttando dunque la località dell'indice su S.
+\end_layout
+
+\begin_layout Subsection
+Operatori di modifica
+\end_layout
+
+\begin_layout Standard
+Le operazioni possibili sono 
+\emph on
+update
+\emph default
+, 
+\emph on
+delete
+\emph default
+ e 
+\emph on
+insert
+\emph default
+.
+ Solo l'update e il delete richiedono un percorso di accesso per recuperare
+ i record interessati (poichè includono la clausola WHERE): inoltre se per
+ il 
+\emph on
+delete
+\emph default
+ devo solo eliminare dati (che comporterà comunque la modifica di indici
+ poichè bisognerà eliminare dei RID da alcune chiavi) per l'
+\emph on
+update 
+\emph default
+(con clausola SET) dopo aver eliminato i dati bisognerà riaggiungere quelli
+ nuovi aggiornati.
+ Il costo è costituito da 3 componenti: il costo di accesso ai dati, il
+ costo di modifica dei dati e il costo di modifica degli indici
+\end_layout
+
+\begin_layout Subsubsection
+Update
+\end_layout
+
+\begin_layout Standard
+Nell'update il 
+\emph on
+costo di accesso 
+\emph default
+equivale al costo di ricerca dei record da modificare (si stima come visto
+ in precedenza).
+ Non è possibile utilizzare alcun indice sugli attributi che vengono modificati
+ (viene chiamata 
+\emph on
+sindrome di Halloween
+\emph default
+).
+ Si veda la seguente query
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+UPDATE Sommelier
+\end_layout
+
+\begin_layout Plain Layout
+
+SET val=val+1
+\end_layout
+
+\begin_layout Plain Layout
+
+WHERE val BETWEEN 3 AND 5
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+usando un indice su 
+\emph on
+val
+\emph default
+ è possibile che alcuni record siano modificati più volte: infatti le operazione
+ di un update sono eseguite sequenzialmente e dunque quando aggiorno un
+ dato devo aggiornarne anche l'indice, ma potrebbe accadere (se utilizzo
+ l'indice stesso per accedere ai dati) che il dato appena modificato venga
+ 
+\begin_inset Quotes eld
+\end_inset
+
+riacceduto
+\begin_inset Quotes erd
+\end_inset
+
+ poichè ricompare nuovamente nelle condizioni che soddisfa la query (ad
+ esempio se ho il valore 3 che devo modificare a 4, una volta effettuata
+ la modifica nei dati, modifico anche l'indice, ma se accedessi attraverso
+ l'indice a tutte le tuple che sono comprese tra 3 e 5 mi ricapiterebbe
+ di riguardare il 4 appena inserito e rimodificarlo, cosa ovviamente errata).
+ Notiamo che anche gli indici sono entità soggette a transizioni, dunque
+ operazioni di rollback e 
+\emph on
+undo
+\emph default
+ devono poter essere eseguite (gli indici insomma sono ripristinabili).
+\end_layout
+
+\begin_layout Standard
+Il 
+\emph on
+costo di modifica dei dati
+\emph default
+ dipende dall'eventuale ordinamento dei dati stessi (si noti che il costo
+ di modifica equivale a leggere il dato, cancellarlo o modificarlo e riscriverlo
+ col nuovo valore).
+ Una scansione ordinata (che sia sequenziale, con indice clustered o per
+ RID ordinate) ha un costo di 
+\begin_inset Formula $costo=\Phi(E_{N},E_{P})$
+\end_inset
+
+ dove 
+\begin_inset Formula $E_{N}=f\cdot N$
+\end_inset
+
+ (
+\begin_inset Formula $f$
+\end_inset
+
+ è il fattore di selettività della clausola WHERE) ed 
+\begin_inset Formula $E_{P}=f_{1}\cdot P$
+\end_inset
+
+ risultano essere i valori attesi di tuple e pagine da modificare (con 
+\begin_inset Formula $f_{1}$
+\end_inset
+
+ fattore di selettività sull'attributo di ordinamento, cioè il modello di
+ cardennas non viene applicato a tutte le pagine P ma a E
+\begin_inset Formula $_{P}$
+\end_inset
+
+ pagine poichè grazie all'ordinamento potrebbe essere necessario accedere
+ ad un numero inferiore di pagine).
+ Ricordiamo ancora una volta che il modello di cardennas restituisce quante
+ pagine probabilmente bisognerà accedere per leggere i record richiesti.
+\end_layout
+
+\begin_layout Standard
+In caso di scansione disordinata (con indici unclustered) il costo peggiora
+ divenendo 
+\begin_inset Formula $costo=E_{K}\cdot\Phi(\frac{E_{N}}{E_{K}},E_{P})$
+\end_inset
+
+ con 
+\begin_inset Formula $E_{N}=f\cdot N$
+\end_inset
+
+, 
+\begin_inset Formula $E_{K}=f\cdot K$
+\end_inset
+
+ ed 
+\begin_inset Formula $E_{P}=f_{1}\cdot P$
+\end_inset
+
+ (con 
+\begin_inset Formula $f_{1}$
+\end_inset
+
+ fattore di selettività dell'attributo di ordinamento) con 
+\begin_inset Formula $E_{K}$
+\end_inset
+
+ uguale alla stima di valori (diversi) di chiave: in questo caso il prodotto
+ per E
+\begin_inset Formula $_{K}$
+\end_inset
+
+ è dovuto alla possibilità di dover riaccedere più volte alla stessa pagina
+ per valori diversi di chiave.
+\end_layout
+
+\begin_layout Standard
+Infine manca da analizzare il 
+\emph on
+costo di modifica degli indici
+\emph default
+.
+ La modifica di un indice prevede il 
+\series bold
+delete 
+\series default
+della vecchia entry e il 
+\series bold
+re-insert
+\series default
+ delle nuove (potenzialmente è cambiato anche il RID).
+ Esistono due casi: 
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+Visita ordinata delle foglie
+\series default
+: possibile se sto modificando un indice clustered successivo a una modifica
+ sequenziale dei file dati (di conseguenza avendo l'indice ordinato come
+ il file dati accederò in maniera ordinata all'indice poichè sto leggendo
+ allo stesso modo il file dati) oppure, solo se il predicato è di uguaglianza,
+ se ho delle RID ordinate in un indice 
+\emph on
+unclustered.
+ 
+\emph default
+Questa seconda opzione capita poichè anche se ho un indice 
+\emph on
+unclustered
+\emph default
+ (e quindi non ordinato come i dati) se voglio accedere a un determinato
+ valore di chiave (ad esempio 5) e mantengo le RID di tutti i record che
+ hanno quel valore ordinate, allora sono sicuro che visiterò ogni pagina
+ che contiene almeno una RID una sola volta.
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+Visita disordinata delle foglie
+\series default
+: Accade quando si modificano gli indici 
+\emph on
+unclustered
+\emph default
+ o l'indice 
+\emph on
+clustered
+\emph default
+ con più liste di RID (cioè, in questo secondo caso, quando il predicato
+ non è di uguaglianza).
+\end_layout
+
+\begin_layout Paragraph
+Visita ordinata delle foglie
+\end_layout
+
+\begin_layout Standard
+L'aggiornamento con la visita ordinata delle foglie (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:visitaordinatafoglie"
+
+\end_inset
+
+) ha i seguenti costi: 
+\begin_inset Formula $Costo\, cancellazione=2\cdot\Phi(E_{N},f_{1}\cdot L)$
+\end_inset
+
+ (corrisponde a due volte il numero di foglie a cui probabilmente dovrò
+ accedere per modifica le E
+\begin_inset Formula $_{N}$
+\end_inset
+
+ entry, ancora una volta 
+\begin_inset Formula $f_{1}$
+\end_inset
+
+ è il fattore di selettività dell'attributo di ordinamento che potrebbe
+ permettermi di accedere solo a una parte delle foglie e non a tutte) e
+ 
+\begin_inset Formula $costo\, inserimento=2\cdot E_{N}$
+\end_inset
+
+ (o costo di inserimento uguale a 2 in caso di modifiche locali come 
+\emph on
+SET attr=value
+\emph default
+ poichè se ho una modifica del tipo val=5, tutte le tuple che ho modificato
+ andranno a finire nella stessa foglia e quindi devo accedere solo a quella
+ foglia): questo caso risulta essere pessimistico, cioè si pensa che ogni
+ valore che deve essere modificato nell'indice si trovi in una foglia diversa.
+ Il prodotto per due, in entrambi i casi, è dovuto alle due operazioni:
+ la prima di lettura della foglia e la seconda di aggiornamento.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:visitaordinatafoglie"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename visitaordinatafoglie.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Paragraph
+Visita disordinata delle foglie
+\end_layout
+
+\begin_layout Standard
+Con la visita disordinata delle foglie (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:visitadisordinatafoglie"
+
+\end_inset
+
+) il costo di cancellazione peggiora, mentre resta invariato il costo di
+ inserimento: 
+\begin_inset Formula $costo\, cancellazione=2\cdot E_{K}\cdot\Phi(\frac{E_{N}}{E_{K}},f_{1}\cdot L)$
+\end_inset
+
+ mentre il 
+\begin_inset Formula $costo\, inserimento=2\cdot E_{N}$
+\end_inset
+
+ (o ancora 2 in caso di modifiche locali come 
+\emph on
+SET attr=value
+\emph default
+).
+ La cancellazione è ancora una stima pessimistica poichè suppongo che ogni
+ record che mi arriva da cancellare (arriva in maniera disordinata) si trovi
+ in una foglia diversa da quella caricata in memoria, e dunque il modello
+ di 
+\emph on
+Cardennas
+\emph default
+ viene moltiplicato per il numero di valori di chiave che supponiamo avere
+ nella nostra query di update.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:visitadisordinatafoglie"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename visitadisordinatafoglie.png
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Di seguito mostriamo alcuni esempi.
+\end_layout
+
+\begin_layout Paragraph
+Esempio 1
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+UPDATE spareparts
+\end_layout
+
+\begin_layout Plain Layout
+
+SET shelf=5, price=price*1.15
+\end_layout
+
+\begin_layout Plain Layout
+
+WHERE shelf=10 AND sid=25
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Con indici 
+\emph on
+unclustered
+\emph default
+ sia su 
+\emph on
+shelf 
+\emph default
+che su 
+\emph on
+price
+\emph default
+ non è possibile utilizzarli per l'accesso ai dati (poichè come detto non
+ si possono usare indici sugli attributi di modifica SET).
+ 
+\begin_inset Formula $E_{N}=50$
+\end_inset
+
+ (stima di numero di record da modificare) con RID in un'unica foglia.
+ 
+\end_layout
+
+\begin_layout Standard
+Modificare l'indice su 
+\emph on
+shelf
+\emph default
+ ha 
+\begin_inset Formula $costo\, delete=2$
+\end_inset
+
+ e 
+\begin_inset Formula $costo\, insert=2$
+\end_inset
+
+ (poichè abbiamo la clausola locale WHERE shelf=10 che mi garantisce di
+ avere le cancellazioni in una sola foglia e il resinserimento, granzie
+ al SET shelf=5, in una sola foglia anch'essa).
+ La modifica dell'indice su 
+\emph on
+price
+\emph default
+ ha invece 
+\begin_inset Formula $costo\, delete=2\cdot50$
+\end_inset
+
+ e 
+\begin_inset Formula $costo\, insert=2\cdot50$
+\end_inset
+
+ (poichè si suppone che ogni tupla che abbia shelf=10 and sid=25 abbia un
+ price diverso e quindi si trovi in una foglia diversa, e dunque l'aggiornamento
+ vada ad attualizzarsi in foglie differenti pari al numero di record che
+ dobbiamo modificare).
+\end_layout
+
+\begin_layout Paragraph
+Esempio 2
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+UPDATE spareparts
+\end_layout
+
+\begin_layout Plain Layout
+
+SET shelf=55
+\end_layout
+
+\begin_layout Plain Layout
+
+WHERE pid BETWEEN 125 AND 140 AND ...
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Con indice 
+\emph on
+clustered
+\emph default
+ su 
+\emph on
+shelf 
+\emph default
+e indice 
+\emph on
+unclustered 
+\emph default
+su 
+\emph on
+pid
+\emph default
+.
+ 
+\begin_inset Formula $L(shelf)=10$
+\end_inset
+
+ (numero di foglie dell'indice shelf), 
+\begin_inset Formula $L(pid)=10$
+\end_inset
+
+, 
+\begin_inset Formula $P=100$
+\end_inset
+
+ (numero di pagine) all'interno di un file di 400 pagine contenente anche
+ altre relazioni.
+ 
+\begin_inset Formula $E_{N}=200$
+\end_inset
+
+ (nuermo di tuple da modificare) e 
+\begin_inset Formula $E_{K}=10$
+\end_inset
+
+ (numero di valori di chiave).
+ Percorsi di accesso possibili sono la scansione sequenziale (ordinata)
+ del file o l'utilizzo dell'indice su pid (non possiamo utilizzare l'indice
+ su shelf per il solito motivo di non poter utilizzare indici che hanno
+ attributi di modifica).
+\end_layout
+
+\begin_layout Standard
+In caso di scansione sequenziale ho i seguenti costi: 
+\begin_inset Formula $costo\, accesso=400$
+\end_inset
+
+ (sono obbligato a leggere tutto il file), 
+\begin_inset Formula $costo\, modifica\, dati=\Phi(200,100)=87$
+\end_inset
+
+ (Cardennas restituisce quante pagine dovrò leggere fra le mie 100 che contengon
+o tutte le tuple per trovare le mie 200 tuple da aggiornare) e 
+\begin_inset Formula $costo\, modifica\, indice\, shelf=2\cdot\Phi(200,10)+2=22$
+\end_inset
+
+ (Cardennas restituisce quante foglie dell'indice shelf dovrò modificare
+ fra le 10 di cui è composto l'indice).
+\end_layout
+
+\begin_layout Standard
+In caso di accesso tramite indice su pid con i seguenti parametri 
+\begin_inset Formula $h=2$
+\end_inset
+
+ (altezza del b+tree), 
+\begin_inset Formula $L=10$
+\end_inset
+
+ (numero di foglie), 
+\begin_inset Formula $f_{1}=0.2=\frac{1}{5}$
+\end_inset
+
+ (fattore selettività su attributo di ordinamento), 
+\begin_inset Formula $E'_{K}=10$
+\end_inset
+
+ e 
+\begin_inset Formula $E'_{N}=320$
+\end_inset
+
+ ho i seguenti costi: 
+\begin_inset Formula $costo\, accesso=2+\frac{10}{5}(=10\cdot0.2)+10\cdot\Phi(\frac{320}{10},100)=2+2+10\cdot27.6=280$
+\end_inset
+
+, 
+\begin_inset Formula $costo\, modifica\, dati=10\cdot\Phi(\frac{200}{10},100)=180$
+\end_inset
+
+ e 
+\begin_inset Formula $costo\, modifica\, indice\, shelf=2\cdot10\cdot\Phi(\frac{200}{10},10)+2=178$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsubsection
+Delete
+\end_layout
+
+\begin_layout Standard
+Il costo di ricerca dei record da cancellare si stima come visto in precedenza:
+ per l'accesso ai dati ora è possibile utilizzare qualsiasi indice (che
+ sia clustered o unclustered) in quanto non dovendo apportare modifiche
+ non potrà capitare il problema della 
+\emph on
+sindrome di Halloween
+\emph default
+.
+ Il costo di modifica dei dati è uguale a quello visto nell'
+\emph on
+update
+\emph default
+.
+ Il costo di modifica degli indici tiene conto solo del costo di cancellazione
+ (e ovviamente non di quello di re-inserimento dato che non c'è nulla da
+ inserire) e nel caso di accesso con indice da modificare, il costo si dimezza
+ poichè mentre accedo ai dati attravero l'indice posso cancellare le RID
+ dall'indice stesso così da evitare di farlo ad un passo successivo.
+\end_layout
+
+\begin_layout Subsubsection
+Insert
+\end_layout
+
+\begin_layout Standard
+Il caso interessante di inserimento riguarda l'inserimento di risultati
+ provenienti da un'istruzione SELECT (cioè di interesse è quando ho inserimento
+ di tuple risultanti da un'altra query).
+ I costi si differenziano a seconda dell'ordinamento della relazione e dei
+ dati:
+\end_layout
+
+\begin_layout Itemize
+Relazione ordinata, dati ordinati
+\end_layout
+
+\begin_layout Itemize
+Relazione ordinata, dati disordinati
+\end_layout
+
+\begin_layout Itemize
+Relazone disordinata, dati disordinati
+\end_layout
+
+\begin_layout Standard
+Il costo di accesso ai dati è pari al costo per trovare le pagine che dovranno
+ contenere i nuovi dati: se esiste un indice di ordinamento lo si usa per
+ trovare la pagina in cui inserire i dati; se non esiste alcun indice ma
+ la relazione è ordinata si opera una ricerca binaria altrimenti se non
+ vi è alcun indice e la relazione è disordinata il costo è nullo poichè
+ si aggiunge in coda.
+\end_layout
+
+\begin_layout Standard
+Bisogna ora controllare il costo di modifica di dati e modifica degli indici.
+ Si supponga di inserire 
+\emph on
+n
+\emph default
+ record con 
+\emph on
+k
+\emph default
+ valori di chiave e 
+\emph on
+c
+\emph default
+ sia la capacità di ogni pagina.
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+Relazione ordinata, dati ordinati
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+\begin_inset Formula $costo\, modifica\, dati=2\cdot\mbox{min\ensuremath{\{k\cdot\left\lceil \frac{n}{k\cdot c}\right\rceil ,P\}}}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+\begin_inset Formula $costo\, modifica\, indice=2\cdot\left\lceil \Phi(k,L)\right\rceil $
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Il costo di modifica dei dati prende o il numero di pagine che ogni record
+ di valore k occuppa oppure il numero totale delle pagine dei dati.
+ Mentre per il costo di modifica dell'indice il modello di Cardennas restituisce
+ il numero di foglie a cui bisognerà (probabilmente) accedere per modificare
+ tutti i k valori.
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+
+\series bold
+Relazione ordinata, dati disordinati
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+\begin_inset Formula $costo\, modifica\, dati=2\cdot n$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+\begin_inset Formula $costo\, modifica\, indice=2\cdot n$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+In questo caso ogni record, sia per quanto riguarda i dati sia per quanto
+ riguarda gli indici (anche se si tratta di entry) viene visto come indipendente
+, quindi il costo è proporzionale al numero di record n da modificare.
+ (Il prodotto per due è dovuto alla lettura della foglia in primo luogo
+ più la scrittura della stessa).
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+
+\series bold
+Relazione disordinata, dati disordinati
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+\begin_inset Formula $costo\, modifica\, dati=\left\lceil \frac{n}{c}\right\rceil $
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+\begin_inset Formula $costo\, modifica\, indice=2\cdot n$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+La modifica dell'indice ha pari costo (trattiamo sempre dati disordinati)
+ invece la modifica dei dati altro non è che mettere tutto in coda controllando
+ il numero di pagine 
+\begin_inset Formula $\left\lceil \frac{n}{c}\right\rceil $
+\end_inset
+
+ che andrò ad aggiungere.
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+\begin_inset VSpace defskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Paragraph
+Esempio
+\end_layout
+
+\begin_layout Standard
+Viene data la relazione Personale(
+\bar under
+cod
+\bar default
+, nome, anno_assunzione) con 
+\begin_inset Formula $N=50k$
+\end_inset
+
+ (numero tuple), 
+\begin_inset Formula $P=1000$
+\end_inset
+
+ (numero pagine), 
+\begin_inset Formula $L(anno\mbox{\_\ensuremath{assunzione)=100}}$
+\end_inset
+
+ (numero foglie dell'indice su anno_assunzione), 
+\begin_inset Formula $K(anno\mbox{\_\ensuremath{assunzione)=20}}$
+\end_inset
+
+ (numero di valori distinti di anno_assunzione).
+ Si voglia ora calcolare il costo di esecuzione della seguente query
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+SELECT nome
+\end_layout
+
+\begin_layout Plain Layout
+
+FROM Personale
+\end_layout
+
+\begin_layout Plain Layout
+
+WHERE anno_assunzione>2005
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+nei seguenti casi: nessun indice, indice clustered su anno_assunzione e
+ indice unclustere su anno_assunzione.
+\end_layout
+
+\begin_layout Standard
+Si noti che il fattore di selettività del predicato 
+\begin_inset Formula $anno\mbox{\_\ensuremath{assunzione>2005}}$
+\end_inset
+
+è dato da 
+\begin_inset Formula $f=\frac{(2010-2005)}{20}=\frac{1}{4}$
+\end_inset
+
+ (si è supposto che il valore massimo di anno assunzione sia 2010).
+\end_layout
+
+\begin_layout Standard
+Nel caso di 
+\emph on
+nessun indice
+\emph default
+ il costo è uguale al numero di pagine 
+\begin_inset Formula $costo=P=1000$
+\end_inset
+
+ (poichè la ricerca risulta essere sequenziale).
+\end_layout
+
+\begin_layout Standard
+Nel caso di 
+\emph on
+indice clustered
+\emph default
+ invece il costo diventa 
+\begin_inset Formula $costo=f\cdot L+f\cdot P=\frac{100}{4}+\frac{1000}{4}=275$
+\end_inset
+
+,
+\end_layout
+
+\begin_layout Standard
+Infine nell'ultimo caso di 
+\emph on
+indice unclustered
+\emph default
+ il costo è pari a 
+\begin_inset Formula $costo=f\cdot L+\Phi(f\cdot N,P)=\frac{100}{4}+\Phi(50k\cdot\frac{1}{4},1000)=25+1000=1025$
+\end_inset
+
+.
+\end_layout
+
+\end_body
+\end_document
